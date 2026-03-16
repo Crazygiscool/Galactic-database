@@ -76,13 +76,15 @@ export default function Home() {
         )}
       </div>
 
-      {/* Right Panel - always visible */}
-      <div style={{ width: 380, height: '100%', background: 'rgba(0,8,18,0.92)', position: 'relative', zIndex: 20, flexShrink: 0, borderLeft: '1px solid rgba(0,212,255,0.2)', boxShadow: '-10px 0 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column' }}>
-        <PlanetPanel 
-          planet={selectedPlanet} 
-          onClose={() => setSelectedPlanetId(null)} 
-        />
-      </div>
+      {/* Right Panel - only when a planet is selected */}
+      {selectedPlanet && (
+        <div style={{ width: 380, height: '100%', background: 'rgba(0,8,18,0.92)', position: 'relative', zIndex: 20, flexShrink: 0, borderLeft: '1px solid rgba(0,212,255,0.2)', boxShadow: '-10px 0 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column' }}>
+          <PlanetPanel 
+            planet={selectedPlanet} 
+            onClose={() => setSelectedPlanetId(null)} 
+          />
+        </div>
+      )}
     </div>
   );
 }
