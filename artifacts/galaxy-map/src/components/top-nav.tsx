@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Search, Globe, Film, User, Rocket, Truck, X } from 'lucide-react';
 import { Section } from '@/hooks/use-swapi';
 
@@ -18,19 +19,18 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
 ];
 
 const C = {
-  bar:        'rgba(0,8,20,0.97)',
-  border:     'rgba(0,212,255,0.18)',
-  active:     '#00d4ff',
-  activeBg:   'rgba(0,212,255,0.12)',
-  inactive:   'rgba(0,212,255,0.45)',
-  inactiveBg: 'transparent',
-  font:       "'Share Tech Mono', monospace",
+  bar:      'rgba(0,8,20,0.97)',
+  border:   'rgba(0,212,255,0.18)',
+  active:   '#00d4ff',
+  activeBg: 'rgba(0,212,255,0.10)',
+  inactive: 'rgba(0,212,255,0.42)',
+  font:     "'Share Tech Mono', monospace",
 };
 
 export function TopNav({ activeSection, onSectionChange, search, onSearchChange }: TopNavProps) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 0,
+      display: 'flex', alignItems: 'center',
       height: 52, background: C.bar,
       borderBottom: `1px solid ${C.border}`,
       fontFamily: C.font, flexShrink: 0,
@@ -47,7 +47,7 @@ export function TopNav({ activeSection, onSectionChange, search, onSearchChange 
         </div>
       </div>
 
-      {/* Nav items */}
+      {/* Nav items with sliding indicator */}
       <div style={{ display: 'flex', height: '100%', flexShrink: 0 }}>
         {NAV_ITEMS.map(item => {
           const active = activeSection === item.key;
@@ -56,19 +56,33 @@ export function TopNav({ activeSection, onSectionChange, search, onSearchChange 
               key={item.key}
               onClick={() => onSectionChange(item.key)}
               style={{
+                position: 'relative',
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '0 18px', height: '100%', cursor: 'pointer',
-                background: active ? C.activeBg : C.inactiveBg,
+                background: active ? C.activeBg : 'transparent',
                 color: active ? C.active : C.inactive,
-                border: 'none', borderBottom: active ? `2px solid ${C.active}` : '2px solid transparent',
+                border: 'none', borderBottom: '2px solid transparent',
                 fontFamily: C.font, fontSize: 11, letterSpacing: '0.15em',
                 textShadow: active ? '0 0 8px #00d4ff' : 'none',
-                transition: 'all 0.2s',
+                transition: 'color 0.2s, background 0.2s, text-shadow 0.2s',
                 whiteSpace: 'nowrap',
               }}
             >
               {item.icon}
               {item.label}
+
+              {/* Sliding underline indicator */}
+              {active && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  style={{
+                    position: 'absolute', bottom: -1, left: 0, right: 0,
+                    height: 2, background: '#00d4ff',
+                    boxShadow: '0 0 8px #00d4ff, 0 0 16px rgba(0,212,255,0.5)',
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                />
+              )}
             </button>
           );
         })}
@@ -90,12 +104,15 @@ export function TopNav({ activeSection, onSectionChange, search, onSearchChange 
           }}
         />
         {search && (
-          <button
+          <motion.button
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.7 }}
             onClick={() => onSearchChange('')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(0,212,255,0.5)', padding: 2 }}
           >
             <X style={{ width: 12, height: 12 }} />
-          </button>
+          </motion.button>
         )}
       </div>
     </div>
