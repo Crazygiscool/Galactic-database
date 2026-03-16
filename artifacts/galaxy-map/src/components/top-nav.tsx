@@ -111,6 +111,7 @@ export function TopNav({ activeSection, onSectionChange, search, onSearchChange 
           <AnimatePresence>
             {search && (
               <motion.button
+                key="clear-mobile"
                 initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.7 }}
                 onClick={() => onSearchChange('')}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(0,212,255,0.5)', padding: 2 }}
