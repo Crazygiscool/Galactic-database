@@ -1,90 +1,171 @@
-import React, { useState } from 'react';
-import { usePlanets } from '@/hooks/use-swapi';
+import React, { useState, useMemo } from 'react';
+import {
+  Section,
+  usePlanets, useFilms, usePeople, useStarships, useVehicles,
+  Planet, Film, Person, Starship, Vehicle,
+} from '@/hooks/use-swapi';
 import { GalaxyMap } from '@/components/galaxy-map';
-import { PlanetPanel } from '@/components/planet-panel';
-import { ScanlineOverlay, TerminalText } from '@/components/terminal-effects';
-import { Activity, Database, Server } from 'lucide-react';
+import { ScanlineOverlay } from '@/components/terminal-effects';
+import { TopNav } from '@/components/top-nav';
+import { FilmsList, PeopleList, StarshipsList, VehiclesList } from '@/components/list-view';
+import {
+  PlanetDetailPanel, FilmDetailPanel, PersonDetailPanel,
+  StarshipDetailPanel, VehicleDetailPanel,
+} from '@/components/detail-panel';
+import { Database, Activity } from 'lucide-react';
+
+function LoadingScreen({ label }: { label: string }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,4,8,0.97)', fontFamily: "'Share Tech Mono', monospace" }}>
+      <Database style={{ width: 48, height: 48, color: '#00d4ff', marginBottom: 20 }} className="animate-pulse" />
+      <div style={{ fontSize: 18, color: '#00d4ff', textShadow: '0 0 10px #00d4ff', letterSpacing: '0.15em' }}>
+        LOADING {label}...
+      </div>
+      <div style={{ width: 200, height: 6, border: '1px solid rgba(0,212,255,0.4)', marginTop: 24, padding: 1 }}>
+        <div style={{ height: '100%', background: '#00d4ff', animation: 'pulse 1s ease-in-out infinite' }} />
+      </div>
+    </div>
+  );
+}
+
+function filterBySearch<T extends { name?: string; title?: string }>(items: T[], search: string): T[] {
+  if (!search.trim()) return items;
+  const q = search.toLowerCase();
+  return items.filter(item =>
+    (item.name ?? '').toLowerCase().includes(q) ||
+    (item.title ?? '').toLowerCase().includes(q)
+  );
+}
 
 export default function Home() {
-  const { data: planets, isLoading, error } = usePlanets();
-  const [selectedPlanetId, setSelectedPlanetId] = useState<string | null>(null);
+  const [section, setSection] = useState<Section>('planets');
+  const [search, setSearch] = useState('');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const selectedPlanet = planets?.find(p => p.id === selectedPlanetId) || null;
+  const { data: planets, isLoading: planetsLoading } = usePlanets();
+  const { data: films,   isLoading: filmsLoading   } = useFilms();
+  const { data: people,  isLoading: peopleLoading  } = usePeople();
+  const { data: ships,   isLoading: shipsLoading   } = useStarships();
+  const { data: vehicles,isLoading: vehiclesLoading} = useVehicles();
+
+  const handleSectionChange = (s: Section) => {
+    setSection(s);
+    setSearch('');
+    setSelectedId(null);
+  };
+
+  const filteredPlanets   = useMemo(() => filterBySearch(planets   ?? [], search), [planets,   search]);
+  const filteredFilms     = useMemo(() => filterBySearch(films     ?? [], search), [films,     search]);
+  const filteredPeople    = useMemo(() => filterBySearch(people    ?? [], search), [people,    search]);
+  const filteredShips     = useMemo(() => filterBySearch(ships     ?? [], search), [ships,     search]);
+  const filteredVehicles  = useMemo(() => filterBySearch(vehicles  ?? [], search), [vehicles,  search]);
+
+  const selectedPlanet   = section === 'planets'   ? (planets   ?? []).find(p => p.id === selectedId)   : undefined;
+  const selectedFilm     = section === 'films'     ? (films     ?? []).find(f => f.id === selectedId)   : undefined;
+  const selectedPerson   = section === 'people'    ? (people    ?? []).find(p => p.id === selectedId)   : undefined;
+  const selectedShip     = section === 'starships' ? (ships     ?? []).find(s => s.id === selectedId)   : undefined;
+  const selectedVehicle  = section === 'vehicles'  ? (vehicles  ?? []).find(v => v.id === selectedId)   : undefined;
+
+  const hasDetail = !!(selectedPlanet || selectedFilm || selectedPerson || selectedShip || selectedVehicle);
+
+  const isLoading =
+    (section === 'planets'   && planetsLoading)  ||
+    (section === 'films'     && filmsLoading)    ||
+    (section === 'people'    && peopleLoading)   ||
+    (section === 'starships' && shipsLoading)    ||
+    (section === 'vehicles'  && vehiclesLoading);
+
+  const totalCount = {
+    planets:   planets?.length ?? 0,
+    films:     films?.length ?? 0,
+    people:    people?.length ?? 0,
+    starships: ships?.length ?? 0,
+    vehicles:  vehicles?.length ?? 0,
+  }[section];
+
+  const filteredCount = {
+    planets:   filteredPlanets.length,
+    films:     filteredFilms.length,
+    people:    filteredPeople.length,
+    starships: filteredShips.length,
+    vehicles:  filteredVehicles.length,
+  }[section];
+
+  const font = "'Share Tech Mono', monospace";
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative', background: '#000408', fontFamily: "'Share Tech Mono', monospace" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', overflow: 'hidden', background: '#000408', fontFamily: font }}>
       <ScanlineOverlay />
-      
-      {/* Loading Overlay */}
-      {isLoading && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,4,8,0.96)' }}>
-          <Database style={{ width: 64, height: 64, color: '#00d4ff', marginBottom: 24 }} className="animate-pulse" />
-          <div style={{ fontSize: 22, color: '#00d4ff', textShadow: '0 0 10px #00d4ff', marginBottom: 8, borderBottom: '1px solid #00d4ff', paddingBottom: 8, paddingLeft: 32, paddingRight: 32 }}>
-            <TerminalText text="INITIALIZING GALACTIC SCAN" speed={50} />
-          </div>
-          <div style={{ color: 'rgba(0,212,255,0.6)', fontSize: 12, marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <TerminalText text="> Establishing secure uplink to SWAPI network..." speed={20} />
-            <TerminalText text="> Bypassing Imperial firewalls..." speed={30} />
-            <TerminalText text="> Downloading planetary coordinates..." speed={40} />
-          </div>
-          <div style={{ width: 256, height: 8, border: '1px solid #00d4ff', marginTop: 32, padding: 2 }}>
-            <div style={{ height: '100%', background: '#00d4ff', animation: 'pulse 1s ease-in-out infinite' }} />
-          </div>
-        </div>
-      )}
 
-      {/* Error State */}
-      {error && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,4,8,0.96)' }}>
-          <Server style={{ width: 64, height: 64, color: '#ff0000', marginBottom: 24 }} className="animate-pulse" />
-          <div style={{ fontSize: 22, color: '#ff0000', border: '1px solid #ff0000', padding: '16px 32px', background: 'rgba(255,0,0,0.1)' }}>
-            CRITICAL FAILURE: {error.message}
-          </div>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{ marginTop: 16, padding: '8px 24px', border: '1px solid #00d4ff', color: '#00d4ff', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.2em' }}
-          >
-            Reboot Terminal
-          </button>
-        </div>
-      )}
+      <TopNav
+        activeSection={section}
+        onSectionChange={handleSectionChange}
+        search={search}
+        onSearchChange={v => { setSearch(v); setSelectedId(null); }}
+      />
 
-      {/* Map Area - takes remaining space */}
-      <div style={{ flex: 1, position: 'relative', zIndex: 10, height: '100%', borderRight: '1px solid rgba(0,212,255,0.2)', overflow: 'hidden' }}>
-        {/* Top-left HUD */}
-        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20, pointerEvents: 'none' }}>
-          <div style={{ fontSize: 11, color: 'rgba(0,212,255,0.7)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Activity style={{ width: 14, height: 14, color: '#00d4ff' }} className="animate-pulse" />
-            SECTOR OVERVIEW
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 'bold', color: '#ffffff', textShadow: '0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
-            Outer Rim Territories
-          </div>
-          <div style={{ width: '100%', height: 1, background: 'rgba(0,212,255,0.3)', marginTop: 8 }} />
-          <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.5)', marginTop: 4 }}>
-            SYSTEMS SCANNED: {planets?.length || 0}
-          </div>
-        </div>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
 
-        {/* The Map */}
-        {planets && planets.length > 0 && (
-          <GalaxyMap 
-            planets={planets} 
-            selectedId={selectedPlanetId} 
-            onSelect={setSelectedPlanetId} 
-          />
+        {/* Main content */}
+        {isLoading ? (
+          <LoadingScreen label={section.toUpperCase()} />
+        ) : section === 'planets' ? (
+          /* ── PLANETS: galaxy map ── */
+          <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20, pointerEvents: 'none', fontFamily: font }}>
+              <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.65)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <Activity style={{ width: 12, height: 12 }} className="animate-pulse" />
+                GALACTIC DATABASE
+              </div>
+              <div style={{ fontSize: 20, color: '#fff', textShadow: '0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                All Known Planets
+              </div>
+              <div style={{ height: 1, background: 'rgba(0,212,255,0.3)', marginTop: 6 }} />
+              <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.45)', marginTop: 4 }}>
+                {search ? `RESULTS: ${filteredCount} / ${totalCount}` : `SYSTEMS SCANNED: ${totalCount}`}
+              </div>
+            </div>
+            {filteredPlanets.length > 0 && (
+              <GalaxyMap
+                planets={filteredPlanets}
+                selectedId={selectedId}
+                onSelect={id => setSelectedId(prev => prev === id ? null : id)}
+              />
+            )}
+          </div>
+        ) : (
+          /* ── LIST VIEW for films / people / starships / vehicles ── */
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* List header */}
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(0,212,255,0.12)', fontSize: 10, color: 'rgba(0,212,255,0.5)', fontFamily: font, flexShrink: 0 }}>
+              {search ? `SHOWING ${filteredCount} OF ${totalCount} RECORDS` : `${totalCount} RECORDS IN DATABASE`}
+            </div>
+            {/* Scrollable list */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px' }}>
+              {section === 'films'     && <FilmsList     films={filteredFilms}       selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
+              {section === 'people'    && <PeopleList    people={filteredPeople}     selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
+              {section === 'starships' && <StarshipsList starships={filteredShips}   selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
+              {section === 'vehicles'  && <VehiclesList  vehicles={filteredVehicles} selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
+              {filteredCount === 0 && (
+                <div style={{ textAlign: 'center', color: 'rgba(0,212,255,0.4)', padding: 40, fontFamily: font, fontSize: 13, letterSpacing: '0.1em' }}>
+                  [ NO RECORDS MATCH QUERY ]
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Detail panel — slides in on the right */}
+        {hasDetail && (
+          <div style={{ width: 380, height: '100%', background: 'rgba(0,8,18,0.95)', borderLeft: '1px solid rgba(0,212,255,0.2)', flexShrink: 0, overflow: 'hidden', boxShadow: '-8px 0 24px rgba(0,0,0,0.6)' }}>
+            {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
+            {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
+            {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
+            {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
+            {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
+          </div>
         )}
       </div>
-
-      {/* Right Panel - only when a planet is selected */}
-      {selectedPlanet && (
-        <div style={{ width: 380, height: '100%', background: 'rgba(0,8,18,0.92)', position: 'relative', zIndex: 20, flexShrink: 0, borderLeft: '1px solid rgba(0,212,255,0.2)', boxShadow: '-10px 0 30px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column' }}>
-          <PlanetPanel 
-            planet={selectedPlanet} 
-            onClose={() => setSelectedPlanetId(null)} 
-          />
-        </div>
-      )}
     </div>
   );
 }
