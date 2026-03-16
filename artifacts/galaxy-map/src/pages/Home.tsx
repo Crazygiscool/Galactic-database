@@ -196,46 +196,47 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
-      {/* Mobile bottom-sheet detail panel */}
+      {/* Mobile bottom-sheet — backdrop */}
       <AnimatePresence>
         {hasDetail && isMobile && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setSelectedId(null)}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }}
-            />
-            {/* Sheet */}
-            <motion.div
-              key="detail-panel-mobile"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-              style={{
-                position: 'fixed', bottom: 0, left: 0, right: 0,
-                height: '78vh', zIndex: 50,
-                background: 'rgba(0,8,18,0.98)',
-                borderTop: '1px solid rgba(0,212,255,0.3)',
-                borderRadius: '14px 14px 0 0',
-                boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Drag handle */}
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
-                <div style={{ width: 36, height: 3, borderRadius: 2, background: 'rgba(0,212,255,0.3)' }} />
-              </div>
-              {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
-              {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
-              {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
-              {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
-              {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
-            </motion.div>
-          </>
+          <motion.div
+            key="mobile-backdrop"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setSelectedId(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile bottom-sheet — panel */}
+      <AnimatePresence>
+        {hasDetail && isMobile && (
+          <motion.div
+            key="mobile-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            style={{
+              position: 'fixed', bottom: 0, left: 0, right: 0,
+              height: '78vh', zIndex: 50,
+              background: 'rgba(0,8,18,0.98)',
+              borderTop: '1px solid rgba(0,212,255,0.3)',
+              borderRadius: '14px 14px 0 0',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
+              <div style={{ width: 36, height: 3, borderRadius: 2, background: 'rgba(0,212,255,0.3)' }} />
+            </div>
+            {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
+            {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
+            {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
+            {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
+            {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
