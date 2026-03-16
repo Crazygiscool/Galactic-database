@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Section,
@@ -92,6 +92,14 @@ export default function Home() {
     vehicles:  filteredVehicles.length,
   }[section];
 
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   const font = "'Share Tech Mono', monospace";
 
   return (
@@ -167,11 +175,11 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Detail panel — slides in/out from the right */}
+        {/* Detail panel — side on desktop, bottom sheet on mobile */}
         <AnimatePresence>
-          {hasDetail && (
+          {hasDetail && !isMobile && (
             <motion.div
-              key="detail-panel"
+              key="detail-panel-desktop"
               initial={{ x: 380, opacity: 0 }}
               animate={{ x: 0,   opacity: 1 }}
               exit={{   x: 380, opacity: 0 }}
@@ -187,6 +195,49 @@ export default function Home() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Mobile bottom-sheet detail panel */}
+      <AnimatePresence>
+        {hasDetail && isMobile && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setSelectedId(null)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }}
+            />
+            {/* Sheet */}
+            <motion.div
+              key="detail-panel-mobile"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+              style={{
+                position: 'fixed', bottom: 0, left: 0, right: 0,
+                height: '78vh', zIndex: 50,
+                background: 'rgba(0,8,18,0.98)',
+                borderTop: '1px solid rgba(0,212,255,0.3)',
+                borderRadius: '14px 14px 0 0',
+                boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Drag handle */}
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
+                <div style={{ width: 36, height: 3, borderRadius: 2, background: 'rgba(0,212,255,0.3)' }} />
+              </div>
+              {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
+              {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
+              {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
+              {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
+              {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
