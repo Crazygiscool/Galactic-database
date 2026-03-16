@@ -1,0 +1,5 @@
+packages:
+  "react-zoom-pan-pinch": "For panning and zooming the interactive galaxy map canvas"
+  "framer-motion": "For smooth panel animations, typing effects, and terminal transitions"
+  "clsx": "For merging Tailwind classes in components"
+  "tailwind-merge": "For merging Tailwind classes seamlessly"

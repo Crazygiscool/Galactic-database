@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-sans: 'Share Tech Mono', monospace; /* Force terminal font globally */
+}
+
+:root {
+  /* Deep Space / Imperial Terminal Palette */
+  --background: 220 50% 2%;
+  --foreground: 190 100% 60%;
+  
+  --primary: 190 100% 50%;
+  --primary-foreground: 220 50% 2%;
+  
+  --secondary: 200 80% 15%;
+  --secondary-foreground: 190 100% 60%;
+  
+  --muted: 200 50% 8%;
+  --muted-foreground: 190 60% 40%;
+  
+  --accent: 190 100% 50%;
+  --accent-foreground: 220 50% 2%;
+  
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 220 50% 2%;
+  
+  --border: 190 100% 20%;
+  --input: 190 100% 20%;
+  --ring: 190 100% 50%;
+  
+  --card: 220 50% 3%;
+  --card-foreground: 190 100% 60%;
+}
+
+@layer base {
+  body {
+    @apply font-mono antialiased bg-background text-foreground overflow-hidden selection:bg-primary/30 selection:text-white;
+  }
+
+  /* Custom scrollbar for terminal panels */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background border-l border-border;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 hover:bg-primary/50 border border-primary/50;
+  }
+}
+
+@layer utilities {
+  .glow-text {
+    text-shadow: 0 0 5px hsl(var(--primary) / 0.5), 0 0 10px hsl(var(--primary) / 0.3);
+  }
+  
+  .glow-text-bright {
+    text-shadow: 0 0 8px hsl(var(--primary)), 0 0 15px hsl(var(--primary));
+  }
+
+  .glow-text-white {
+    text-shadow: 0 0 8px #fff, 0 0 15px hsl(var(--primary));
+  }
+
+  .glow-box {
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.1), inset 0 0 20px hsl(var(--primary) / 0.05);
+  }
+
+  .glow-box-strong {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3), inset 0 0 30px hsl(var(--primary) / 0.1);
+  }
+
+  .scanline-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0) 50%,
+      rgba(0,0,0,0.3) 50%,
+      rgba(0,0,0,0.3)
+    );
+    background-size: 100% 4px;
+    opacity: 0.8;
+  }
+
+  .vignette-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    background: radial-gradient(
+      circle at center,
+      transparent 50%,
+      rgba(0,0,0,0.6) 100%
+    );
+  }
+
+  .starfield-bg {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(1px 1px at 25px 5px, rgba(255,255,255,0.4) 100%, transparent),
+      radial-gradient(1px 1px at 50px 25px, rgba(255,255,255,0.2) 100%, transparent),
+      radial-gradient(1px 1px at 125px 20px, rgba(255,255,255,0.3) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 50px 75px, rgba(255,255,255,0.5) 100%, transparent),
+      radial-gradient(2px 2px at 15px 125px, rgba(255,255,255,0.3) 100%, transparent),
+      radial-gradient(1.5px 1.5px at 110px 80px, rgba(255,255,255,0.4) 100%, transparent);
+    background-size: 200px 200px;
+  }
+}
+
+/* Animations */
+@keyframes flicker {
+  0% { opacity: 0.9; }
+  5% { opacity: 0.8; }
+  10% { opacity: 0.95; }
+  15% { opacity: 1; }
+  50% { opacity: 0.9; }
+  60% { opacity: 1; }
+  90% { opacity: 0.85; }
+  100% { opacity: 0.9; }
+}
+
+.animate-flicker {
+  animation: flicker 4s infinite;
+}
+
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.8); }
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
