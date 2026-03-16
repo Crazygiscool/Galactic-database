@@ -16,12 +16,14 @@ export function PlanetPanel({ planet, onClose }: PlanetPanelProps) {
         <h2 className="text-xl font-bold glow-text tracking-widest uppercase">
           {planet ? "TACTICAL ANALYSIS" : "STANDBY MODE"}
         </h2>
-        <button 
-          onClick={onClose}
-          className="text-primary/50 hover:text-white transition-colors p-1 border border-transparent hover:border-primary/50 hover:bg-primary/10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {planet && (
+          <button 
+            onClick={onClose}
+            className="text-primary/50 hover:text-white transition-colors p-1 border border-transparent hover:border-primary/50 hover:bg-primary/10"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
