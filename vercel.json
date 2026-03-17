@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd artifacts/galaxy-map && pnpm install && pnpm run build",
+  "buildCommand": "pnpm --filter @workspace/galaxy-map build",
   "outputDirectory": "artifacts/galaxy-map/dist/public",
   "installCommand": "pnpm install",
-  "framework": null,
+  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
