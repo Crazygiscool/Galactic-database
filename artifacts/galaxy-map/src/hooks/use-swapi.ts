@@ -1,6 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 
-export type Section = 'planets' | 'films' | 'people' | 'starships' | 'vehicles';
+export type Section =
+  | "planets"
+  | "films"
+  | "people"
+  | "starships"
+  | "vehicles"
+  | "characters"
+  | "creatures"
+  | "droids"
+  | "locations"
+  | "organizations"
+  | "species";
 
 export interface Planet {
   id: string;
@@ -107,11 +118,12 @@ async function fetchAll<T>(baseUrl: string): Promise<T[]> {
   let nextUrl: string | null = baseUrl;
   while (nextUrl) {
     const res = await fetch(nextUrl);
-    if (!res.ok) throw new Error("Terminal link failure: Unable to reach SWAPI");
+    if (!res.ok)
+      throw new Error("Terminal link failure: Unable to reach SWAPI");
     const data = await res.json();
     const withId = data.results.map((item: any) => ({
       ...item,
-      id: item.url.split('/').filter(Boolean).pop() ?? String(Math.random()),
+      id: item.url.split("/").filter(Boolean).pop() ?? String(Math.random()),
     }));
     all = [...all, ...withId];
     nextUrl = data.next;
@@ -123,47 +135,47 @@ const STALE = 1000 * 60 * 60;
 
 export function usePlanets() {
   return useQuery<Planet[]>({
-    queryKey: ['planets'],
-    queryFn: () => fetchAll<Planet>('https://swapi.dev/api/planets/'),
+    queryKey: ["planets"],
+    queryFn: () => fetchAll<Planet>("https://swapi.dev/api/planets/"),
     staleTime: STALE,
   });
 }
 
 export function useFilms() {
   return useQuery<Film[]>({
-    queryKey: ['films'],
-    queryFn: () => fetchAll<Film>('https://swapi.dev/api/films/'),
+    queryKey: ["films"],
+    queryFn: () => fetchAll<Film>("https://swapi.dev/api/films/"),
     staleTime: STALE,
   });
 }
 
 export function usePeople() {
   return useQuery<Person[]>({
-    queryKey: ['people'],
-    queryFn: () => fetchAll<Person>('https://swapi.dev/api/people/'),
+    queryKey: ["people"],
+    queryFn: () => fetchAll<Person>("https://swapi.dev/api/people/"),
     staleTime: STALE,
   });
 }
 
 export function useStarships() {
   return useQuery<Starship[]>({
-    queryKey: ['starships'],
-    queryFn: () => fetchAll<Starship>('https://swapi.dev/api/starships/'),
+    queryKey: ["starships"],
+    queryFn: () => fetchAll<Starship>("https://swapi.dev/api/starships/"),
     staleTime: STALE,
   });
 }
 
 export function useVehicles() {
   return useQuery<Vehicle[]>({
-    queryKey: ['vehicles'],
-    queryFn: () => fetchAll<Vehicle>('https://swapi.dev/api/vehicles/'),
+    queryKey: ["vehicles"],
+    queryFn: () => fetchAll<Vehicle>("https://swapi.dev/api/vehicles/"),
     staleTime: STALE,
   });
 }
 
 export function useResident(url: string) {
   return useQuery<Resident>({
-    queryKey: ['resident', url],
+    queryKey: ["resident", url],
     queryFn: async () => {
       const res = await fetch(url);
       if (!res.ok) throw new Error("Data block corrupted");
@@ -176,13 +188,103 @@ export function useResident(url: string) {
 
 export function useNameLookup(url: string) {
   return useQuery<{ name: string; title?: string }>({
-    queryKey: ['namelookup', url],
+    queryKey: ["namelookup", url],
     queryFn: async () => {
       const res = await fetch(url);
       if (!res.ok) throw new Error("Lookup failed");
       return res.json();
     },
     enabled: !!url,
+    staleTime: STALE,
+  });
+}
+
+const DATABANK_BASE = "https://starwars-databank-server.onrender.com/api/v1";
+
+export interface DatabankItem {
+  _id: string;
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
+async function fetchAllDatabank<T extends DatabankItem>(
+  endpoint: string,
+): Promise<T[]> {
+  let all: T[] = [];
+  let page = 1;
+  const limit = 50;
+
+  while (true) {
+    const res = await fetch(
+      `${DATABANK_BASE}/${endpoint}?page=${page}&limit=${limit}`,
+    );
+    if (!res.ok) throw new Error("Failed to fetch from Star Wars Databank");
+    const data = await res.json();
+    const withId = data.data.map((item: T) => ({
+      ...item,
+      id: item._id,
+    }));
+    all = [...all, ...withId];
+    if (!data.info.next) break;
+    page++;
+  }
+  return all;
+}
+
+export function useDatabankCharacters() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-characters"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("characters"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankCreatures() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-creatures"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("creatures"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankDroids() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-droids"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("droids"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankLocations() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-locations"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("locations"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankOrganizations() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-organizations"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("organizations"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankSpecies() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-species"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("species"),
+    staleTime: STALE,
+  });
+}
+
+export function useDatabankVehicles() {
+  return useQuery<DatabankItem[]>({
+    queryKey: ["databank-vehicles"],
+    queryFn: () => fetchAllDatabank<DatabankItem>("vehicles"),
     staleTime: STALE,
   });
 }

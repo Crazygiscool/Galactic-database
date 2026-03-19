@@ -9,6 +9,12 @@ import {
   Truck,
   X,
   ChevronDown,
+  Users,
+  Bone,
+  Bot,
+  MapPin,
+  Shield,
+  Sparkles,
 } from "lucide-react";
 import { Section } from "@/hooks/use-swapi";
 
@@ -25,6 +31,12 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "people", label: "PERSONS", icon: User },
   { key: "starships", label: "STARSHIPS", icon: Rocket },
   { key: "vehicles", label: "VEHICLES", icon: Truck },
+  { key: "characters", label: "CHARACTERS", icon: Users },
+  { key: "creatures", label: "CREATURES", icon: Bone },
+  { key: "droids", label: "DROIDS", icon: Bot },
+  { key: "locations", label: "LOCATIONS", icon: MapPin },
+  { key: "organizations", label: "GROUPS", icon: Shield },
+  { key: "species", label: "SPECIES", icon: Sparkles },
 ];
 
 const C = {

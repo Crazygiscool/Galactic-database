@@ -1,172 +1,501 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Section,
-  usePlanets, useFilms, usePeople, useStarships, useVehicles,
-  Planet, Film, Person, Starship, Vehicle,
-} from '@/hooks/use-swapi';
-import { GalaxyMap } from '@/components/galaxy-map';
-import { ScanlineOverlay } from '@/components/terminal-effects';
-import { TopNav } from '@/components/top-nav';
-import { FilmsList, PeopleList, StarshipsList, VehiclesList } from '@/components/list-view';
+  usePlanets,
+  useFilms,
+  usePeople,
+  useStarships,
+  useVehicles,
+  useDatabankCharacters,
+  useDatabankCreatures,
+  useDatabankDroids,
+  useDatabankLocations,
+  useDatabankOrganizations,
+  useDatabankSpecies,
+  DatabankItem,
+} from "@/hooks/use-swapi";
+import { GalaxyMap } from "@/components/galaxy-map";
+import { ScanlineOverlay } from "@/components/terminal-effects";
+import { TopNav } from "@/components/top-nav";
 import {
-  PlanetDetailPanel, FilmDetailPanel, PersonDetailPanel,
-  StarshipDetailPanel, VehicleDetailPanel,
-} from '@/components/detail-panel';
-import { Database, Activity } from 'lucide-react';
+  FilmsList,
+  PeopleList,
+  StarshipsList,
+  VehiclesList,
+} from "@/components/list-view";
+import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
+import {
+  PlanetDetailPanel,
+  FilmDetailPanel,
+  PersonDetailPanel,
+  StarshipDetailPanel,
+  VehicleDetailPanel,
+} from "@/components/detail-panel";
+import { Database, Activity } from "lucide-react";
 
 function LoadingScreen({ label }: { label: string }) {
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,4,8,0.97)', fontFamily: "'Share Tech Mono', monospace" }}>
-      <Database style={{ width: 48, height: 48, color: '#00d4ff', marginBottom: 20 }} className="animate-pulse" />
-      <div style={{ fontSize: 18, color: '#00d4ff', textShadow: '0 0 10px #00d4ff', letterSpacing: '0.15em' }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,4,8,0.97)",
+        fontFamily: "'Share Tech Mono', monospace",
+      }}
+    >
+      <Database
+        style={{ width: 48, height: 48, color: "#00d4ff", marginBottom: 20 }}
+        className="animate-pulse"
+      />
+      <div
+        style={{
+          fontSize: 18,
+          color: "#00d4ff",
+          textShadow: "0 0 10px #00d4ff",
+          letterSpacing: "0.15em",
+        }}
+      >
         LOADING {label}...
       </div>
-      <div style={{ width: 200, height: 6, border: '1px solid rgba(0,212,255,0.4)', marginTop: 24, padding: 1 }}>
-        <div style={{ height: '100%', background: '#00d4ff', animation: 'pulse 1s ease-in-out infinite' }} />
+      <div
+        style={{
+          width: 200,
+          height: 6,
+          border: "1px solid rgba(0,212,255,0.4)",
+          marginTop: 24,
+          padding: 1,
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            background: "#00d4ff",
+            animation: "pulse 1s ease-in-out infinite",
+          }}
+        />
       </div>
     </div>
   );
 }
 
-function filterBySearch<T extends { name?: string; title?: string }>(items: T[], search: string): T[] {
+function filterBySearch<T extends { name?: string; title?: string }>(
+  items: T[],
+  search: string,
+): T[] {
   if (!search.trim()) return items;
   const q = search.toLowerCase();
-  return items.filter(item =>
-    (item.name ?? '').toLowerCase().includes(q) ||
-    (item.title ?? '').toLowerCase().includes(q)
+  return items.filter(
+    (item) =>
+      (item.name ?? "").toLowerCase().includes(q) ||
+      (item.title ?? "").toLowerCase().includes(q),
   );
 }
 
 export default function Home() {
-  const [section, setSection] = useState<Section>('planets');
-  const [search, setSearch] = useState('');
+  const [section, setSection] = useState<Section>("planets");
+  const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data: planets, isLoading: planetsLoading } = usePlanets();
-  const { data: films,   isLoading: filmsLoading   } = useFilms();
-  const { data: people,  isLoading: peopleLoading  } = usePeople();
-  const { data: ships,   isLoading: shipsLoading   } = useStarships();
-  const { data: vehicles,isLoading: vehiclesLoading} = useVehicles();
+  const { data: films, isLoading: filmsLoading } = useFilms();
+  const { data: people, isLoading: peopleLoading } = usePeople();
+  const { data: ships, isLoading: shipsLoading } = useStarships();
+  const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
+  const { data: characters, isLoading: charactersLoading } =
+    useDatabankCharacters();
+  const { data: creatures, isLoading: creaturesLoading } =
+    useDatabankCreatures();
+  const { data: droids, isLoading: droidsLoading } = useDatabankDroids();
+  const { data: locations, isLoading: locationsLoading } =
+    useDatabankLocations();
+  const { data: organizations, isLoading: organizationsLoading } =
+    useDatabankOrganizations();
+  const { data: species, isLoading: speciesLoading } = useDatabankSpecies();
 
   const handleSectionChange = (s: Section) => {
     setSection(s);
-    setSearch('');
+    setSearch("");
     setSelectedId(null);
   };
 
-  const filteredPlanets   = useMemo(() => filterBySearch(planets   ?? [], search), [planets,   search]);
-  const filteredFilms     = useMemo(() => filterBySearch(films     ?? [], search), [films,     search]);
-  const filteredPeople    = useMemo(() => filterBySearch(people    ?? [], search), [people,    search]);
-  const filteredShips     = useMemo(() => filterBySearch(ships     ?? [], search), [ships,     search]);
-  const filteredVehicles  = useMemo(() => filterBySearch(vehicles  ?? [], search), [vehicles,  search]);
+  const filteredPlanets = useMemo(
+    () => filterBySearch(planets ?? [], search),
+    [planets, search],
+  );
+  const filteredFilms = useMemo(
+    () => filterBySearch(films ?? [], search),
+    [films, search],
+  );
+  const filteredPeople = useMemo(
+    () => filterBySearch(people ?? [], search),
+    [people, search],
+  );
+  const filteredShips = useMemo(
+    () => filterBySearch(ships ?? [], search),
+    [ships, search],
+  );
+  const filteredVehicles = useMemo(
+    () => filterBySearch(vehicles ?? [], search),
+    [vehicles, search],
+  );
+  const filteredCharacters = useMemo(
+    () => filterBySearch(characters ?? [], search),
+    [characters, search],
+  );
+  const filteredCreatures = useMemo(
+    () => filterBySearch(creatures ?? [], search),
+    [creatures, search],
+  );
+  const filteredDroids = useMemo(
+    () => filterBySearch(droids ?? [], search),
+    [droids, search],
+  );
+  const filteredLocations = useMemo(
+    () => filterBySearch(locations ?? [], search),
+    [locations, search],
+  );
+  const filteredOrganizations = useMemo(
+    () => filterBySearch(organizations ?? [], search),
+    [organizations, search],
+  );
+  const filteredSpecies = useMemo(
+    () => filterBySearch(species ?? [], search),
+    [species, search],
+  );
 
-  const selectedPlanet   = section === 'planets'   ? (planets   ?? []).find(p => p.id === selectedId)   : undefined;
-  const selectedFilm     = section === 'films'     ? (films     ?? []).find(f => f.id === selectedId)   : undefined;
-  const selectedPerson   = section === 'people'    ? (people    ?? []).find(p => p.id === selectedId)   : undefined;
-  const selectedShip     = section === 'starships' ? (ships     ?? []).find(s => s.id === selectedId)   : undefined;
-  const selectedVehicle  = section === 'vehicles'  ? (vehicles  ?? []).find(v => v.id === selectedId)   : undefined;
+  const selectedPlanet =
+    section === "planets"
+      ? (planets ?? []).find((p) => p.id === selectedId)
+      : undefined;
+  const selectedFilm =
+    section === "films"
+      ? (films ?? []).find((f) => f.id === selectedId)
+      : undefined;
+  const selectedPerson =
+    section === "people"
+      ? (people ?? []).find((p) => p.id === selectedId)
+      : undefined;
+  const selectedShip =
+    section === "starships"
+      ? (ships ?? []).find((s) => s.id === selectedId)
+      : undefined;
+  const selectedVehicle =
+    section === "vehicles"
+      ? (vehicles ?? []).find((v) => v.id === selectedId)
+      : undefined;
 
-  const hasDetail = !!(selectedPlanet || selectedFilm || selectedPerson || selectedShip || selectedVehicle);
+  const getSelectedDatabankItem = (): DatabankItem | undefined => {
+    if (section === "characters")
+      return characters?.find((c) => c.id === selectedId);
+    if (section === "creatures")
+      return creatures?.find((c) => c.id === selectedId);
+    if (section === "droids") return droids?.find((d) => d.id === selectedId);
+    if (section === "locations")
+      return locations?.find((l) => l.id === selectedId);
+    if (section === "organizations")
+      return organizations?.find((o) => o.id === selectedId);
+    if (section === "species") return species?.find((s) => s.id === selectedId);
+    return undefined;
+  };
+
+  const selectedDatabankItem = getSelectedDatabankItem();
+
+  const hasDetail = !!(
+    selectedPlanet ||
+    selectedFilm ||
+    selectedPerson ||
+    selectedShip ||
+    selectedVehicle ||
+    selectedDatabankItem
+  );
 
   const isLoading =
-    (section === 'planets'   && planetsLoading)  ||
-    (section === 'films'     && filmsLoading)    ||
-    (section === 'people'    && peopleLoading)   ||
-    (section === 'starships' && shipsLoading)    ||
-    (section === 'vehicles'  && vehiclesLoading);
+    (section === "planets" && planetsLoading) ||
+    (section === "films" && filmsLoading) ||
+    (section === "people" && peopleLoading) ||
+    (section === "starships" && shipsLoading) ||
+    (section === "vehicles" && vehiclesLoading) ||
+    (section === "characters" && charactersLoading) ||
+    (section === "creatures" && creaturesLoading) ||
+    (section === "droids" && droidsLoading) ||
+    (section === "locations" && locationsLoading) ||
+    (section === "organizations" && organizationsLoading) ||
+    (section === "species" && speciesLoading);
 
-  const totalCount = {
-    planets:   planets?.length ?? 0,
-    films:     films?.length ?? 0,
-    people:    people?.length ?? 0,
+  const totalCount: Record<Section, number> = {
+    planets: planets?.length ?? 0,
+    films: films?.length ?? 0,
+    people: people?.length ?? 0,
     starships: ships?.length ?? 0,
-    vehicles:  vehicles?.length ?? 0,
-  }[section];
+    vehicles: vehicles?.length ?? 0,
+    characters: characters?.length ?? 0,
+    creatures: creatures?.length ?? 0,
+    droids: droids?.length ?? 0,
+    locations: locations?.length ?? 0,
+    organizations: organizations?.length ?? 0,
+    species: species?.length ?? 0,
+  };
 
-  const filteredCount = {
-    planets:   filteredPlanets.length,
-    films:     filteredFilms.length,
-    people:    filteredPeople.length,
+  const filteredCount: Record<Section, number> = {
+    planets: filteredPlanets.length,
+    films: filteredFilms.length,
+    people: filteredPeople.length,
     starships: filteredShips.length,
-    vehicles:  filteredVehicles.length,
-  }[section];
+    vehicles: filteredVehicles.length,
+    characters: filteredCharacters.length,
+    creatures: filteredCreatures.length,
+    droids: filteredDroids.length,
+    locations: filteredLocations.length,
+    organizations: filteredOrganizations.length,
+    species: filteredSpecies.length,
+  };
 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 639px)');
+    const mq = window.matchMedia("(max-width: 639px)");
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
   const font = "'Share Tech Mono', monospace";
 
+  const renderDatabankSection = () => {
+    const items =
+      section === "characters"
+        ? filteredCharacters
+        : section === "creatures"
+          ? filteredCreatures
+          : section === "droids"
+            ? filteredDroids
+            : section === "locations"
+              ? filteredLocations
+              : section === "organizations"
+                ? filteredOrganizations
+                : filteredSpecies;
+
+    const ListComponent = () => (
+      <DatabankList
+        items={items}
+        selectedId={selectedId}
+        onSelect={(id) => setSelectedId((prev) => (prev === id ? null : id))}
+      />
+    );
+
+    return <ListComponent />;
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', overflow: 'hidden', background: '#000408', fontFamily: font }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+        background: "#000408",
+        fontFamily: font,
+      }}
+    >
       <ScanlineOverlay />
 
       <TopNav
         activeSection={section}
         onSectionChange={handleSectionChange}
         search={search}
-        onSearchChange={v => { setSearch(v); setSelectedId(null); }}
+        onSearchChange={(v) => {
+          setSearch(v);
+          setSelectedId(null);
+        }}
       />
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
-
-        {/* Main content — animated on section change */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <motion.div key={`loading-${section}`} style={{ flex: 1, display: 'flex' }}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            <motion.div
+              key={`loading-${section}`}
+              style={{ flex: 1, display: "flex" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
               <LoadingScreen label={section.toUpperCase()} />
             </motion.div>
-          ) : section === 'planets' ? (
-            /* ── PLANETS: galaxy map ── */
-            <motion.div key="planets" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
-              initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+          ) : section === "planets" ? (
+            <motion.div
+              key="planets"
+              style={{
+                flex: 1,
+                position: "relative",
+                overflow: "hidden",
+              }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 16 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
             >
-              <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20, pointerEvents: 'none', fontFamily: font }}>
-                <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.65)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <Activity style={{ width: 12, height: 12 }} className="animate-pulse" />
+              <div
+                style={{
+                  position: "absolute",
+                  top: 14,
+                  left: 14,
+                  zIndex: 20,
+                  pointerEvents: "none",
+                  fontFamily: font,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "rgba(0,212,255,0.65)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginBottom: 4,
+                  }}
+                >
+                  <Activity
+                    style={{ width: 12, height: 12 }}
+                    className="animate-pulse"
+                  />
                   GALACTIC DATABASE
                 </div>
-                <div style={{ fontSize: 20, color: '#fff', textShadow: '0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                <div
+                  style={{
+                    fontSize: 20,
+                    color: "#fff",
+                    textShadow: "0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.3)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                  }}
+                >
                   All Known Planets
                 </div>
-                <div style={{ height: 1, background: 'rgba(0,212,255,0.3)', marginTop: 6 }} />
-                <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.45)', marginTop: 4 }}>
-                  {search ? `RESULTS: ${filteredCount} / ${totalCount}` : `SYSTEMS SCANNED: ${totalCount}`}
+                <div
+                  style={{
+                    height: 1,
+                    background: "rgba(0,212,255,0.3)",
+                    marginTop: 6,
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "rgba(0,212,255,0.45)",
+                    marginTop: 4,
+                  }}
+                >
+                  {search
+                    ? `RESULTS: ${filteredCount} / ${totalCount}`
+                    : `SYSTEMS SCANNED: ${totalCount}`}
                 </div>
               </div>
               {filteredPlanets.length > 0 && (
                 <GalaxyMap
                   planets={filteredPlanets}
                   selectedId={selectedId}
-                  onSelect={id => setSelectedId(prev => prev === id ? null : id)}
+                  onSelect={(id) =>
+                    setSelectedId((prev) => (prev === id ? null : id))
+                  }
                 />
               )}
             </motion.div>
           ) : (
-            /* ── LIST VIEW ── */
-            <motion.div key={section} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-              initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+            <motion.div
+              key={section}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+              }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 16 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
             >
-              <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(0,212,255,0.12)', fontSize: 10, color: 'rgba(0,212,255,0.5)', fontFamily: font, flexShrink: 0 }}>
-                {search ? `SHOWING ${filteredCount} OF ${totalCount} RECORDS` : `${totalCount} RECORDS IN DATABASE`}
+              <div
+                style={{
+                  padding: "8px 16px",
+                  borderBottom: "1px solid rgba(0,212,255,0.12)",
+                  fontSize: 10,
+                  color: "rgba(0,212,255,0.5)",
+                  fontFamily: font,
+                  flexShrink: 0,
+                }}
+              >
+                {search
+                  ? `SHOWING ${filteredCount[section]} OF ${totalCount[section]} RECORDS`
+                  : `${totalCount[section]} RECORDS IN DATABASE`}
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px' }}>
-                {section === 'films'     && <FilmsList     films={filteredFilms}       selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
-                {section === 'people'    && <PeopleList    people={filteredPeople}     selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
-                {section === 'starships' && <StarshipsList starships={filteredShips}   selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
-                {section === 'vehicles'  && <VehiclesList  vehicles={filteredVehicles} selectedId={selectedId} onSelect={id => setSelectedId(prev => prev === id ? null : id)} />}
-                {filteredCount === 0 && (
-                  <div style={{ textAlign: 'center', color: 'rgba(0,212,255,0.4)', padding: 40, fontFamily: font, fontSize: 13, letterSpacing: '0.1em' }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px" }}>
+                {section === "films" && (
+                  <FilmsList
+                    films={filteredFilms}
+                    selectedId={selectedId}
+                    onSelect={(id) =>
+                      setSelectedId((prev) => (prev === id ? null : id))
+                    }
+                  />
+                )}
+                {section === "people" && (
+                  <PeopleList
+                    people={filteredPeople}
+                    selectedId={selectedId}
+                    onSelect={(id) =>
+                      setSelectedId((prev) => (prev === id ? null : id))
+                    }
+                  />
+                )}
+                {section === "starships" && (
+                  <StarshipsList
+                    starships={filteredShips}
+                    selectedId={selectedId}
+                    onSelect={(id) =>
+                      setSelectedId((prev) => (prev === id ? null : id))
+                    }
+                  />
+                )}
+                {section === "vehicles" && (
+                  <VehiclesList
+                    vehicles={filteredVehicles}
+                    selectedId={selectedId}
+                    onSelect={(id) =>
+                      setSelectedId((prev) => (prev === id ? null : id))
+                    }
+                  />
+                )}
+                {[
+                  "characters",
+                  "creatures",
+                  "droids",
+                  "locations",
+                  "organizations",
+                  "species",
+                ].includes(section) && renderDatabankSection()}
+                {filteredCount[section] === 0 && (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      color: "rgba(0,212,255,0.4)",
+                      padding: 40,
+                      fontFamily: font,
+                      fontSize: 13,
+                      letterSpacing: "0.1em",
+                    }}
+                  >
                     [ NO RECORDS MATCH QUERY ]
                   </div>
                 )}
@@ -175,67 +504,158 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Detail panel — side on desktop, bottom sheet on mobile */}
         <AnimatePresence>
           {hasDetail && !isMobile && (
             <motion.div
               key="detail-panel-desktop"
               initial={{ x: 380, opacity: 0 }}
-              animate={{ x: 0,   opacity: 1 }}
-              exit={{   x: 380, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-              style={{ width: 380, height: '100%', background: 'rgba(0,8,18,0.95)', borderLeft: '1px solid rgba(0,212,255,0.2)', flexShrink: 0, overflow: 'hidden', boxShadow: '-8px 0 24px rgba(0,0,0,0.6)' }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 380, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 30 }}
+              style={{
+                width: 380,
+                height: "100%",
+                background: "rgba(0,8,18,0.95)",
+                borderLeft: "1px solid rgba(0,212,255,0.2)",
+                flexShrink: 0,
+                overflow: "hidden",
+                boxShadow: "-8px 0 24px rgba(0,0,0,0.6)",
+              }}
             >
-              {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
-              {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
-              {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
-              {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
-              {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
+              {selectedPlanet && (
+                <PlanetDetailPanel
+                  planet={selectedPlanet}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+              {selectedFilm && (
+                <FilmDetailPanel
+                  film={selectedFilm}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+              {selectedPerson && (
+                <PersonDetailPanel
+                  person={selectedPerson}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+              {selectedShip && (
+                <StarshipDetailPanel
+                  starship={selectedShip}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+              {selectedVehicle && (
+                <VehicleDetailPanel
+                  vehicle={selectedVehicle}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+              {selectedDatabankItem && (
+                <DatabankDetailPanel
+                  item={selectedDatabankItem}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Mobile bottom-sheet — backdrop */}
       <AnimatePresence>
         {hasDetail && isMobile && (
           <motion.div
             key="mobile-backdrop"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setSelectedId(null)}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              zIndex: 40,
+            }}
           />
         )}
       </AnimatePresence>
 
-      {/* Mobile bottom-sheet — panel */}
       <AnimatePresence>
         {hasDetail && isMobile && (
           <motion.div
             key="mobile-sheet"
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 32 }}
             style={{
-              position: 'fixed', bottom: 0, left: 0, right: 0,
-              height: '78vh', zIndex: 50,
-              background: 'rgba(0,8,18,0.98)',
-              borderTop: '1px solid rgba(0,212,255,0.3)',
-              borderRadius: '14px 14px 0 0',
-              boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
-              overflow: 'hidden',
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "78vh",
+              zIndex: 50,
+              background: "rgba(0,8,18,0.98)",
+              borderTop: "1px solid rgba(0,212,255,0.3)",
+              borderRadius: "14px 14px 0 0",
+              boxShadow: "0 -8px 40px rgba(0,0,0,0.8)",
+              overflow: "hidden",
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
-              <div style={{ width: 36, height: 3, borderRadius: 2, background: 'rgba(0,212,255,0.3)' }} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "10px 0 2px",
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 3,
+                  borderRadius: 2,
+                  background: "rgba(0,212,255,0.3)",
+                }}
+              />
             </div>
-            {selectedPlanet  && <PlanetDetailPanel   planet={selectedPlanet}   onClose={() => setSelectedId(null)} />}
-            {selectedFilm    && <FilmDetailPanel     film={selectedFilm}       onClose={() => setSelectedId(null)} />}
-            {selectedPerson  && <PersonDetailPanel   person={selectedPerson}   onClose={() => setSelectedId(null)} />}
-            {selectedShip    && <StarshipDetailPanel starship={selectedShip}   onClose={() => setSelectedId(null)} />}
-            {selectedVehicle && <VehicleDetailPanel  vehicle={selectedVehicle} onClose={() => setSelectedId(null)} />}
+            {selectedPlanet && (
+              <PlanetDetailPanel
+                planet={selectedPlanet}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+            {selectedFilm && (
+              <FilmDetailPanel
+                film={selectedFilm}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+            {selectedPerson && (
+              <PersonDetailPanel
+                person={selectedPerson}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+            {selectedShip && (
+              <StarshipDetailPanel
+                starship={selectedShip}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+            {selectedVehicle && (
+              <VehicleDetailPanel
+                vehicle={selectedVehicle}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
+            {selectedDatabankItem && (
+              <DatabankDetailPanel
+                item={selectedDatabankItem}
+                onClose={() => setSelectedId(null)}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
