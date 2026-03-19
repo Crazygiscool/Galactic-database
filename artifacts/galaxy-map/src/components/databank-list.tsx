@@ -1,5 +1,4 @@
-import { DatabankItem } from "@/hooks/use-swapi";
-import { ExternalLink } from "lucide-react";
+import { DatabankItem, Section } from "@/hooks/use-swapi";
 
 interface DatabankListProps {
   items: DatabankItem[];
@@ -27,7 +26,11 @@ export function DatabankList({
               selectedId === item.id
                 ? "rgba(0,212,255,0.12)"
                 : "rgba(0,8,18,0.6)",
-            border: `1px solid ${selectedId === item.id ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`,
+            border: `1px solid ${
+              selectedId === item.id
+                ? "rgba(0,212,255,0.5)"
+                : "rgba(0,212,255,0.12)"
+            }`,
             borderRadius: 4,
             cursor: "pointer",
             transition: "all 0.2s ease",
@@ -106,13 +109,15 @@ export function DatabankList({
 }
 
 interface DatabankDetailPanelProps {
-  item: DatabankItem;
+  item: DatabankItem & { planetId?: string };
   onClose: () => void;
+  onLinkClick?: (section: Section, id: string) => void;
 }
 
 export function DatabankDetailPanel({
   item,
   onClose,
+  onLinkClick,
 }: DatabankDetailPanelProps) {
   return (
     <div className="w-full h-full flex flex-col relative z-20">
@@ -122,7 +127,21 @@ export function DatabankDetailPanel({
         </h2>
         <button
           onClick={onClose}
-          className="text-primary/50 hover:text-white transition-colors p-1 border border-transparent hover:border-primary/50 hover:bg-primary/10"
+          style={{
+            background: "none",
+            border: "1px solid transparent",
+            padding: 4,
+            cursor: "pointer",
+            color: "rgba(0,212,255,0.5)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#fff";
+            e.currentTarget.style.borderColor = "rgba(0,212,255,0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "rgba(0,212,255,0.5)";
+            e.currentTarget.style.borderColor = "transparent";
+          }}
         >
           <svg
             width="20"
@@ -162,10 +181,48 @@ export function DatabankDetailPanel({
         </div>
 
         <div className="p-4">
+          {item.planetId && (
+            <button
+              onClick={() =>
+                onLinkClick && onLinkClick("planets", item.planetId!)
+              }
+              style={{
+                fontSize: 10,
+                color: "#00d4ff",
+                padding: "3px 8px",
+                border: "1px solid rgba(0,212,255,0.3)",
+                background: "rgba(0,212,255,0.08)",
+                fontFamily: "'Share Tech Mono', monospace",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: 8,
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(0,212,255,0.2)";
+                e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(0,212,255,0.08)";
+                e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)";
+              }}
+            >
+              VIEW ON MAP
+            </button>
+          )}
+
           <div className="text-xs text-primary/50 mb-1">RECORD.ID</div>
           <h1
-            className="text-3xl font-bold text-white glow-text-bright uppercase tracking-tighter mb-4"
-            style={{ textShadow: "0 0 10px rgba(0,212,255,0.5)" }}
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+              color: "#fff",
+              textShadow: "0 0 10px rgba(0,212,255,0.5)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              marginBottom: 16,
+              fontFamily: "'Share Tech Mono', monospace",
+            }}
           >
             {item.name}
           </h1>
@@ -187,12 +244,31 @@ export function DatabankDetailPanel({
         </div>
       </div>
 
-      <div className="h-8 border-t border-primary/30 bg-background/90 flex items-center px-4 text-[10px] text-primary/60 justify-between backdrop-blur-md mt-auto">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+      <div
+        style={{
+          height: 28,
+          borderTop: "1px solid rgba(0,212,255,0.15)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 14px",
+          fontSize: 10,
+          color: "rgba(0,212,255,0.45)",
+          fontFamily: "'Share Tech Mono', monospace",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "#00d4ff",
+            }}
+          />
           TERMINAL ONLINE
-        </div>
-        <div>SYS.V 1.0.4</div>
+        </span>
+        <span>SYS.V 1.0.4</span>
       </div>
     </div>
   );

@@ -4,26 +4,26 @@ import {
   Section,
   usePlanets,
   useFilms,
-  usePeople,
   useStarships,
   useVehicles,
-  useDatabankCharacters,
+  useMergedCharacters,
   useDatabankCreatures,
   useDatabankDroids,
-  useDatabankLocations,
+  useMergedLocations,
   useDatabankOrganizations,
   useDatabankSpecies,
+  useNameLookup,
+  Planet,
+  Film,
+  Starship,
+  Vehicle,
+  Person,
   DatabankItem,
 } from "@/hooks/use-swapi";
 import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
 import { TopNav } from "@/components/top-nav";
-import {
-  FilmsList,
-  PeopleList,
-  StarshipsList,
-  VehiclesList,
-} from "@/components/list-view";
+import { FilmsList, StarshipsList, VehiclesList } from "@/components/list-view";
 import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
 import {
   PlanetDetailPanel,
@@ -32,7 +32,9 @@ import {
   StarshipDetailPanel,
   VehicleDetailPanel,
 } from "@/components/detail-panel";
-import { Database, Activity } from "lucide-react";
+import { Database, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 25;
 
 function LoadingScreen({ label }: { label: string }) {
   return (
@@ -99,19 +101,20 @@ export default function Home() {
   const [section, setSection] = useState<Section>("planets");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [linkedSection, setLinkedSection] = useState<Section | null>(null);
+  const [page, setPage] = useState(0);
 
   const { data: planets, isLoading: planetsLoading } = usePlanets();
   const { data: films, isLoading: filmsLoading } = useFilms();
-  const { data: people, isLoading: peopleLoading } = usePeople();
-  const { data: ships, isLoading: shipsLoading } = useStarships();
+  const { data: starships, isLoading: starshipsLoading } = useStarships();
   const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
   const { data: characters, isLoading: charactersLoading } =
-    useDatabankCharacters();
+    useMergedCharacters();
   const { data: creatures, isLoading: creaturesLoading } =
     useDatabankCreatures();
   const { data: droids, isLoading: droidsLoading } = useDatabankDroids();
-  const { data: locations, isLoading: locationsLoading } =
-    useDatabankLocations();
+  const { data: mergedLocations, isLoading: locationsLoading } =
+    useMergedLocations();
   const { data: organizations, isLoading: organizationsLoading } =
     useDatabankOrganizations();
   const { data: species, isLoading: speciesLoading } = useDatabankSpecies();
@@ -120,6 +123,15 @@ export default function Home() {
     setSection(s);
     setSearch("");
     setSelectedId(null);
+    setLinkedSection(null);
+    setPage(0);
+  };
+
+  const handleLinkClick = (targetSection: Section, targetId: string) => {
+    setLinkedSection(section);
+    setSection(targetSection);
+    setSelectedId(targetId);
+    setPage(0);
   };
 
   const filteredPlanets = useMemo(
@@ -130,13 +142,9 @@ export default function Home() {
     () => filterBySearch(films ?? [], search),
     [films, search],
   );
-  const filteredPeople = useMemo(
-    () => filterBySearch(people ?? [], search),
-    [people, search],
-  );
-  const filteredShips = useMemo(
-    () => filterBySearch(ships ?? [], search),
-    [ships, search],
+  const filteredStarships = useMemo(
+    () => filterBySearch(starships ?? [], search),
+    [starships, search],
   );
   const filteredVehicles = useMemo(
     () => filterBySearch(vehicles ?? [], search),
@@ -155,8 +163,8 @@ export default function Home() {
     [droids, search],
   );
   const filteredLocations = useMemo(
-    () => filterBySearch(locations ?? [], search),
-    [locations, search],
+    () => filterBySearch(mergedLocations ?? [], search),
+    [mergedLocations, search],
   );
   const filteredOrganizations = useMemo(
     () => filterBySearch(organizations ?? [], search),
@@ -175,27 +183,32 @@ export default function Home() {
     section === "films"
       ? (films ?? []).find((f) => f.id === selectedId)
       : undefined;
-  const selectedPerson =
-    section === "people"
-      ? (people ?? []).find((p) => p.id === selectedId)
-      : undefined;
-  const selectedShip =
+  const selectedStarship =
     section === "starships"
-      ? (ships ?? []).find((s) => s.id === selectedId)
+      ? (starships ?? []).find((s) => s.id === selectedId)
       : undefined;
   const selectedVehicle =
     section === "vehicles"
       ? (vehicles ?? []).find((v) => v.id === selectedId)
       : undefined;
+  const selectedCharacter =
+    section === "characters"
+      ? (characters ?? []).find((c) => c.id === selectedId)
+      : undefined;
 
-  const getSelectedDatabankItem = (): DatabankItem | undefined => {
-    if (section === "characters")
-      return characters?.find((c) => c.id === selectedId);
+  const planetLocations = useMemo(() => {
+    if (!selectedPlanet) return [];
+    return (mergedLocations ?? []).filter(
+      (loc) => loc.name.toLowerCase() === selectedPlanet.name.toLowerCase(),
+    );
+  }, [selectedPlanet, mergedLocations]);
+
+  const getSelectedDatabankItem = ():
+    | (DatabankItem & { planetId?: string })
+    | undefined => {
     if (section === "creatures")
       return creatures?.find((c) => c.id === selectedId);
     if (section === "droids") return droids?.find((d) => d.id === selectedId);
-    if (section === "locations")
-      return locations?.find((l) => l.id === selectedId);
     if (section === "organizations")
       return organizations?.find((o) => o.id === selectedId);
     if (section === "species") return species?.find((s) => s.id === selectedId);
@@ -207,17 +220,16 @@ export default function Home() {
   const hasDetail = !!(
     selectedPlanet ||
     selectedFilm ||
-    selectedPerson ||
-    selectedShip ||
+    selectedStarship ||
     selectedVehicle ||
+    selectedCharacter ||
     selectedDatabankItem
   );
 
   const isLoading =
     (section === "planets" && planetsLoading) ||
     (section === "films" && filmsLoading) ||
-    (section === "people" && peopleLoading) ||
-    (section === "starships" && shipsLoading) ||
+    (section === "starships" && starshipsLoading) ||
     (section === "vehicles" && vehiclesLoading) ||
     (section === "characters" && charactersLoading) ||
     (section === "creatures" && creaturesLoading) ||
@@ -229,13 +241,12 @@ export default function Home() {
   const totalCount: Record<Section, number> = {
     planets: planets?.length ?? 0,
     films: films?.length ?? 0,
-    people: people?.length ?? 0,
-    starships: ships?.length ?? 0,
-    vehicles: vehicles?.length ?? 0,
     characters: characters?.length ?? 0,
+    starships: starships?.length ?? 0,
+    vehicles: vehicles?.length ?? 0,
     creatures: creatures?.length ?? 0,
     droids: droids?.length ?? 0,
-    locations: locations?.length ?? 0,
+    locations: mergedLocations?.length ?? 0,
     organizations: organizations?.length ?? 0,
     species: species?.length ?? 0,
   };
@@ -243,10 +254,9 @@ export default function Home() {
   const filteredCount: Record<Section, number> = {
     planets: filteredPlanets.length,
     films: filteredFilms.length,
-    people: filteredPeople.length,
-    starships: filteredShips.length,
-    vehicles: filteredVehicles.length,
     characters: filteredCharacters.length,
+    starships: filteredStarships.length,
+    vehicles: filteredVehicles.length,
     creatures: filteredCreatures.length,
     droids: filteredDroids.length,
     locations: filteredLocations.length,
@@ -264,29 +274,152 @@ export default function Home() {
 
   const font = "'Share Tech Mono', monospace";
 
-  const renderDatabankSection = () => {
-    const items =
-      section === "characters"
-        ? filteredCharacters
-        : section === "creatures"
-          ? filteredCreatures
-          : section === "droids"
-            ? filteredDroids
-            : section === "locations"
-              ? filteredLocations
-              : section === "organizations"
-                ? filteredOrganizations
-                : filteredSpecies;
+  const getItemsForSection = () => {
+    switch (section) {
+      case "films":
+        return filteredFilms;
+      case "starships":
+        return filteredStarships;
+      case "vehicles":
+        return filteredVehicles;
+      case "characters":
+        return filteredCharacters as unknown as DatabankItem[];
+      case "creatures":
+        return filteredCreatures;
+      case "droids":
+        return filteredDroids;
+      case "organizations":
+        return filteredOrganizations;
+      case "species":
+        return filteredSpecies;
+      default:
+        return [];
+    }
+  };
 
-    const ListComponent = () => (
-      <DatabankList
-        items={items}
-        selectedId={selectedId}
-        onSelect={(id) => setSelectedId((prev) => (prev === id ? null : id))}
-      />
+  const totalItems = filteredCount[section];
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const paginatedItems = getItemsForSection().slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE,
+  );
+
+  const PaginationControls = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 12,
+          padding: "12px 0",
+          borderTop: "1px solid rgba(0,212,255,0.1)",
+          marginTop: 12,
+        }}
+      >
+        <button
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+          style={{
+            background: "rgba(0,212,255,0.1)",
+            border: "1px solid rgba(0,212,255,0.3)",
+            color: page === 0 ? "rgba(0,212,255,0.3)" : "#00d4ff",
+            padding: "6px 12px",
+            cursor: page === 0 ? "not-allowed" : "pointer",
+            fontFamily: font,
+            fontSize: 11,
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <ChevronLeft size={14} /> PREV
+        </button>
+        <span
+          style={{
+            color: "rgba(0,212,255,0.6)",
+            fontSize: 11,
+            fontFamily: font,
+          }}
+        >
+          PAGE {page + 1} / {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+          disabled={page >= totalPages - 1}
+          style={{
+            background: "rgba(0,212,255,0.1)",
+            border: "1px solid rgba(0,212,255,0.3)",
+            color: page >= totalPages - 1 ? "rgba(0,212,255,0.3)" : "#00d4ff",
+            padding: "6px 12px",
+            cursor: page >= totalPages - 1 ? "not-allowed" : "pointer",
+            fontFamily: font,
+            fontSize: 11,
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          NEXT <ChevronRight size={14} />
+        </button>
+      </div>
     );
+  };
 
-    return <ListComponent />;
+  const renderListSection = () => {
+    switch (section) {
+      case "films":
+        return (
+          <FilmsList
+            films={paginatedItems as Film[]}
+            selectedId={selectedId}
+            onSelect={(id) =>
+              setSelectedId((prev) => (prev === id ? null : id))
+            }
+          />
+        );
+      case "starships":
+        return (
+          <StarshipsList
+            starships={paginatedItems as Starship[]}
+            selectedId={selectedId}
+            onSelect={(id) =>
+              setSelectedId((prev) => (prev === id ? null : id))
+            }
+          />
+        );
+      case "vehicles":
+        return (
+          <VehiclesList
+            vehicles={paginatedItems as Vehicle[]}
+            selectedId={selectedId}
+            onSelect={(id) =>
+              setSelectedId((prev) => (prev === id ? null : id))
+            }
+          />
+        );
+      case "characters":
+        return (
+          <DatabankList
+            items={paginatedItems as DatabankItem[]}
+            selectedId={selectedId}
+            onSelect={(id) =>
+              setSelectedId((prev) => (prev === id ? null : id))
+            }
+          />
+        );
+      default:
+        return (
+          <DatabankList
+            items={paginatedItems as DatabankItem[]}
+            selectedId={selectedId}
+            onSelect={(id) =>
+              setSelectedId((prev) => (prev === id ? null : id))
+            }
+          />
+        );
+    }
   };
 
   return (
@@ -335,7 +468,7 @@ export default function Home() {
             </motion.div>
           ) : section === "planets" ? (
             <motion.div
-              key="planets"
+              key={section}
               style={{
                 flex: 1,
                 position: "relative",
@@ -381,7 +514,9 @@ export default function Home() {
                     letterSpacing: "0.12em",
                   }}
                 >
-                  All Known Planets
+                  {section === "planets"
+                    ? "All Known Planets"
+                    : "Locations & Worlds"}
                 </div>
                 <div
                   style={{
@@ -398,13 +533,19 @@ export default function Home() {
                   }}
                 >
                   {search
-                    ? `RESULTS: ${filteredCount} / ${totalCount}`
-                    : `SYSTEMS SCANNED: ${totalCount}`}
+                    ? `RESULTS: ${filteredCount[section]} / ${totalCount[section]}`
+                    : `SYSTEMS SCANNED: ${totalCount[section]}`}
                 </div>
               </div>
               {filteredPlanets.length > 0 && (
                 <GalaxyMap
-                  planets={filteredPlanets}
+                  planets={
+                    section === "planets"
+                      ? filteredPlanets
+                      : filteredLocations
+                          .filter((l) => l.planet)
+                          .map((l) => l.planet!)
+                  }
                   selectedId={selectedId}
                   onSelect={(id) =>
                     setSelectedId((prev) => (prev === id ? null : id))
@@ -441,50 +582,7 @@ export default function Home() {
                   : `${totalCount[section]} RECORDS IN DATABASE`}
               </div>
               <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px" }}>
-                {section === "films" && (
-                  <FilmsList
-                    films={filteredFilms}
-                    selectedId={selectedId}
-                    onSelect={(id) =>
-                      setSelectedId((prev) => (prev === id ? null : id))
-                    }
-                  />
-                )}
-                {section === "people" && (
-                  <PeopleList
-                    people={filteredPeople}
-                    selectedId={selectedId}
-                    onSelect={(id) =>
-                      setSelectedId((prev) => (prev === id ? null : id))
-                    }
-                  />
-                )}
-                {section === "starships" && (
-                  <StarshipsList
-                    starships={filteredShips}
-                    selectedId={selectedId}
-                    onSelect={(id) =>
-                      setSelectedId((prev) => (prev === id ? null : id))
-                    }
-                  />
-                )}
-                {section === "vehicles" && (
-                  <VehiclesList
-                    vehicles={filteredVehicles}
-                    selectedId={selectedId}
-                    onSelect={(id) =>
-                      setSelectedId((prev) => (prev === id ? null : id))
-                    }
-                  />
-                )}
-                {[
-                  "characters",
-                  "creatures",
-                  "droids",
-                  "locations",
-                  "organizations",
-                  "species",
-                ].includes(section) && renderDatabankSection()}
+                {renderListSection()}
                 {filteredCount[section] === 0 && (
                   <div
                     style={{
@@ -499,6 +597,7 @@ export default function Home() {
                     [ NO RECORDS MATCH QUERY ]
                   </div>
                 )}
+                <PaginationControls />
               </div>
             </motion.div>
           )}
@@ -526,36 +625,43 @@ export default function Home() {
                 <PlanetDetailPanel
                   planet={selectedPlanet}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
+                  locations={planetLocations}
                 />
               )}
               {selectedFilm && (
                 <FilmDetailPanel
                   film={selectedFilm}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
                 />
               )}
-              {selectedPerson && (
+              {selectedCharacter && (
                 <PersonDetailPanel
-                  person={selectedPerson}
+                  person={selectedCharacter}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
                 />
               )}
-              {selectedShip && (
+              {selectedStarship && (
                 <StarshipDetailPanel
-                  starship={selectedShip}
+                  starship={selectedStarship}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
                 />
               )}
               {selectedVehicle && (
                 <VehicleDetailPanel
                   vehicle={selectedVehicle}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
                 />
               )}
               {selectedDatabankItem && (
                 <DatabankDetailPanel
                   item={selectedDatabankItem}
                   onClose={() => setSelectedId(null)}
+                  onLinkClick={handleLinkClick}
                 />
               )}
             </motion.div>
@@ -624,36 +730,43 @@ export default function Home() {
               <PlanetDetailPanel
                 planet={selectedPlanet}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
+                locations={planetLocations}
               />
             )}
             {selectedFilm && (
               <FilmDetailPanel
                 film={selectedFilm}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
               />
             )}
-            {selectedPerson && (
+            {selectedCharacter && (
               <PersonDetailPanel
-                person={selectedPerson}
+                person={selectedCharacter}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
               />
             )}
-            {selectedShip && (
+            {selectedStarship && (
               <StarshipDetailPanel
-                starship={selectedShip}
+                starship={selectedStarship}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
               />
             )}
             {selectedVehicle && (
               <VehicleDetailPanel
                 vehicle={selectedVehicle}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
               />
             )}
             {selectedDatabankItem && (
               <DatabankDetailPanel
                 item={selectedDatabankItem}
                 onClose={() => setSelectedId(null)}
+                onLinkClick={handleLinkClick}
               />
             )}
           </motion.div>

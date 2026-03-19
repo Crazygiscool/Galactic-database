@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 export type Section =
   | "planets"
   | "films"
-  | "people"
+  | "characters"
   | "starships"
   | "vehicles"
-  | "characters"
   | "creatures"
   | "droids"
   | "locations"
@@ -61,6 +61,7 @@ export interface Person {
   vehicles: string[];
   starships: string[];
   url: string;
+  image?: string;
 }
 
 export interface Starship {
@@ -111,6 +112,14 @@ export interface Resident {
   birth_year: string;
   gender: string;
   url: string;
+}
+
+export interface DatabankItem {
+  _id: string;
+  id: string;
+  name: string;
+  description: string;
+  image: string;
 }
 
 async function fetchAll<T>(baseUrl: string): Promise<T[]> {
@@ -201,14 +210,6 @@ export function useNameLookup(url: string) {
 
 const DATABANK_BASE = "https://starwars-databank-server.onrender.com/api/v1";
 
-export interface DatabankItem {
-  _id: string;
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-}
-
 async function fetchAllDatabank<T extends DatabankItem>(
   endpoint: string,
 ): Promise<T[]> {
@@ -239,6 +240,63 @@ export function useDatabankCharacters() {
     queryFn: () => fetchAllDatabank<DatabankItem>("characters"),
     staleTime: STALE,
   });
+}
+
+export function useMergedCharacters() {
+  const { data: people, isLoading: peopleLoading } = usePeople();
+  const { data: databankChars, isLoading: charsLoading } =
+    useDatabankCharacters();
+
+  const data = useMemo(() => {
+    const swPeople = people ?? [];
+    const dbChars = databankChars ?? [];
+
+    if (swPeople.length === 0 && dbChars.length === 0) return [];
+
+    const charMap = new Map<string, Person>();
+
+    for (const person of swPeople) {
+      charMap.set(person.name.toLowerCase(), {
+        ...person,
+        image: dbChars.find(
+          (c) => c.name.toLowerCase() === person.name.toLowerCase(),
+        )?.image,
+      });
+    }
+
+    for (const char of dbChars) {
+      const lowerName = char.name.toLowerCase();
+      if (!charMap.has(lowerName)) {
+        charMap.set(lowerName, {
+          id: char.id,
+          name: char.name,
+          height: "unknown",
+          mass: "unknown",
+          hair_color: "unknown",
+          skin_color: "unknown",
+          eye_color: "unknown",
+          birth_year: "unknown",
+          gender: "unknown",
+          homeworld: "",
+          films: [],
+          species: [],
+          vehicles: [],
+          starships: [],
+          url: "",
+          image: char.image,
+        });
+      }
+    }
+
+    return Array.from(charMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }, [people, databankChars]);
+
+  return {
+    data,
+    isLoading: peopleLoading || charsLoading,
+  };
 }
 
 export function useDatabankCreatures() {
@@ -287,4 +345,30 @@ export function useDatabankVehicles() {
     queryFn: () => fetchAllDatabank<DatabankItem>("vehicles"),
     staleTime: STALE,
   });
+}
+
+export function useMergedLocations() {
+  const { data: planets, isLoading: planetsLoading } = usePlanets();
+  const { data: databankLocs, isLoading: locsLoading } = useDatabankLocations();
+
+  const data = useMemo(() => {
+    const locs = databankLocs ?? [];
+    const planetList = planets ?? [];
+
+    return locs.map((loc) => {
+      const matchingPlanet = planetList.find(
+        (p) => p.name.toLowerCase() === loc.name.toLowerCase(),
+      );
+      return {
+        ...loc,
+        planetId: matchingPlanet?.id,
+        planet: matchingPlanet,
+      };
+    });
+  }, [planets, databankLocs]);
+
+  return {
+    data,
+    isLoading: planetsLoading || locsLoading,
+  };
 }
