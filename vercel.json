@@ -1,6 +1,3 @@
 {
-  "buildCommand": "pnpm --filter @workspace/galaxy-map build",
-  "outputDirectory": "artifacts/galaxy-map/dist",
-  "installCommand": "pnpm install",
   "framework": null
 }
