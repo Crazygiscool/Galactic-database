@@ -22,7 +22,7 @@ import {
 } from "@/hooks/use-swapi";
 import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
-import { TopNav } from "@/components/top-nav";
+import { TopNav, Theme } from "@/components/top-nav";
 import { FilmsList, StarshipsList, VehiclesList } from "@/components/list-view";
 import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
 import {
@@ -103,6 +103,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [linkedSection, setLinkedSection] = useState<Section | null>(null);
   const [page, setPage] = useState(0);
+  const [theme, setTheme] = useState<Theme>("imperial");
 
   const { data: planets, isLoading: planetsLoading } = usePlanets();
   const { data: films, isLoading: filmsLoading } = useFilms();
@@ -118,6 +119,10 @@ export default function Home() {
   const { data: organizations, isLoading: organizationsLoading } =
     useDatabankOrganizations();
   const { data: species, isLoading: speciesLoading } = useDatabankSpecies();
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const handleSectionChange = (s: Section) => {
     setSection(s);
@@ -443,6 +448,8 @@ export default function Home() {
           setSearch(v);
           setSelectedId(null);
         }}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
       <div
@@ -465,7 +472,7 @@ export default function Home() {
             >
               <LoadingScreen label={section.toUpperCase()} />
             </motion.div>
-          ) : section === "planets" || section === "locations" ? (
+          ) : section === "planets" ? (
             <motion.div
               key={section}
               style={{
@@ -513,9 +520,7 @@ export default function Home() {
                     letterSpacing: "0.12em",
                   }}
                 >
-                  {section === "planets"
-                    ? "All Known Planets"
-                    : "Locations & Worlds"}
+                  All Known Planets
                 </div>
                 <div
                   style={{

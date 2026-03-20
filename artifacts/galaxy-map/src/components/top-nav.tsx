@@ -15,15 +15,37 @@ import {
   MapPin,
   Shield,
   Sparkles,
+  Palette,
 } from "lucide-react";
 import { Section } from "@/hooks/use-swapi";
+
+export type Theme =
+  | "imperial"
+  | "sith"
+  | "jedi"
+  | "rebellion"
+  | "hutt"
+  | "mandalorian"
+  | "ahsoka";
 
 interface TopNavProps {
   activeSection: Section;
   onSectionChange: (s: Section) => void;
   search: string;
   onSearchChange: (v: string) => void;
+  theme: Theme;
+  onThemeChange: (t: Theme) => void;
 }
+
+const THEMES: { key: Theme; label: string; color: string }[] = [
+  { key: "imperial", label: "IMPERIAL", color: "#00d4ff" },
+  { key: "sith", label: "SITH", color: "#ff3333" },
+  { key: "jedi", label: "JEDI", color: "#33ff66" },
+  { key: "rebellion", label: "REBELLION", color: "#ff9933" },
+  { key: "hutt", label: " HUTT", color: "#9933ff" },
+  { key: "mandalorian", label: "MANDALORIAN", color: "#999999" },
+  { key: "ahsoka", label: "AHSOKA", color: "#ffdd33" },
+];
 
 const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "planets", label: "PLANETS", icon: Globe },
@@ -63,8 +85,12 @@ export function TopNav({
   onSectionChange,
   search,
   onSearchChange,
+  theme,
+  onThemeChange,
 }: TopNavProps) {
   const isMobile = useIsMobile();
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const currentTheme = THEMES.find((t) => t.key === theme) ?? THEMES[0];
   const activeItem = NAV_ITEMS.find((i) => i.key === activeSection)!;
   const ActiveIcon = activeItem.icon;
 
@@ -375,6 +401,100 @@ export function TopNav({
             </motion.button>
           )}
         </AnimatePresence>
+
+        {/* Theme Selector */}
+        <div style={{ position: "relative", marginLeft: 12 }}>
+          <button
+            onClick={() => setShowThemeMenu(!showThemeMenu)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: currentTheme.color,
+              padding: 4,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontFamily: C.font,
+              fontSize: 10,
+              letterSpacing: "0.1em",
+            }}
+            title="Change Theme"
+          >
+            <Palette size={14} style={{ color: currentTheme.color }} />
+            {currentTheme.label}
+          </button>
+          <AnimatePresence>
+            {showThemeMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  marginTop: 8,
+                  background: "rgba(0,4,12,0.98)",
+                  border: "1px solid rgba(0,212,255,0.3)",
+                  borderRadius: 4,
+                  padding: 8,
+                  zIndex: 100,
+                  minWidth: 150,
+                }}
+              >
+                {THEMES.map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => {
+                      onThemeChange(t.key);
+                      setShowThemeMenu(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      width: "100%",
+                      padding: "8px 12px",
+                      background:
+                        theme === t.key
+                          ? "rgba(0,212,255,0.15)"
+                          : "transparent",
+                      border: "none",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      color: t.color,
+                      fontFamily: C.font,
+                      fontSize: 11,
+                      letterSpacing: "0.1em",
+                      textAlign: "left",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(0,212,255,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background =
+                        theme === t.key
+                          ? "rgba(0,212,255,0.15)"
+                          : "transparent";
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        background: t.color,
+                        boxShadow: `0 0 8px ${t.color}`,
+                      }}
+                    />
+                    {t.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
