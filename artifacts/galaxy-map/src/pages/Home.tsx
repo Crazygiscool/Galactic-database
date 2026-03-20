@@ -288,6 +288,8 @@ export default function Home() {
         return filteredCreatures;
       case "droids":
         return filteredDroids;
+      case "locations":
+        return filteredLocations as unknown as DatabankItem[];
       case "organizations":
         return filteredOrganizations;
       case "species":
@@ -400,6 +402,11 @@ export default function Home() {
           />
         );
       case "characters":
+      case "creatures":
+      case "droids":
+      case "locations":
+      case "organizations":
+      case "species":
         return (
           <DatabankList
             items={paginatedItems as DatabankItem[]}
@@ -410,15 +417,7 @@ export default function Home() {
           />
         );
       default:
-        return (
-          <DatabankList
-            items={paginatedItems as DatabankItem[]}
-            selectedId={selectedId}
-            onSelect={(id) =>
-              setSelectedId((prev) => (prev === id ? null : id))
-            }
-          />
-        );
+        return null;
     }
   };
 
@@ -466,7 +465,7 @@ export default function Home() {
             >
               <LoadingScreen label={section.toUpperCase()} />
             </motion.div>
-          ) : section === "planets" ? (
+          ) : section === "planets" || section === "locations" ? (
             <motion.div
               key={section}
               style={{

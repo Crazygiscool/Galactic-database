@@ -33,6 +33,7 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "vehicles", label: "VEHICLES", icon: Truck },
   { key: "creatures", label: "CREATURES", icon: Bone },
   { key: "droids", label: "DROIDS", icon: Bot },
+  { key: "locations", label: "LOCATIONS", icon: MapPin },
   { key: "organizations", label: "GROUPS", icon: Shield },
   { key: "species", label: "SPECIES", icon: Sparkles },
 ];
