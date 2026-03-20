@@ -63,12 +63,11 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
               contentStyle={{ width: MAP_WIDTH, height: MAP_HEIGHT }}
             >
               <div
-                className="relative starfield-bg"
+                className="relative"
                 style={{
                   width: MAP_WIDTH,
                   height: MAP_HEIGHT,
-                  background:
-                    "radial-gradient(ellipse at 50% 50%, #03111e 0%, #000408 70%, #000204 100%)",
+                  background: `radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--primary) 5%, var(--background)) 0%, var(--background) 70%, color-mix(in srgb, var(--primary) 2%, var(--background)) 100%)`,
                 }}
               >
                 <div
@@ -76,8 +75,8 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                     position: "absolute",
                     inset: 0,
                     backgroundImage: `
-                      linear-gradient(to right, rgba(0,212,255,0.04) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(0,212,255,0.04) 1px, transparent 1px)
+                      linear-gradient(to right, color-mix(in srgb, var(--primary) 4%, transparent) 1px, transparent 1px),
+                      linear-gradient(to bottom, color-mix(in srgb, var(--primary) 4%, transparent) 1px, transparent 1px)
                     `,
                     backgroundSize: "200px 200px",
                     pointerEvents: "none",
@@ -109,10 +108,10 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                           width: isSelected ? 40 : 24,
                           height: isSelected ? 40 : 24,
                           borderRadius: "50%",
-                          border: `1px solid rgba(0,212,255,${isSelected ? 0.8 : 0.4})`,
+                          border: `1px solid color-mix(in srgb, var(--primary) ${isSelected ? 80 : 40}%, transparent)`,
                           boxShadow: isSelected
-                            ? "0 0 20px rgba(0,212,255,0.8), 0 0 40px rgba(0,212,255,0.4)"
-                            : "0 0 10px rgba(0,212,255,0.3)",
+                            ? `0 0 20px color-mix(in srgb, var(--primary) 80%, transparent), 0 0 40px color-mix(in srgb, var(--primary) 40%, transparent)`
+                            : `0 0 10px color-mix(in srgb, var(--primary) 30%, transparent)`,
                           transition: "all 0.3s ease",
                           pointerEvents: "none",
                         }}
@@ -124,11 +123,11 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                           height: isSelected ? 14 : 8,
                           borderRadius: "50%",
                           background: isSelected
-                            ? "radial-gradient(circle, #ffffff 0%, #00d4ff 60%, #0080ff 100%)"
-                            : "radial-gradient(circle, #00d4ff 0%, #0060a0 100%)",
+                            ? `radial-gradient(circle, #ffffff 0%, var(--primary) 60%, color-mix(in srgb, var(--primary) 50%, #000) 100%)`
+                            : `radial-gradient(circle, var(--primary) 0%, color-mix(in srgb, var(--primary) 60%, #000) 100%)`,
                           boxShadow: isSelected
-                            ? "0 0 20px #fff, 0 0 40px #00d4ff, 0 0 60px rgba(0,212,255,0.5)"
-                            : "0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.4)",
+                            ? `0 0 20px #fff, 0 0 40px var(--primary), 0 0 60px color-mix(in srgb, var(--primary) 50%, transparent)`
+                            : `0 0 8px var(--primary), 0 0 15px color-mix(in srgb, var(--primary) 40%, transparent)`,
                           transition: "all 0.3s ease",
                         }}
                         className="group-hover:scale-150"
@@ -138,8 +137,8 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                         style={{
                           marginTop: 10,
                           color: isSelected
-                            ? "#ffffff"
-                            : "rgba(0,212,255,0.75)",
+                            ? "var(--foreground)"
+                            : "var(--muted-foreground)",
                           fontSize: 9,
                           fontFamily: "'Share Tech Mono', monospace",
                           textTransform: "uppercase",
@@ -147,8 +146,8 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                           whiteSpace: "nowrap",
                           textAlign: "center",
                           textShadow: isSelected
-                            ? "0 0 8px #fff, 0 0 15px #00d4ff"
-                            : "0 0 6px rgba(0,212,255,0.5)",
+                            ? `0 0 8px var(--foreground), 0 0 15px var(--primary)`
+                            : `0 0 6px color-mix(in srgb, var(--primary) 50%, transparent)`,
                           transform: "translateX(-50%)",
                           position: "absolute",
                           left: "50%",
@@ -163,16 +162,16 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                           top: 0,
                           left: "100%",
                           marginLeft: 12,
-                          background: "rgba(0,4,8,0.92)",
-                          border: "1px solid rgba(0,212,255,0.5)",
+                          background: "var(--card)",
+                          border: "1px solid var(--border)",
                           padding: "4px 8px",
                           fontSize: 9,
                           fontFamily: "'Share Tech Mono', monospace",
-                          color: "rgba(0,212,255,0.85)",
+                          color: "var(--primary)",
                           whiteSpace: "nowrap",
                           pointerEvents: "none",
                           opacity: 0,
-                          boxShadow: "0 0 10px rgba(0,212,255,0.2)",
+                          boxShadow: `0 0 10px color-mix(in srgb, var(--primary) 20%, transparent)`,
                         }}
                         className="group-hover:opacity-100 transition-opacity"
                       >
@@ -190,9 +189,9 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
               style={{
                 position: "absolute",
                 bottom: 16,
-                right: 16,
+                left: 16,
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 gap: 4,
                 zIndex: 30,
               }}
@@ -208,10 +207,10 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                   style={{
                     width: 36,
                     height: 36,
-                    background: "rgba(0, 4, 12, 0.9)",
-                    border: "1px solid rgba(0, 212, 255, 0.4)",
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: 4,
-                    color: "#00d4ff",
+                    color: "var(--primary)",
                     fontSize: 18,
                     cursor: "pointer",
                     fontFamily: "'Share Tech Mono', monospace",
@@ -221,14 +220,12 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(0, 212, 255, 0.2)";
-                    e.currentTarget.style.borderColor =
-                      "rgba(0, 212, 255, 0.8)";
+                    e.currentTarget.style.background = "var(--primary)";
+                    e.currentTarget.style.color = "var(--primary-foreground)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(0, 4, 12, 0.9)";
-                    e.currentTarget.style.borderColor =
-                      "rgba(0, 212, 255, 0.4)";
+                    e.currentTarget.style.background = "var(--card)";
+                    e.currentTarget.style.color = "var(--primary)";
                   }}
                 >
                   {btn.label}

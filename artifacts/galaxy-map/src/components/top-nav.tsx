@@ -93,15 +93,16 @@ export function TopNav({
           borderBottom: "1px solid var(--border)",
           fontFamily: "'Share Tech Mono', monospace",
           flexShrink: 0,
-          boxShadow: "0 2px 20px var(--primary)/0.08)",
+          boxShadow:
+            "0 2px 20px color-mix(in srgb, var(--primary) 8%, transparent)",
           position: "relative",
           zIndex: 30,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", height: 48 }}>
+        <div style={{ display: "flex", alignItems: "center", height: 44 }}>
           <div
             style={{
-              padding: "0 14px",
+              padding: "0 12px",
               borderRight: "1px solid var(--border)",
               height: "100%",
               display: "flex",
@@ -114,7 +115,7 @@ export function TopNav({
                 fontSize: 10,
                 color: "var(--primary)",
                 textShadow: "0 0 8px var(--primary)",
-                letterSpacing: "0.16em",
+                letterSpacing: "0.12em",
               }}
             >
               GALACTIC
@@ -127,7 +128,7 @@ export function TopNav({
               position: "relative",
               display: "flex",
               alignItems: "center",
-              padding: "0 12px",
+              padding: "0 8px",
             }}
           >
             <ActiveIcon
@@ -136,7 +137,7 @@ export function TopNav({
                 height: 13,
                 color: "var(--primary)",
                 flexShrink: 0,
-                marginRight: 8,
+                marginRight: 6,
               }}
             />
             <select
@@ -151,8 +152,8 @@ export function TopNav({
                 outline: "none",
                 color: "var(--primary)",
                 fontFamily: "'Share Tech Mono', monospace",
-                fontSize: 12,
-                letterSpacing: "0.14em",
+                fontSize: 11,
+                letterSpacing: "0.12em",
                 cursor: "pointer",
                 textShadow: "0 0 6px var(--primary)",
               }}
@@ -173,13 +174,32 @@ export function TopNav({
             </select>
             <ChevronDown
               style={{
-                width: 13,
-                height: 13,
+                width: 12,
+                height: 12,
                 color: "var(--muted-foreground)",
                 flexShrink: 0,
                 pointerEvents: "none",
               }}
             />
+          </div>
+
+          <div style={{ padding: "0 8px" }}>
+            <button
+              onClick={() => setShowThemeMenu(!showThemeMenu)}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: currentTheme.color,
+                padding: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+              title="Change Theme"
+            >
+              <Palette size={16} style={{ color: currentTheme.color }} />
+            </button>
           </div>
         </div>
 
@@ -188,14 +208,14 @@ export function TopNav({
             display: "flex",
             alignItems: "center",
             borderTop: "1px solid var(--border)",
-            padding: "0 12px",
-            height: 40,
+            padding: "0 10px",
+            height: 38,
           }}
         >
           <Search
             style={{
-              width: 13,
-              height: 13,
+              width: 12,
+              height: 12,
               color: "var(--muted-foreground)",
               flexShrink: 0,
             }}
@@ -212,9 +232,9 @@ export function TopNav({
               outline: "none",
               color: "var(--foreground)",
               fontFamily: "'Share Tech Mono', monospace",
-              fontSize: 11,
-              letterSpacing: "0.08em",
-              padding: "0 8px",
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              padding: "0 6px",
               caretColor: "var(--primary)",
             }}
           />
@@ -234,11 +254,84 @@ export function TopNav({
                   padding: 2,
                 }}
               >
-                <X style={{ width: 12, height: 12 }} />
+                <X style={{ width: 11, height: 11 }} />
               </motion.button>
             )}
           </AnimatePresence>
         </div>
+
+        <AnimatePresence>
+          {showThemeMenu && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                borderTop: "none",
+                zIndex: 100,
+                maxHeight: "60vh",
+                overflowY: "auto",
+              }}
+            >
+              <div
+                style={{
+                  padding: "8px 12px",
+                  borderBottom: "1px solid var(--border)",
+                  fontSize: 9,
+                  color: "var(--muted-foreground)",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                SELECT THEME
+              </div>
+              {THEMES.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => {
+                    onThemeChange(t.key);
+                    setShowThemeMenu(false);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                    padding: "10px 12px",
+                    background:
+                      theme === t.key
+                        ? "color-mix(in srgb, var(--primary) 15%, transparent)"
+                        : "transparent",
+                    border: "none",
+                    borderBottom: "1px solid var(--border)",
+                    cursor: "pointer",
+                    color: t.color,
+                    fontFamily: "'Share Tech Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: "0.1em",
+                    textAlign: "left",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: t.color,
+                      boxShadow: `0 0 8px ${t.color}`,
+                    }}
+                  />
+                  {t.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -253,7 +346,7 @@ export function TopNav({
         borderBottom: "1px solid var(--border)",
         fontFamily: "'Share Tech Mono', monospace",
         flexShrink: 0,
-        boxShadow: "0 2px 20px var(--primary)/0.08)",
+        boxShadow: "0 2px 20px color-mix(in srgb, var(--primary) 8%, transparent)",
         position: "relative",
         zIndex: 30,
       }}
@@ -297,10 +390,8 @@ export function TopNav({
                 padding: "0 18px",
                 height: "100%",
                 cursor: "pointer",
-                background: active ? "var(--primary)/0.1)" : "transparent",
-                color: active
-                  ? "var(--primary)"
-                  : "var(--muted-foreground)",
+                background: active ? "color-mix(in srgb, var(--primary) 10%, transparent)" : "transparent",
+                color: active ? "var(--primary)" : "var(--muted-foreground)",
                 border: "none",
                 borderBottom: "2px solid transparent",
                 fontFamily: "'Share Tech Mono', monospace",
@@ -324,7 +415,7 @@ export function TopNav({
                     height: 2,
                     background: "var(--primary)",
                     boxShadow:
-                      "0 0 8px var(--primary)), 0 0 16px var(--primary)/0.5)",
+                      "0 0 8px var(--primary)), 0 0 16px color-mix(in srgb, var(--primary) 50%, transparent)",
                   }}
                   transition={{ type: "spring", stiffness: 400, damping: 34 }}
                 />
@@ -444,7 +535,7 @@ export function TopNav({
                       padding: "8px 12px",
                       background:
                         theme === t.key
-                          ? "var(--primary)/0.15)"
+                          ? "color-mix(in srgb, var(--primary) 15%, transparent)"
                           : "transparent",
                       border: "none",
                       borderRadius: 4,
@@ -456,13 +547,12 @@ export function TopNav({
                       textAlign: "left",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        "var(--primary)/0.1)";
+                      e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 10%, transparent)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background =
                         theme === t.key
-                          ? "var(--primary)/0.15)"
+                          ? "color-mix(in srgb, var(--primary) 15%, transparent)"
                           : "transparent";
                     }}
                   >
