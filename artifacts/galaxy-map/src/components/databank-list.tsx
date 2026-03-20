@@ -24,12 +24,12 @@ export function DatabankList({
             padding: "10px 12px",
             background:
               selectedId === item.id
-                ? "rgba(0,212,255,0.12)"
-                : "rgba(0,8,18,0.6)",
+                ? "hsl(var(--primary)/0.12)"
+                : "hsl(var(--muted))",
             border: `1px solid ${
               selectedId === item.id
-                ? "rgba(0,212,255,0.5)"
-                : "rgba(0,212,255,0.12)"
+                ? "hsl(var(--primary)/0.5)"
+                : "hsl(var(--border))"
             }`,
             borderRadius: 4,
             cursor: "pointer",
@@ -37,14 +37,14 @@ export function DatabankList({
           }}
           onMouseEnter={(e) => {
             if (selectedId !== item.id) {
-              e.currentTarget.style.background = "rgba(0,212,255,0.08)";
-              e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)";
+              e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
+              e.currentTarget.style.borderColor = "hsl(var(--border))";
             }
           }}
           onMouseLeave={(e) => {
             if (selectedId !== item.id) {
-              e.currentTarget.style.background = "rgba(0,8,18,0.6)";
-              e.currentTarget.style.borderColor = "rgba(0,212,255,0.12)";
+              e.currentTarget.style.background = "hsl(var(--muted))";
+              e.currentTarget.style.borderColor = "hsl(var(--border))";
             }
           }}
         >
@@ -55,8 +55,8 @@ export function DatabankList({
               borderRadius: 4,
               overflow: "hidden",
               flexShrink: 0,
-              background: "rgba(0,4,12,0.8)",
-              border: "1px solid rgba(0,212,255,0.2)",
+              background: "hsl(var(--muted))",
+              border: "1px solid hsl(var(--border))",
             }}
           >
             <img
@@ -77,13 +77,16 @@ export function DatabankList({
               style={{
                 fontSize: 13,
                 fontFamily: "'Share Tech Mono', monospace",
-                color: selectedId === item.id ? "#fff" : "rgba(0,212,255,0.9)",
+                color:
+                  selectedId === item.id
+                    ? "hsl(var(--foreground))"
+                    : "hsl(var(--primary))",
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 marginBottom: 4,
                 textShadow:
                   selectedId === item.id
-                    ? "0 0 8px rgba(0,212,255,0.5)"
+                    ? "0 0 8px hsl(var(--primary)/0.5)"
                     : "none",
               }}
             >
@@ -93,7 +96,7 @@ export function DatabankList({
               style={{
                 fontSize: 10,
                 fontFamily: "'Share Tech Mono', monospace",
-                color: "rgba(0,212,255,0.5)",
+                color: "hsl(var(--muted-foreground))",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -132,14 +135,14 @@ export function DatabankDetailPanel({
             border: "1px solid transparent",
             padding: 4,
             cursor: "pointer",
-            color: "rgba(0,212,255,0.5)",
+            color: "hsl(var(--muted-foreground))",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#fff";
-            e.currentTarget.style.borderColor = "rgba(0,212,255,0.4)";
+            e.currentTarget.style.color = "hsl(var(--foreground))";
+            e.currentTarget.style.borderColor = "hsl(var(--border))";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "rgba(0,212,255,0.5)";
+            e.currentTarget.style.color = "hsl(var(--muted-foreground))";
             e.currentTarget.style.borderColor = "transparent";
           }}
         >
@@ -162,8 +165,8 @@ export function DatabankDetailPanel({
           style={{
             height: 200,
             overflow: "hidden",
-            background: "rgba(0,4,12,0.8)",
-            borderBottom: "1px solid rgba(0,212,255,0.2)",
+            background: "hsl(var(--muted))",
+            borderBottom: "1px solid hsl(var(--border))",
           }}
         >
           <img
@@ -188,10 +191,10 @@ export function DatabankDetailPanel({
               }
               style={{
                 fontSize: 10,
-                color: "#00d4ff",
+                color: "hsl(var(--primary))",
                 padding: "3px 8px",
-                border: "1px solid rgba(0,212,255,0.3)",
-                background: "rgba(0,212,255,0.08)",
+                border: "1px solid hsl(var(--border))",
+                background: "hsl(var(--primary)/0.08)",
                 fontFamily: "'Share Tech Mono', monospace",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
@@ -199,12 +202,12 @@ export function DatabankDetailPanel({
                 cursor: "pointer",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(0,212,255,0.2)";
-                e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)";
+                e.currentTarget.style.background = "hsl(var(--primary)/0.2)";
+                e.currentTarget.style.borderColor = "hsl(var(--primary))";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(0,212,255,0.08)";
-                e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)";
+                e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
+                e.currentTarget.style.borderColor = "hsl(var(--border))";
               }}
             >
               VIEW ON MAP
@@ -216,8 +219,8 @@ export function DatabankDetailPanel({
             style={{
               fontSize: 24,
               fontWeight: "bold",
-              color: "#fff",
-              textShadow: "0 0 10px rgba(0,212,255,0.5)",
+              color: "hsl(var(--foreground))",
+              textShadow: "0 0 10px hsl(var(--primary)/0.5)",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
               marginBottom: 16,
@@ -231,11 +234,11 @@ export function DatabankDetailPanel({
             style={{
               fontSize: 11,
               fontFamily: "'Share Tech Mono', monospace",
-              color: "rgba(0,212,255,0.8)",
+              color: "hsl(var(--muted-foreground))",
               lineHeight: 1.6,
               padding: "12px",
-              background: "rgba(0,8,18,0.6)",
-              border: "1px solid rgba(0,212,255,0.15)",
+              background: "hsl(var(--muted))",
+              border: "1px solid hsl(var(--border))",
               borderRadius: 4,
             }}
           >
@@ -247,13 +250,13 @@ export function DatabankDetailPanel({
       <div
         style={{
           height: 28,
-          borderTop: "1px solid rgba(0,212,255,0.15)",
+          borderTop: "1px solid hsl(var(--border))",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 14px",
           fontSize: 10,
-          color: "rgba(0,212,255,0.45)",
+          color: "hsl(var(--muted-foreground))",
           fontFamily: "'Share Tech Mono', monospace",
         }}
       >
@@ -263,7 +266,7 @@ export function DatabankDetailPanel({
               width: 6,
               height: 6,
               borderRadius: "50%",
-              background: "#00d4ff",
+              background: "hsl(var(--primary))",
             }}
           />
           TERMINAL ONLINE

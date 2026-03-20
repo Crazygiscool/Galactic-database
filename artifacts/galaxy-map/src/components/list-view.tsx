@@ -1,20 +1,34 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Film, Person, Starship, Vehicle } from '@/hooks/use-swapi';
-import { Film as FilmIcon, User, Rocket, Truck, ChevronRight } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Film, Person, Starship, Vehicle } from "@/hooks/use-swapi";
+import {
+  Film as FilmIcon,
+  User,
+  Rocket,
+  Truck,
+  ChevronRight,
+} from "lucide-react";
 
-const C = {
-  font: "'Share Tech Mono', monospace",
-  primary: '#00d4ff',
-  bg: '#000408',
-  card: 'rgba(0,20,35,0.7)',
-  border: 'rgba(0,212,255,0.15)',
-  borderHover: 'rgba(0,212,255,0.5)',
-};
+const font = "'Share Tech Mono', monospace";
 
-function ListCard({ id, title, sub1, sub2, sub3, icon, onClick, selected }: {
-  id: string; title: string; sub1?: string; sub2?: string; sub3?: string;
-  icon: React.ReactNode; onClick: () => void; selected: boolean;
+function ListCard({
+  id,
+  title,
+  sub1,
+  sub2,
+  sub3,
+  icon,
+  onClick,
+  selected,
+}: {
+  id: string;
+  title: string;
+  sub1?: string;
+  sub2?: string;
+  sub3?: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  selected: boolean;
 }) {
   return (
     <motion.div
@@ -22,41 +36,112 @@ function ListCard({ id, title, sub1, sub2, sub3, icon, onClick, selected }: {
       animate={{ opacity: 1, y: 0 }}
       onClick={onClick}
       style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '10px 14px', cursor: 'pointer',
-        background: selected ? 'rgba(0,212,255,0.1)' : C.card,
-        border: `1px solid ${selected ? C.primary : C.border}`,
-        boxShadow: selected ? '0 0 12px rgba(0,212,255,0.2)' : 'none',
-        fontFamily: C.font, transition: 'all 0.15s',
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "10px 14px",
+        cursor: "pointer",
+        background: selected ? "hsl(var(--primary)/0.1)" : "hsl(var(--card))",
+        border: `1px solid ${selected ? "hsl(var(--primary))" : "hsl(var(--border))"}`,
+        boxShadow: selected ? "0 0 12px hsl(var(--primary)/0.2)" : "none",
+        fontFamily: font,
+        transition: "all 0.15s",
         marginBottom: 6,
       }}
-      whileHover={{ borderColor: C.borderHover, background: 'rgba(0,212,255,0.07)' }}
+      whileHover={{
+        borderColor: "hsl(var(--primary))",
+        background: "hsl(var(--primary)/0.07)",
+      }}
     >
-      <div style={{ color: selected ? C.primary : 'rgba(0,212,255,0.4)', flexShrink: 0 }}>{icon}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: 13, color: selected ? '#fff' : C.primary,
-          textShadow: selected ? '0 0 8px #00d4ff' : 'none',
-          textTransform: 'uppercase', letterSpacing: '0.08em',
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>{title}</div>
-        {sub1 && <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.5)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{sub1}</div>}
-        {sub2 && <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{sub2}</div>}
-        {sub3 && <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{sub3}</div>}
+      <div
+        style={{
+          color: selected
+            ? "hsl(var(--primary))"
+            : "hsl(var(--muted-foreground))",
+          flexShrink: 0,
+        }}
+      >
+        {icon}
       </div>
-      <ChevronRight style={{ width: 14, height: 14, color: 'rgba(0,212,255,0.3)', flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 13,
+            color: selected ? "hsl(var(--foreground))" : "hsl(var(--primary))",
+            textShadow: selected ? "0 0 8px hsl(var(--primary))" : "none",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {title}
+        </div>
+        {sub1 && (
+          <div
+            style={{
+              fontSize: 10,
+              color: "hsl(var(--muted-foreground))",
+              marginTop: 2,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {sub1}
+          </div>
+        )}
+        {sub2 && (
+          <div
+            style={{
+              fontSize: 10,
+              color: "hsl(var(--muted-foreground))",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {sub2}
+          </div>
+        )}
+        {sub3 && (
+          <div
+            style={{
+              fontSize: 10,
+              color: "hsl(var(--muted-foreground))",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {sub3}
+          </div>
+        )}
+      </div>
+      <ChevronRight
+        style={{
+          width: 14,
+          height: 14,
+          color: "hsl(var(--muted-foreground))",
+          flexShrink: 0,
+        }}
+      />
     </motion.div>
   );
 }
 
-interface FilmsListProps { films: Film[]; selectedId: string | null; onSelect: (id: string) => void; }
+interface FilmsListProps {
+  films: Film[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}
 export function FilmsList({ films, selectedId, onSelect }: FilmsListProps) {
   const sorted = [...films].sort((a, b) => a.episode_id - b.episode_id);
   return (
     <div>
-      {sorted.map(f => (
+      {sorted.map((f) => (
         <ListCard
-          key={f.id} id={f.id} selected={selectedId === f.id}
+          key={f.id}
+          id={f.id}
+          selected={selectedId === f.id}
           title={`EP ${f.episode_id}: ${f.title}`}
           sub1={`DIR: ${f.director}`}
           sub2={`RELEASED: ${f.release_date}`}
@@ -68,15 +153,21 @@ export function FilmsList({ films, selectedId, onSelect }: FilmsListProps) {
   );
 }
 
-interface PeopleListProps { people: Person[]; selectedId: string | null; onSelect: (id: string) => void; }
+interface PeopleListProps {
+  people: Person[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}
 export function PeopleList({ people, selectedId, onSelect }: PeopleListProps) {
   return (
     <div>
-      {people.map(p => (
+      {people.map((p) => (
         <ListCard
-          key={p.id} id={p.id} selected={selectedId === p.id}
+          key={p.id}
+          id={p.id}
+          selected={selectedId === p.id}
           title={p.name}
-          sub1={`SPECIES: ${p.gender !== 'unknown' ? p.gender.toUpperCase() : 'UNCLASSIFIED'} · BORN: ${p.birth_year}`}
+          sub1={`SPECIES: ${p.gender !== "unknown" ? p.gender.toUpperCase() : "UNCLASSIFIED"} · BORN: ${p.birth_year}`}
           sub2={`HEIGHT: ${p.height}cm · MASS: ${p.mass}kg`}
           icon={<User style={{ width: 16, height: 16 }} />}
           onClick={() => onSelect(p.id)}
@@ -86,13 +177,23 @@ export function PeopleList({ people, selectedId, onSelect }: PeopleListProps) {
   );
 }
 
-interface StarshipsListProps { starships: Starship[]; selectedId: string | null; onSelect: (id: string) => void; }
-export function StarshipsList({ starships, selectedId, onSelect }: StarshipsListProps) {
+interface StarshipsListProps {
+  starships: Starship[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}
+export function StarshipsList({
+  starships,
+  selectedId,
+  onSelect,
+}: StarshipsListProps) {
   return (
     <div>
-      {starships.map(s => (
+      {starships.map((s) => (
         <ListCard
-          key={s.id} id={s.id} selected={selectedId === s.id}
+          key={s.id}
+          id={s.id}
+          selected={selectedId === s.id}
           title={s.name}
           sub1={`CLASS: ${s.starship_class.toUpperCase()}`}
           sub2={`MODEL: ${s.model}`}
@@ -105,13 +206,23 @@ export function StarshipsList({ starships, selectedId, onSelect }: StarshipsList
   );
 }
 
-interface VehiclesListProps { vehicles: Vehicle[]; selectedId: string | null; onSelect: (id: string) => void; }
-export function VehiclesList({ vehicles, selectedId, onSelect }: VehiclesListProps) {
+interface VehiclesListProps {
+  vehicles: Vehicle[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}
+export function VehiclesList({
+  vehicles,
+  selectedId,
+  onSelect,
+}: VehiclesListProps) {
   return (
     <div>
-      {vehicles.map(v => (
+      {vehicles.map((v) => (
         <ListCard
-          key={v.id} id={v.id} selected={selectedId === v.id}
+          key={v.id}
+          id={v.id}
+          selected={selectedId === v.id}
           title={v.name}
           sub1={`CLASS: ${v.vehicle_class.toUpperCase()}`}
           sub2={`MODEL: ${v.model}`}

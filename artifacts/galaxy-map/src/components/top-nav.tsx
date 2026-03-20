@@ -60,15 +60,6 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "species", label: "SPECIES", icon: Sparkles },
 ];
 
-const C = {
-  bar: "rgba(0,8,20,0.97)",
-  border: "rgba(0,212,255,0.18)",
-  active: "#00d4ff",
-  activeBg: "rgba(0,212,255,0.10)",
-  inactive: "rgba(0,212,255,0.42)",
-  font: "'Share Tech Mono', monospace",
-};
-
 function useIsMobile() {
   const [mobile, setMobile] = useState(() => window.innerWidth < 640);
   useEffect(() => {
@@ -98,21 +89,20 @@ export function TopNav({
     return (
       <div
         style={{
-          background: C.bar,
-          borderBottom: `1px solid ${C.border}`,
-          fontFamily: C.font,
+          background: "hsl(var(--card))",
+          borderBottom: "1px solid hsl(var(--border))",
+          fontFamily: "'Share Tech Mono', monospace",
           flexShrink: 0,
-          boxShadow: "0 2px 20px rgba(0,212,255,0.08)",
+          boxShadow: "0 2px 20px hsl(var(--primary)/0.08)",
           position: "relative",
           zIndex: 30,
         }}
       >
-        {/* Row 1: logo + dropdown */}
         <div style={{ display: "flex", alignItems: "center", height: 48 }}>
           <div
             style={{
               padding: "0 14px",
-              borderRight: `1px solid ${C.border}`,
+              borderRight: "1px solid hsl(var(--border))",
               height: "100%",
               display: "flex",
               alignItems: "center",
@@ -122,16 +112,15 @@ export function TopNav({
             <span
               style={{
                 fontSize: 10,
-                color: "#00d4ff",
-                textShadow: "0 0 8px #00d4ff",
+                color: "hsl(var(--primary))",
+                textShadow: "0 0 8px hsl(var(--primary))",
                 letterSpacing: "0.16em",
               }}
             >
-              ◈ GALACTIC
+              GALACTIC
             </span>
           </div>
 
-          {/* Styled native select — most touch-friendly */}
           <div
             style={{
               flex: 1,
@@ -145,7 +134,7 @@ export function TopNav({
               style={{
                 width: 13,
                 height: 13,
-                color: C.active,
+                color: "hsl(var(--primary))",
                 flexShrink: 0,
                 marginRight: 8,
               }}
@@ -160,12 +149,12 @@ export function TopNav({
                 background: "transparent",
                 border: "none",
                 outline: "none",
-                color: C.active,
-                fontFamily: C.font,
+                color: "hsl(var(--primary))",
+                fontFamily: "'Share Tech Mono', monospace",
                 fontSize: 12,
                 letterSpacing: "0.14em",
                 cursor: "pointer",
-                textShadow: "0 0 6px #00d4ff",
+                textShadow: "0 0 6px hsl(var(--primary))",
               }}
             >
               {NAV_ITEMS.map((item) => (
@@ -173,9 +162,9 @@ export function TopNav({
                   key={item.key}
                   value={item.key}
                   style={{
-                    background: "#000c1a",
-                    color: "#00d4ff",
-                    fontFamily: C.font,
+                    background: "hsl(var(--background))",
+                    color: "hsl(var(--primary))",
+                    fontFamily: "'Share Tech Mono', monospace",
                   }}
                 >
                   {item.label}
@@ -186,7 +175,7 @@ export function TopNav({
               style={{
                 width: 13,
                 height: 13,
-                color: C.inactive,
+                color: "hsl(var(--muted-foreground))",
                 flexShrink: 0,
                 pointerEvents: "none",
               }}
@@ -194,12 +183,11 @@ export function TopNav({
           </div>
         </div>
 
-        {/* Row 2: search */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            borderTop: `1px solid ${C.border}`,
+            borderTop: "1px solid hsl(var(--border))",
             padding: "0 12px",
             height: 40,
           }}
@@ -208,7 +196,7 @@ export function TopNav({
             style={{
               width: 13,
               height: 13,
-              color: "rgba(0,212,255,0.5)",
+              color: "hsl(var(--muted-foreground))",
               flexShrink: 0,
             }}
           />
@@ -222,12 +210,12 @@ export function TopNav({
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "#00d4ff",
-              fontFamily: C.font,
+              color: "hsl(var(--foreground))",
+              fontFamily: "'Share Tech Mono', monospace",
               fontSize: 11,
               letterSpacing: "0.08em",
               padding: "0 8px",
-              caretColor: "#00d4ff",
+              caretColor: "hsl(var(--primary))",
             }}
           />
           <AnimatePresence>
@@ -242,7 +230,7 @@ export function TopNav({
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "rgba(0,212,255,0.5)",
+                  color: "hsl(var(--muted-foreground))",
                   padding: 2,
                 }}
               >
@@ -255,27 +243,25 @@ export function TopNav({
     );
   }
 
-  /* ── Desktop layout ── */
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
         height: 52,
-        background: C.bar,
-        borderBottom: `1px solid ${C.border}`,
-        fontFamily: C.font,
+        background: "hsl(var(--card))",
+        borderBottom: "1px solid hsl(var(--border))",
+        fontFamily: "'Share Tech Mono', monospace",
         flexShrink: 0,
-        boxShadow: "0 2px 20px rgba(0,212,255,0.08)",
+        boxShadow: "0 2px 20px hsl(var(--primary)/0.08)",
         position: "relative",
         zIndex: 30,
       }}
     >
-      {/* Logo */}
       <div
         style={{
           padding: "0 20px",
-          borderRight: `1px solid ${C.border}`,
+          borderRight: "1px solid hsl(var(--border))",
           height: "100%",
           display: "flex",
           alignItems: "center",
@@ -285,17 +271,16 @@ export function TopNav({
         <div
           style={{
             fontSize: 11,
-            color: "#00d4ff",
-            textShadow: "0 0 8px #00d4ff",
+            color: "hsl(var(--primary))",
+            textShadow: "0 0 8px hsl(var(--primary))",
             letterSpacing: "0.18em",
             whiteSpace: "nowrap",
           }}
         >
-          ◈ GALACTIC DATABASE
+          GALACTIC DATABASE
         </div>
       </div>
 
-      {/* Nav tabs with sliding indicator */}
       <div style={{ display: "flex", height: "100%", flexShrink: 0 }}>
         {NAV_ITEMS.map((item) => {
           const active = activeSection === item.key;
@@ -312,14 +297,16 @@ export function TopNav({
                 padding: "0 18px",
                 height: "100%",
                 cursor: "pointer",
-                background: active ? C.activeBg : "transparent",
-                color: active ? C.active : C.inactive,
+                background: active ? "hsl(var(--primary)/0.1)" : "transparent",
+                color: active
+                  ? "hsl(var(--primary))"
+                  : "hsl(var(--muted-foreground))",
                 border: "none",
                 borderBottom: "2px solid transparent",
-                fontFamily: C.font,
+                fontFamily: "'Share Tech Mono', monospace",
                 fontSize: 11,
                 letterSpacing: "0.15em",
-                textShadow: active ? "0 0 8px #00d4ff" : "none",
+                textShadow: active ? "0 0 8px hsl(var(--primary))" : "none",
                 transition: "color 0.2s, background 0.2s, text-shadow 0.2s",
                 whiteSpace: "nowrap",
               }}
@@ -335,8 +322,9 @@ export function TopNav({
                     left: 0,
                     right: 0,
                     height: 2,
-                    background: "#00d4ff",
-                    boxShadow: "0 0 8px #00d4ff, 0 0 16px rgba(0,212,255,0.5)",
+                    background: "hsl(var(--primary))",
+                    boxShadow:
+                      "0 0 8px hsl(var(--primary)), 0 0 16px hsl(var(--primary)/0.5)",
                   }}
                   transition={{ type: "spring", stiffness: 400, damping: 34 }}
                 />
@@ -346,21 +334,20 @@ export function TopNav({
         })}
       </div>
 
-      {/* Search */}
       <div
         style={{
           flex: 1,
           display: "flex",
           alignItems: "center",
           padding: "0 16px",
-          borderLeft: `1px solid ${C.border}`,
+          borderLeft: "1px solid hsl(var(--border))",
         }}
       >
         <Search
           style={{
             width: 14,
             height: 14,
-            color: "rgba(0,212,255,0.5)",
+            color: "hsl(var(--muted-foreground))",
             flexShrink: 0,
           }}
         />
@@ -374,12 +361,12 @@ export function TopNav({
             background: "transparent",
             border: "none",
             outline: "none",
-            color: "#00d4ff",
-            fontFamily: C.font,
+            color: "hsl(var(--foreground))",
+            fontFamily: "'Share Tech Mono', monospace",
             fontSize: 12,
             letterSpacing: "0.1em",
             padding: "0 10px",
-            caretColor: "#00d4ff",
+            caretColor: "hsl(var(--primary))",
           }}
         />
         <AnimatePresence>
@@ -393,7 +380,7 @@ export function TopNav({
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "rgba(0,212,255,0.5)",
+                color: "hsl(var(--muted-foreground))",
                 padding: 2,
               }}
             >
@@ -402,7 +389,6 @@ export function TopNav({
           )}
         </AnimatePresence>
 
-        {/* Theme Selector */}
         <div style={{ position: "relative", marginLeft: 12 }}>
           <button
             onClick={() => setShowThemeMenu(!showThemeMenu)}
@@ -415,7 +401,7 @@ export function TopNav({
               display: "flex",
               alignItems: "center",
               gap: 6,
-              fontFamily: C.font,
+              fontFamily: "'Share Tech Mono', monospace",
               fontSize: 10,
               letterSpacing: "0.1em",
             }}
@@ -435,8 +421,8 @@ export function TopNav({
                   top: "100%",
                   right: 0,
                   marginTop: 8,
-                  background: "rgba(0,4,12,0.98)",
-                  border: "1px solid rgba(0,212,255,0.3)",
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
                   borderRadius: 4,
                   padding: 8,
                   zIndex: 100,
@@ -458,24 +444,25 @@ export function TopNav({
                       padding: "8px 12px",
                       background:
                         theme === t.key
-                          ? "rgba(0,212,255,0.15)"
+                          ? "hsl(var(--primary)/0.15)"
                           : "transparent",
                       border: "none",
                       borderRadius: 4,
                       cursor: "pointer",
                       color: t.color,
-                      fontFamily: C.font,
+                      fontFamily: "'Share Tech Mono', monospace",
                       fontSize: 11,
                       letterSpacing: "0.1em",
                       textAlign: "left",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(0,212,255,0.1)";
+                      e.currentTarget.style.background =
+                        "hsl(var(--primary)/0.1)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background =
                         theme === t.key
-                          ? "rgba(0,212,255,0.15)"
+                          ? "hsl(var(--primary)/0.15)"
                           : "transparent";
                     }}
                   >

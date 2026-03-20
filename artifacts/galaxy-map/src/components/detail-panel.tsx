@@ -38,7 +38,7 @@ function Row({ label, value }: { label: string; value: string }) {
         style={{
           display: "flex",
           alignItems: "center",
-          color: "rgba(0,212,255,0.55)",
+          color: "hsl(var(--muted-foreground))",
           flexShrink: 0,
           width: "40%",
         }}
@@ -52,10 +52,10 @@ function Row({ label, value }: { label: string; value: string }) {
       </div>
       <div
         style={{
-          color: "#00d4ff",
+          color: "hsl(var(--primary))",
           textAlign: "right",
           fontWeight: "bold",
-          textShadow: "0 0 5px rgba(0,212,255,0.3)",
+          textShadow: "0 0 5px hsl(var(--primary)/0.3)",
           letterSpacing: "0.04em",
           wordBreak: "break-word",
         }}
@@ -71,10 +71,10 @@ function SectionTitle({ title }: { title: string }) {
     <div
       style={{
         fontSize: 10,
-        color: "rgba(0,212,255,0.6)",
+        color: "hsl(var(--muted-foreground))",
         letterSpacing: "0.15em",
         textTransform: "uppercase",
-        borderBottom: "1px solid rgba(0,212,255,0.15)",
+        borderBottom: "1px solid hsl(var(--border))",
         paddingBottom: 4,
         marginBottom: 10,
         marginTop: 16,
@@ -115,10 +115,10 @@ function LinkTag({
       onClick={() => onLinkClick && onLinkClick(section, id)}
       style={{
         fontSize: 11,
-        color: "#00d4ff",
+        color: "hsl(var(--primary))",
         padding: "3px 6px",
-        border: "1px solid rgba(0,212,255,0.3)",
-        background: "rgba(0,212,255,0.08)",
+        border: "1px solid hsl(var(--border))",
+        background: "hsl(var(--primary)/0.08)",
         fontFamily: font,
         textTransform: "uppercase",
         letterSpacing: "0.05em",
@@ -127,14 +127,14 @@ function LinkTag({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "rgba(0,212,255,0.2)";
-        e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)";
-        e.currentTarget.style.color = "#fff";
+        e.currentTarget.style.background = "hsl(var(--primary)/0.2)";
+        e.currentTarget.style.borderColor = "hsl(var(--primary))";
+        e.currentTarget.style.color = "hsl(var(--foreground))";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "rgba(0,212,255,0.08)";
-        e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)";
-        e.currentTarget.style.color = "#00d4ff";
+        e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
+        e.currentTarget.style.borderColor = "hsl(var(--border))";
+        e.currentTarget.style.color = "hsl(var(--primary))";
       }}
     >
       {display}
@@ -157,10 +157,10 @@ function ResidentRow({
       <div
         style={{
           fontSize: 12,
-          color: "#00d4ff",
+          color: "hsl(var(--primary))",
           padding: "5px 8px",
-          border: "1px solid rgba(0,212,255,0.15)",
-          background: "rgba(0,0,0,0.3)",
+          border: "1px solid hsl(var(--border))",
+          background: "hsl(var(--muted))",
           fontFamily: font,
           textTransform: "uppercase",
           marginBottom: 4,
@@ -177,10 +177,10 @@ function ResidentRow({
       onClick={() => onLinkClick && onLinkClick("characters", id)}
       style={{
         fontSize: 12,
-        color: "#00d4ff",
+        color: "hsl(var(--primary))",
         padding: "5px 8px",
-        border: "1px solid rgba(0,212,255,0.15)",
-        background: "rgba(0,0,0,0.3)",
+        border: "1px solid hsl(var(--border))",
+        background: "hsl(var(--muted))",
         fontFamily: font,
         textTransform: "uppercase",
         marginBottom: 4,
@@ -191,12 +191,12 @@ function ResidentRow({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "rgba(0,212,255,0.1)";
-        e.currentTarget.style.borderColor = "rgba(0,212,255,0.4)";
+        e.currentTarget.style.background = "hsl(var(--primary)/0.1)";
+        e.currentTarget.style.borderColor = "hsl(var(--primary))";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "rgba(0,0,0,0.3)";
-        e.currentTarget.style.borderColor = "rgba(0,212,255,0.15)";
+        e.currentTarget.style.background = "hsl(var(--muted))";
+        e.currentTarget.style.borderColor = "hsl(var(--border))";
       }}
     >
       {resident?.name ?? "UNKNOWN"}
@@ -223,8 +223,8 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
       <div
         style={{
           padding: "12px 16px",
-          borderBottom: "1px solid rgba(0,212,255,0.2)",
-          background: "rgba(0,8,18,0.95)",
+          borderBottom: "1px solid hsl(var(--border))",
+          background: "hsl(var(--muted))",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
@@ -235,7 +235,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
           <div
             style={{
               fontSize: 10,
-              color: "rgba(0,212,255,0.5)",
+              color: "hsl(var(--muted-foreground))",
               letterSpacing: "0.15em",
               marginBottom: 4,
               textTransform: "uppercase",
@@ -246,8 +246,9 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
           <div
             style={{
               fontSize: 20,
-              color: "#ffffff",
-              textShadow: "0 0 10px #00d4ff, 0 0 20px rgba(0,212,255,0.4)",
+              color: "hsl(var(--foreground))",
+              textShadow:
+                "0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)/0.4)",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               lineHeight: 1.2,
@@ -259,7 +260,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
             style={{
               height: 1,
               background:
-                "linear-gradient(to right, #00d4ff, rgba(0,212,255,0.3), transparent)",
+                "linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary)/0.3), transparent)",
               marginTop: 6,
             }}
           />
@@ -271,18 +272,19 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
             border: "1px solid transparent",
             padding: 4,
             cursor: "pointer",
-            color: "rgba(0,212,255,0.5)",
+            color: "hsl(var(--muted-foreground))",
             flexShrink: 0,
             marginLeft: 8,
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.color = "#fff";
+            (e.currentTarget as HTMLElement).style.color =
+              "hsl(var(--foreground))";
             (e.currentTarget as HTMLElement).style.borderColor =
-              "rgba(0,212,255,0.4)";
+              "hsl(var(--border))";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLElement).style.color =
-              "rgba(0,212,255,0.5)";
+              "hsl(var(--muted-foreground))";
             (e.currentTarget as HTMLElement).style.borderColor = "transparent";
           }}
         >
@@ -295,13 +297,13 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
       <div
         style={{
           height: 28,
-          borderTop: "1px solid rgba(0,212,255,0.15)",
+          borderTop: "1px solid hsl(var(--border))",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 14px",
           fontSize: 10,
-          color: "rgba(0,212,255,0.45)",
+          color: "hsl(var(--muted-foreground))",
           flexShrink: 0,
         }}
       >
@@ -317,7 +319,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
               width: 6,
               height: 6,
               borderRadius: "50%",
-              background: "#00d4ff",
+              background: "hsl(var(--primary))",
               display: "inline-block",
             }}
           />
@@ -371,10 +373,10 @@ export function PlanetDetailPanel({
                 onClick={() => onLinkClick && onLinkClick("locations", loc.id)}
                 style={{
                   fontSize: 10,
-                  color: "#00d4ff",
+                  color: "hsl(var(--primary))",
                   padding: "4px 8px",
-                  border: "1px solid rgba(0,212,255,0.3)",
-                  background: "rgba(0,212,255,0.08)",
+                  border: "1px solid hsl(var(--border))",
+                  background: "hsl(var(--primary)/0.08)",
                   fontFamily: font,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
@@ -385,12 +387,12 @@ export function PlanetDetailPanel({
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(0,212,255,0.2)";
-                  e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)";
+                  e.currentTarget.style.background = "hsl(var(--primary)/0.2)";
+                  e.currentTarget.style.borderColor = "hsl(var(--primary))";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(0,212,255,0.08)";
-                  e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)";
+                  e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
+                  e.currentTarget.style.borderColor = "hsl(var(--border))";
                 }}
               >
                 {loc.name}
@@ -436,13 +438,13 @@ export function FilmDetailPanel({
       <div
         style={{
           fontSize: 11,
-          color: "rgba(0,212,255,0.7)",
+          color: "hsl(var(--muted-foreground))",
           fontFamily: font,
           lineHeight: 1.7,
           letterSpacing: "0.04em",
           whiteSpace: "pre-wrap",
-          background: "rgba(0,0,0,0.3)",
-          border: "1px solid rgba(0,212,255,0.1)",
+          background: "hsl(var(--muted))",
+          border: "1px solid hsl(var(--border))",
           padding: 10,
           maxHeight: 160,
           overflowY: "auto",
@@ -519,7 +521,7 @@ export function PersonDetailPanel({
             marginBottom: 16,
             borderRadius: 4,
             overflow: "hidden",
-            border: "1px solid rgba(0,212,255,0.2)",
+            border: "1px solid hsl(var(--border))",
           }}
         >
           <img

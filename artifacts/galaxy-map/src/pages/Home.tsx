@@ -45,19 +45,24 @@ function LoadingScreen({ label }: { label: string }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "rgba(0,4,8,0.97)",
+        background: "hsl(var(--background))",
         fontFamily: "'Share Tech Mono', monospace",
       }}
     >
       <Database
-        style={{ width: 48, height: 48, color: "#00d4ff", marginBottom: 20 }}
+        style={{
+          width: 48,
+          height: 48,
+          color: "hsl(var(--primary))",
+          marginBottom: 20,
+        }}
         className="animate-pulse"
       />
       <div
         style={{
           fontSize: 18,
-          color: "#00d4ff",
-          textShadow: "0 0 10px #00d4ff",
+          color: "hsl(var(--primary))",
+          textShadow: "0 0 10px hsl(var(--primary))",
           letterSpacing: "0.15em",
         }}
       >
@@ -67,7 +72,7 @@ function LoadingScreen({ label }: { label: string }) {
         style={{
           width: 200,
           height: 6,
-          border: "1px solid rgba(0,212,255,0.4)",
+          border: "1px solid hsl(var(--border))",
           marginTop: 24,
           padding: 1,
         }}
@@ -75,7 +80,7 @@ function LoadingScreen({ label }: { label: string }) {
         <div
           style={{
             height: "100%",
-            background: "#00d4ff",
+            background: "hsl(var(--primary))",
             animation: "pulse 1s ease-in-out infinite",
           }}
         />
@@ -321,7 +326,7 @@ export default function Home() {
           justifyContent: "center",
           gap: 12,
           padding: "12px 0",
-          borderTop: "1px solid rgba(0,212,255,0.1)",
+          borderTop: "1px solid hsl(var(--border))",
           marginTop: 12,
         }}
       >
@@ -329,9 +334,12 @@ export default function Home() {
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
           style={{
-            background: "rgba(0,212,255,0.1)",
-            border: "1px solid rgba(0,212,255,0.3)",
-            color: page === 0 ? "rgba(0,212,255,0.3)" : "#00d4ff",
+            background: "hsl(var(--muted))",
+            border: "1px solid hsl(var(--border))",
+            color:
+              page === 0
+                ? "hsl(var(--muted-foreground))"
+                : "hsl(var(--primary))",
             padding: "6px 12px",
             cursor: page === 0 ? "not-allowed" : "pointer",
             fontFamily: font,
@@ -345,7 +353,7 @@ export default function Home() {
         </button>
         <span
           style={{
-            color: "rgba(0,212,255,0.6)",
+            color: "hsl(var(--muted-foreground))",
             fontSize: 11,
             fontFamily: font,
           }}
@@ -356,9 +364,12 @@ export default function Home() {
           onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
           disabled={page >= totalPages - 1}
           style={{
-            background: "rgba(0,212,255,0.1)",
-            border: "1px solid rgba(0,212,255,0.3)",
-            color: page >= totalPages - 1 ? "rgba(0,212,255,0.3)" : "#00d4ff",
+            background: "hsl(var(--muted))",
+            border: "1px solid hsl(var(--border))",
+            color:
+              page >= totalPages - 1
+                ? "hsl(var(--muted-foreground))"
+                : "hsl(var(--primary))",
             padding: "6px 12px",
             cursor: page >= totalPages - 1 ? "not-allowed" : "pointer",
             fontFamily: font,
@@ -434,7 +445,7 @@ export default function Home() {
         height: "100vh",
         width: "100vw",
         overflow: "hidden",
-        background: "#000408",
+        background: "hsl(var(--background))",
         fontFamily: font,
       }}
     >
@@ -498,7 +509,7 @@ export default function Home() {
                 <div
                   style={{
                     fontSize: 10,
-                    color: "rgba(0,212,255,0.65)",
+                    color: "hsl(var(--muted-foreground))",
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
@@ -514,8 +525,9 @@ export default function Home() {
                 <div
                   style={{
                     fontSize: 20,
-                    color: "#fff",
-                    textShadow: "0 0 8px #00d4ff, 0 0 15px rgba(0,212,255,0.3)",
+                    color: "hsl(var(--foreground))",
+                    textShadow:
+                      "0 0 8px hsl(var(--primary)), 0 0 15px hsl(var(--primary)/0.3)",
                     textTransform: "uppercase",
                     letterSpacing: "0.12em",
                   }}
@@ -525,14 +537,14 @@ export default function Home() {
                 <div
                   style={{
                     height: 1,
-                    background: "rgba(0,212,255,0.3)",
+                    background: "hsl(var(--border))",
                     marginTop: 6,
                   }}
                 />
                 <div
                   style={{
                     fontSize: 10,
-                    color: "rgba(0,212,255,0.45)",
+                    color: "hsl(var(--muted-foreground))",
                     marginTop: 4,
                   }}
                 >
@@ -574,9 +586,9 @@ export default function Home() {
               <div
                 style={{
                   padding: "8px 16px",
-                  borderBottom: "1px solid rgba(0,212,255,0.12)",
+                  borderBottom: "1px solid hsl(var(--border))",
                   fontSize: 10,
-                  color: "rgba(0,212,255,0.5)",
+                  color: "hsl(var(--muted-foreground))",
                   fontFamily: font,
                   flexShrink: 0,
                 }}
@@ -591,7 +603,7 @@ export default function Home() {
                   <div
                     style={{
                       textAlign: "center",
-                      color: "rgba(0,212,255,0.4)",
+                      color: "hsl(var(--muted-foreground))",
                       padding: 40,
                       fontFamily: font,
                       fontSize: 13,
@@ -618,8 +630,8 @@ export default function Home() {
               style={{
                 width: 380,
                 height: "100%",
-                background: "rgba(0,8,18,0.95)",
-                borderLeft: "1px solid rgba(0,212,255,0.2)",
+                background: "hsl(var(--card))",
+                borderLeft: "1px solid hsl(var(--border))",
                 flexShrink: 0,
                 overflow: "hidden",
                 boxShadow: "-8px 0 24px rgba(0,0,0,0.6)",
@@ -707,8 +719,8 @@ export default function Home() {
               right: 0,
               height: "78vh",
               zIndex: 50,
-              background: "rgba(0,8,18,0.98)",
-              borderTop: "1px solid rgba(0,212,255,0.3)",
+              background: "hsl(var(--card))",
+              borderTop: "1px solid hsl(var(--border))",
               borderRadius: "14px 14px 0 0",
               boxShadow: "0 -8px 40px rgba(0,0,0,0.8)",
               overflow: "hidden",
@@ -726,7 +738,7 @@ export default function Home() {
                   width: 36,
                   height: 3,
                   borderRadius: 2,
-                  background: "rgba(0,212,255,0.3)",
+                  background: "hsl(var(--border))",
                 }}
               />
             </div>
