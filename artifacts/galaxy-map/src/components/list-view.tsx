@@ -41,23 +41,23 @@ function ListCard({
         gap: 12,
         padding: "10px 14px",
         cursor: "pointer",
-        background: selected ? "hsl(var(--primary)/0.1)" : "hsl(var(--card))",
-        border: `1px solid ${selected ? "hsl(var(--primary))" : "hsl(var(--border))"}`,
-        boxShadow: selected ? "0 0 12px hsl(var(--primary)/0.2)" : "none",
+        background: selected ? "var(--primary)/0.1)" : "var(--card)",
+        border: `1px solid ${selected ? "var(--primary)" : "var(--border)"}`,
+        boxShadow: selected ? "0 0 12px var(--primary)/0.2)" : "none",
         fontFamily: font,
         transition: "all 0.15s",
         marginBottom: 6,
       }}
       whileHover={{
-        borderColor: "hsl(var(--primary))",
-        background: "hsl(var(--primary)/0.07)",
+        borderColor: "var(--primary)",
+        background: "var(--primary)/0.07)",
       }}
     >
       <div
         style={{
           color: selected
-            ? "hsl(var(--primary))"
-            : "hsl(var(--muted-foreground))",
+            ? "var(--primary)"
+            : "var(--muted-foreground)",
           flexShrink: 0,
         }}
       >
@@ -67,8 +67,8 @@ function ListCard({
         <div
           style={{
             fontSize: 13,
-            color: selected ? "hsl(var(--foreground))" : "hsl(var(--primary))",
-            textShadow: selected ? "0 0 8px hsl(var(--primary))" : "none",
+            color: selected ? "var(--foreground)" : "var(--primary)",
+            textShadow: selected ? "0 0 8px var(--primary)" : "none",
             textTransform: "uppercase",
             letterSpacing: "0.08em",
             whiteSpace: "nowrap",
@@ -82,7 +82,7 @@ function ListCard({
           <div
             style={{
               fontSize: 10,
-              color: "hsl(var(--muted-foreground))",
+              color: "var(--muted-foreground)",
               marginTop: 2,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
@@ -95,7 +95,7 @@ function ListCard({
           <div
             style={{
               fontSize: 10,
-              color: "hsl(var(--muted-foreground))",
+              color: "var(--muted-foreground)",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
             }}
@@ -107,7 +107,7 @@ function ListCard({
           <div
             style={{
               fontSize: 10,
-              color: "hsl(var(--muted-foreground))",
+              color: "var(--muted-foreground)",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
             }}
@@ -120,7 +120,7 @@ function ListCard({
         style={{
           width: 14,
           height: 14,
-          color: "hsl(var(--muted-foreground))",
+          color: "var(--muted-foreground)",
           flexShrink: 0,
         }}
       />

@@ -89,11 +89,11 @@ export function TopNav({
     return (
       <div
         style={{
-          background: "hsl(var(--card))",
-          borderBottom: "1px solid hsl(var(--border))",
+          background: "var(--card)",
+          borderBottom: "1px solid var(--border)",
           fontFamily: "'Share Tech Mono', monospace",
           flexShrink: 0,
-          boxShadow: "0 2px 20px hsl(var(--primary)/0.08)",
+          boxShadow: "0 2px 20px var(--primary)/0.08)",
           position: "relative",
           zIndex: 30,
         }}
@@ -102,7 +102,7 @@ export function TopNav({
           <div
             style={{
               padding: "0 14px",
-              borderRight: "1px solid hsl(var(--border))",
+              borderRight: "1px solid var(--border)",
               height: "100%",
               display: "flex",
               alignItems: "center",
@@ -112,8 +112,8 @@ export function TopNav({
             <span
               style={{
                 fontSize: 10,
-                color: "hsl(var(--primary))",
-                textShadow: "0 0 8px hsl(var(--primary))",
+                color: "var(--primary)",
+                textShadow: "0 0 8px var(--primary)",
                 letterSpacing: "0.16em",
               }}
             >
@@ -134,7 +134,7 @@ export function TopNav({
               style={{
                 width: 13,
                 height: 13,
-                color: "hsl(var(--primary))",
+                color: "var(--primary)",
                 flexShrink: 0,
                 marginRight: 8,
               }}
@@ -149,12 +149,12 @@ export function TopNav({
                 background: "transparent",
                 border: "none",
                 outline: "none",
-                color: "hsl(var(--primary))",
+                color: "var(--primary)",
                 fontFamily: "'Share Tech Mono', monospace",
                 fontSize: 12,
                 letterSpacing: "0.14em",
                 cursor: "pointer",
-                textShadow: "0 0 6px hsl(var(--primary))",
+                textShadow: "0 0 6px var(--primary)",
               }}
             >
               {NAV_ITEMS.map((item) => (
@@ -162,8 +162,8 @@ export function TopNav({
                   key={item.key}
                   value={item.key}
                   style={{
-                    background: "hsl(var(--background))",
-                    color: "hsl(var(--primary))",
+                    background: "var(--background)",
+                    color: "var(--primary)",
                     fontFamily: "'Share Tech Mono', monospace",
                   }}
                 >
@@ -175,7 +175,7 @@ export function TopNav({
               style={{
                 width: 13,
                 height: 13,
-                color: "hsl(var(--muted-foreground))",
+                color: "var(--muted-foreground)",
                 flexShrink: 0,
                 pointerEvents: "none",
               }}
@@ -187,7 +187,7 @@ export function TopNav({
           style={{
             display: "flex",
             alignItems: "center",
-            borderTop: "1px solid hsl(var(--border))",
+            borderTop: "1px solid var(--border)",
             padding: "0 12px",
             height: 40,
           }}
@@ -196,7 +196,7 @@ export function TopNav({
             style={{
               width: 13,
               height: 13,
-              color: "hsl(var(--muted-foreground))",
+              color: "var(--muted-foreground)",
               flexShrink: 0,
             }}
           />
@@ -210,12 +210,12 @@ export function TopNav({
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "hsl(var(--foreground))",
+              color: "var(--foreground)",
               fontFamily: "'Share Tech Mono', monospace",
               fontSize: 11,
               letterSpacing: "0.08em",
               padding: "0 8px",
-              caretColor: "hsl(var(--primary))",
+              caretColor: "var(--primary)",
             }}
           />
           <AnimatePresence>
@@ -230,7 +230,7 @@ export function TopNav({
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "hsl(var(--muted-foreground))",
+                  color: "var(--muted-foreground)",
                   padding: 2,
                 }}
               >
@@ -249,11 +249,11 @@ export function TopNav({
         display: "flex",
         alignItems: "center",
         height: 52,
-        background: "hsl(var(--card))",
-        borderBottom: "1px solid hsl(var(--border))",
+        background: "var(--card)",
+        borderBottom: "1px solid var(--border)",
         fontFamily: "'Share Tech Mono', monospace",
         flexShrink: 0,
-        boxShadow: "0 2px 20px hsl(var(--primary)/0.08)",
+        boxShadow: "0 2px 20px var(--primary)/0.08)",
         position: "relative",
         zIndex: 30,
       }}
@@ -261,7 +261,7 @@ export function TopNav({
       <div
         style={{
           padding: "0 20px",
-          borderRight: "1px solid hsl(var(--border))",
+          borderRight: "1px solid var(--border)",
           height: "100%",
           display: "flex",
           alignItems: "center",
@@ -271,8 +271,8 @@ export function TopNav({
         <div
           style={{
             fontSize: 11,
-            color: "hsl(var(--primary))",
-            textShadow: "0 0 8px hsl(var(--primary))",
+            color: "var(--primary)",
+            textShadow: "0 0 8px var(--primary)",
             letterSpacing: "0.18em",
             whiteSpace: "nowrap",
           }}
@@ -297,16 +297,16 @@ export function TopNav({
                 padding: "0 18px",
                 height: "100%",
                 cursor: "pointer",
-                background: active ? "hsl(var(--primary)/0.1)" : "transparent",
+                background: active ? "var(--primary)/0.1)" : "transparent",
                 color: active
-                  ? "hsl(var(--primary))"
-                  : "hsl(var(--muted-foreground))",
+                  ? "var(--primary)"
+                  : "var(--muted-foreground)",
                 border: "none",
                 borderBottom: "2px solid transparent",
                 fontFamily: "'Share Tech Mono', monospace",
                 fontSize: 11,
                 letterSpacing: "0.15em",
-                textShadow: active ? "0 0 8px hsl(var(--primary))" : "none",
+                textShadow: active ? "0 0 8px var(--primary)" : "none",
                 transition: "color 0.2s, background 0.2s, text-shadow 0.2s",
                 whiteSpace: "nowrap",
               }}
@@ -322,9 +322,9 @@ export function TopNav({
                     left: 0,
                     right: 0,
                     height: 2,
-                    background: "hsl(var(--primary))",
+                    background: "var(--primary)",
                     boxShadow:
-                      "0 0 8px hsl(var(--primary)), 0 0 16px hsl(var(--primary)/0.5)",
+                      "0 0 8px var(--primary)), 0 0 16px var(--primary)/0.5)",
                   }}
                   transition={{ type: "spring", stiffness: 400, damping: 34 }}
                 />
@@ -340,14 +340,14 @@ export function TopNav({
           display: "flex",
           alignItems: "center",
           padding: "0 16px",
-          borderLeft: "1px solid hsl(var(--border))",
+          borderLeft: "1px solid var(--border)",
         }}
       >
         <Search
           style={{
             width: 14,
             height: 14,
-            color: "hsl(var(--muted-foreground))",
+            color: "var(--muted-foreground)",
             flexShrink: 0,
           }}
         />
@@ -361,12 +361,12 @@ export function TopNav({
             background: "transparent",
             border: "none",
             outline: "none",
-            color: "hsl(var(--foreground))",
+            color: "var(--foreground)",
             fontFamily: "'Share Tech Mono', monospace",
             fontSize: 12,
             letterSpacing: "0.1em",
             padding: "0 10px",
-            caretColor: "hsl(var(--primary))",
+            caretColor: "var(--primary)",
           }}
         />
         <AnimatePresence>
@@ -380,7 +380,7 @@ export function TopNav({
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "hsl(var(--muted-foreground))",
+                color: "var(--muted-foreground)",
                 padding: 2,
               }}
             >
@@ -421,8 +421,8 @@ export function TopNav({
                   top: "100%",
                   right: 0,
                   marginTop: 8,
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
                   borderRadius: 4,
                   padding: 8,
                   zIndex: 100,
@@ -444,7 +444,7 @@ export function TopNav({
                       padding: "8px 12px",
                       background:
                         theme === t.key
-                          ? "hsl(var(--primary)/0.15)"
+                          ? "var(--primary)/0.15)"
                           : "transparent",
                       border: "none",
                       borderRadius: 4,
@@ -457,12 +457,12 @@ export function TopNav({
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background =
-                        "hsl(var(--primary)/0.1)";
+                        "var(--primary)/0.1)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background =
                         theme === t.key
-                          ? "hsl(var(--primary)/0.15)"
+                          ? "var(--primary)/0.15)"
                           : "transparent";
                     }}
                   >

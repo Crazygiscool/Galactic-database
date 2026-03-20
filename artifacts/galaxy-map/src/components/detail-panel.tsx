@@ -38,7 +38,7 @@ function Row({ label, value }: { label: string; value: string }) {
         style={{
           display: "flex",
           alignItems: "center",
-          color: "hsl(var(--muted-foreground))",
+          color: "var(--muted-foreground)",
           flexShrink: 0,
           width: "40%",
         }}
@@ -52,10 +52,10 @@ function Row({ label, value }: { label: string; value: string }) {
       </div>
       <div
         style={{
-          color: "hsl(var(--primary))",
+          color: "var(--primary)",
           textAlign: "right",
           fontWeight: "bold",
-          textShadow: "0 0 5px hsl(var(--primary)/0.3)",
+          textShadow: "0 0 5px var(--primary)/0.3)",
           letterSpacing: "0.04em",
           wordBreak: "break-word",
         }}
@@ -71,10 +71,10 @@ function SectionTitle({ title }: { title: string }) {
     <div
       style={{
         fontSize: 10,
-        color: "hsl(var(--muted-foreground))",
+        color: "var(--muted-foreground)",
         letterSpacing: "0.15em",
         textTransform: "uppercase",
-        borderBottom: "1px solid hsl(var(--border))",
+        borderBottom: "1px solid var(--border)",
         paddingBottom: 4,
         marginBottom: 10,
         marginTop: 16,
@@ -115,10 +115,10 @@ function LinkTag({
       onClick={() => onLinkClick && onLinkClick(section, id)}
       style={{
         fontSize: 11,
-        color: "hsl(var(--primary))",
+        color: "var(--primary)",
         padding: "3px 6px",
-        border: "1px solid hsl(var(--border))",
-        background: "hsl(var(--primary)/0.08)",
+        border: "1px solid var(--border)",
+        background: "var(--primary)/0.08)",
         fontFamily: font,
         textTransform: "uppercase",
         letterSpacing: "0.05em",
@@ -127,14 +127,14 @@ function LinkTag({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "hsl(var(--primary)/0.2)";
-        e.currentTarget.style.borderColor = "hsl(var(--primary))";
-        e.currentTarget.style.color = "hsl(var(--foreground))";
+        e.currentTarget.style.background = "var(--primary)/0.2)";
+        e.currentTarget.style.borderColor = "var(--primary)";
+        e.currentTarget.style.color = "var(--foreground)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
-        e.currentTarget.style.borderColor = "hsl(var(--border))";
-        e.currentTarget.style.color = "hsl(var(--primary))";
+        e.currentTarget.style.background = "var(--primary)/0.08)";
+        e.currentTarget.style.borderColor = "var(--border)";
+        e.currentTarget.style.color = "var(--primary)";
       }}
     >
       {display}
@@ -157,10 +157,10 @@ function ResidentRow({
       <div
         style={{
           fontSize: 12,
-          color: "hsl(var(--primary))",
+          color: "var(--primary)",
           padding: "5px 8px",
-          border: "1px solid hsl(var(--border))",
-          background: "hsl(var(--muted))",
+          border: "1px solid var(--border)",
+          background: "var(--muted)",
           fontFamily: font,
           textTransform: "uppercase",
           marginBottom: 4,
@@ -177,10 +177,10 @@ function ResidentRow({
       onClick={() => onLinkClick && onLinkClick("characters", id)}
       style={{
         fontSize: 12,
-        color: "hsl(var(--primary))",
+        color: "var(--primary)",
         padding: "5px 8px",
-        border: "1px solid hsl(var(--border))",
-        background: "hsl(var(--muted))",
+        border: "1px solid var(--border)",
+        background: "var(--muted)",
         fontFamily: font,
         textTransform: "uppercase",
         marginBottom: 4,
@@ -191,12 +191,12 @@ function ResidentRow({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "hsl(var(--primary)/0.1)";
-        e.currentTarget.style.borderColor = "hsl(var(--primary))";
+        e.currentTarget.style.background = "var(--primary)/0.1)";
+        e.currentTarget.style.borderColor = "var(--primary)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "hsl(var(--muted))";
-        e.currentTarget.style.borderColor = "hsl(var(--border))";
+        e.currentTarget.style.background = "var(--muted)";
+        e.currentTarget.style.borderColor = "var(--border)";
       }}
     >
       {resident?.name ?? "UNKNOWN"}
@@ -223,8 +223,8 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
       <div
         style={{
           padding: "12px 16px",
-          borderBottom: "1px solid hsl(var(--border))",
-          background: "hsl(var(--muted))",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--muted)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
@@ -235,7 +235,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
           <div
             style={{
               fontSize: 10,
-              color: "hsl(var(--muted-foreground))",
+              color: "var(--muted-foreground)",
               letterSpacing: "0.15em",
               marginBottom: 4,
               textTransform: "uppercase",
@@ -246,9 +246,9 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
           <div
             style={{
               fontSize: 20,
-              color: "hsl(var(--foreground))",
+              color: "var(--foreground)",
               textShadow:
-                "0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)/0.4)",
+                "0 0 10px var(--primary)), 0 0 20px var(--primary)/0.4)",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               lineHeight: 1.2,
@@ -260,7 +260,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
             style={{
               height: 1,
               background:
-                "linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary)/0.3), transparent)",
+                "linear-gradient(to right, var(--primary)), var(--primary)/0.3), transparent)",
               marginTop: 6,
             }}
           />
@@ -272,19 +272,19 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
             border: "1px solid transparent",
             padding: 4,
             cursor: "pointer",
-            color: "hsl(var(--muted-foreground))",
+            color: "var(--muted-foreground)",
             flexShrink: 0,
             marginLeft: 8,
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.color =
-              "hsl(var(--foreground))";
+              "var(--foreground)";
             (e.currentTarget as HTMLElement).style.borderColor =
-              "hsl(var(--border))";
+              "var(--border)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLElement).style.color =
-              "hsl(var(--muted-foreground))";
+              "var(--muted-foreground)";
             (e.currentTarget as HTMLElement).style.borderColor = "transparent";
           }}
         >
@@ -297,13 +297,13 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
       <div
         style={{
           height: 28,
-          borderTop: "1px solid hsl(var(--border))",
+          borderTop: "1px solid var(--border)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 14px",
           fontSize: 10,
-          color: "hsl(var(--muted-foreground))",
+          color: "var(--muted-foreground)",
           flexShrink: 0,
         }}
       >
@@ -319,7 +319,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
               width: 6,
               height: 6,
               borderRadius: "50%",
-              background: "hsl(var(--primary))",
+              background: "var(--primary)",
               display: "inline-block",
             }}
           />
@@ -373,10 +373,10 @@ export function PlanetDetailPanel({
                 onClick={() => onLinkClick && onLinkClick("locations", loc.id)}
                 style={{
                   fontSize: 10,
-                  color: "hsl(var(--primary))",
+                  color: "var(--primary)",
                   padding: "4px 8px",
-                  border: "1px solid hsl(var(--border))",
-                  background: "hsl(var(--primary)/0.08)",
+                  border: "1px solid var(--border)",
+                  background: "var(--primary)/0.08)",
                   fontFamily: font,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
@@ -387,12 +387,12 @@ export function PlanetDetailPanel({
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "hsl(var(--primary)/0.2)";
-                  e.currentTarget.style.borderColor = "hsl(var(--primary))";
+                  e.currentTarget.style.background = "var(--primary)/0.2)";
+                  e.currentTarget.style.borderColor = "var(--primary)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "hsl(var(--primary)/0.08)";
-                  e.currentTarget.style.borderColor = "hsl(var(--border))";
+                  e.currentTarget.style.background = "var(--primary)/0.08)";
+                  e.currentTarget.style.borderColor = "var(--border)";
                 }}
               >
                 {loc.name}
@@ -438,13 +438,13 @@ export function FilmDetailPanel({
       <div
         style={{
           fontSize: 11,
-          color: "hsl(var(--muted-foreground))",
+          color: "var(--muted-foreground)",
           fontFamily: font,
           lineHeight: 1.7,
           letterSpacing: "0.04em",
           whiteSpace: "pre-wrap",
-          background: "hsl(var(--muted))",
-          border: "1px solid hsl(var(--border))",
+          background: "var(--muted)",
+          border: "1px solid var(--border)",
           padding: 10,
           maxHeight: 160,
           overflowY: "auto",
@@ -521,7 +521,7 @@ export function PersonDetailPanel({
             marginBottom: 16,
             borderRadius: 4,
             overflow: "hidden",
-            border: "1px solid hsl(var(--border))",
+            border: "1px solid var(--border)",
           }}
         >
           <img

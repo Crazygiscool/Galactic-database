@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Section,
@@ -12,7 +12,6 @@ import {
   useMergedLocations,
   useDatabankOrganizations,
   useDatabankSpecies,
-  useNameLookup,
   Planet,
   Film,
   Starship,
@@ -32,9 +31,18 @@ import {
   StarshipDetailPanel,
   VehicleDetailPanel,
 } from "@/components/detail-panel";
-import { Database, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Database,
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from "lucide-react";
 
 const PAGE_SIZE = 25;
+const SCALE = 1.1;
+
+const font = "'Share Tech Mono', monospace";
 
 function LoadingScreen({ label }: { label: string }) {
   return (
@@ -45,24 +53,24 @@ function LoadingScreen({ label }: { label: string }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "hsl(var(--background))",
-        fontFamily: "'Share Tech Mono', monospace",
+        background: "var(--background)",
+        fontFamily: font,
       }}
     >
       <Database
         style={{
-          width: 48,
-          height: 48,
-          color: "hsl(var(--primary))",
-          marginBottom: 20,
+          width: 48 * SCALE,
+          height: 48 * SCALE,
+          color: "var(--primary)",
+          marginBottom: 20 * SCALE,
         }}
         className="animate-pulse"
       />
       <div
         style={{
-          fontSize: 18,
-          color: "hsl(var(--primary))",
-          textShadow: "0 0 10px hsl(var(--primary))",
+          fontSize: 18 * SCALE,
+          color: "var(--primary)",
+          textShadow: "0 0 10px var(--primary)",
           letterSpacing: "0.15em",
         }}
       >
@@ -70,17 +78,17 @@ function LoadingScreen({ label }: { label: string }) {
       </div>
       <div
         style={{
-          width: 200,
-          height: 6,
-          border: "1px solid hsl(var(--border))",
-          marginTop: 24,
+          width: 200 * SCALE,
+          height: 6 * SCALE,
+          border: "1px solid var(--border)",
+          marginTop: 24 * SCALE,
           padding: 1,
         }}
       >
         <div
           style={{
             height: "100%",
-            background: "hsl(var(--primary))",
+            background: "var(--primary)",
             animation: "pulse 1s ease-in-out infinite",
           }}
         />
@@ -102,6 +110,12 @@ function filterBySearch<T extends { name?: string; title?: string }>(
   );
 }
 
+interface SearchResult {
+  id: string;
+  name: string;
+  section: Section;
+}
+
 export default function Home() {
   const [section, setSection] = useState<Section>("planets");
   const [search, setSearch] = useState("");
@@ -109,6 +123,7 @@ export default function Home() {
   const [linkedSection, setLinkedSection] = useState<Section | null>(null);
   const [page, setPage] = useState(0);
   const [theme, setTheme] = useState<Theme>("imperial");
+  const [showGlobalResults, setShowGlobalResults] = useState(false);
 
   const { data: planets, isLoading: planetsLoading } = usePlanets();
   const { data: films, isLoading: filmsLoading } = useFilms();
@@ -129,12 +144,69 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  const allData = useMemo(
+    () => ({
+      planets: planets ?? [],
+      films: films ?? [],
+      characters: characters ?? [],
+      starships: starships ?? [],
+      vehicles: vehicles ?? [],
+      creatures: creatures ?? [],
+      droids: droids ?? [],
+      locations: mergedLocations ?? [],
+      organizations: organizations ?? [],
+      species: species ?? [],
+    }),
+    [
+      planets,
+      films,
+      characters,
+      starships,
+      vehicles,
+      creatures,
+      droids,
+      mergedLocations,
+      organizations,
+      species,
+    ],
+  );
+
+  const globalSearchResults = useMemo(() => {
+    if (!search.trim() || search.length < 2) return [];
+    const results: SearchResult[] = [];
+    const q = search.toLowerCase();
+
+    Object.entries(allData).forEach(([sec, items]) => {
+      items.forEach((item: any) => {
+        const name = (item.name || item.title || "").toLowerCase();
+        if (name.includes(q)) {
+          results.push({
+            id: item.id,
+            name: item.name || item.title || "",
+            section: sec as Section,
+          });
+        }
+      });
+    });
+
+    return results.slice(0, 20);
+  }, [search, allData]);
+
+  const handleGlobalSearchSelect = useCallback((result: SearchResult) => {
+    setSection(result.section);
+    setSelectedId(result.id);
+    setSearch("");
+    setShowGlobalResults(false);
+    setPage(0);
+  }, []);
+
   const handleSectionChange = (s: Section) => {
     setSection(s);
     setSearch("");
     setSelectedId(null);
     setLinkedSection(null);
     setPage(0);
+    setShowGlobalResults(false);
   };
 
   const handleLinkClick = (targetSection: Section, targetId: string) => {
@@ -282,8 +354,6 @@ export default function Home() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const font = "'Share Tech Mono', monospace";
-
   const getItemsForSection = () => {
     switch (section) {
       case "films":
@@ -324,37 +394,34 @@ export default function Home() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 12,
+          gap: 12 * SCALE,
           padding: "12px 0",
-          borderTop: "1px solid hsl(var(--border))",
-          marginTop: 12,
+          borderTop: "1px solid var(--border)",
+          marginTop: 12 * SCALE,
         }}
       >
         <button
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
           style={{
-            background: "hsl(var(--muted))",
-            border: "1px solid hsl(var(--border))",
-            color:
-              page === 0
-                ? "hsl(var(--muted-foreground))"
-                : "hsl(var(--primary))",
-            padding: "6px 12px",
+            background: "var(--muted)",
+            border: "1px solid var(--border)",
+            color: page === 0 ? "var(--muted-foreground)" : "var(--primary)",
+            padding: `${6 * SCALE}px ${12 * SCALE}px`,
             cursor: page === 0 ? "not-allowed" : "pointer",
             fontFamily: font,
-            fontSize: 11,
+            fontSize: 11 * SCALE,
             display: "flex",
             alignItems: "center",
             gap: 4,
           }}
         >
-          <ChevronLeft size={14} /> PREV
+          <ChevronLeft size={14 * SCALE} /> PREV
         </button>
         <span
           style={{
-            color: "hsl(var(--muted-foreground))",
-            fontSize: 11,
+            color: "var(--muted-foreground)",
+            fontSize: 11 * SCALE,
             fontFamily: font,
           }}
         >
@@ -364,22 +431,22 @@ export default function Home() {
           onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
           disabled={page >= totalPages - 1}
           style={{
-            background: "hsl(var(--muted))",
-            border: "1px solid hsl(var(--border))",
+            background: "var(--muted)",
+            border: "1px solid var(--border)",
             color:
               page >= totalPages - 1
-                ? "hsl(var(--muted-foreground))"
-                : "hsl(var(--primary))",
-            padding: "6px 12px",
+                ? "var(--muted-foreground)"
+                : "var(--primary)",
+            padding: `${6 * SCALE}px ${12 * SCALE}px`,
             cursor: page >= totalPages - 1 ? "not-allowed" : "pointer",
             fontFamily: font,
-            fontSize: 11,
+            fontSize: 11 * SCALE,
             display: "flex",
             alignItems: "center",
             gap: 4,
           }}
         >
-          NEXT <ChevronRight size={14} />
+          NEXT <ChevronRight size={14 * SCALE} />
         </button>
       </div>
     );
@@ -445,7 +512,7 @@ export default function Home() {
         height: "100vh",
         width: "100vw",
         overflow: "hidden",
-        background: "hsl(var(--background))",
+        background: "var(--background)",
         fontFamily: font,
       }}
     >
@@ -458,10 +525,99 @@ export default function Home() {
         onSearchChange={(v) => {
           setSearch(v);
           setSelectedId(null);
+          setShowGlobalResults(v.length >= 2);
         }}
         theme={theme}
         onThemeChange={setTheme}
       />
+
+      <AnimatePresence>
+        {showGlobalResults && globalSearchResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            style={{
+              position: "absolute",
+              top: 52 * SCALE,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 400 * SCALE,
+              maxHeight: 400 * SCALE,
+              overflowY: "auto",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              zIndex: 100,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div
+              style={{
+                padding: "8px 12px",
+                borderBottom: "1px solid var(--border)",
+                fontSize: 10 * SCALE,
+                color: "var(--muted-foreground)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Search size={12} />
+              {globalSearchResults.length} RESULTS FOUND
+            </div>
+            {globalSearchResults.map((result, i) => (
+              <button
+                key={`${result.section}-${result.id}`}
+                onClick={() => handleGlobalSearchSelect(result)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12 * SCALE,
+                  padding: "10px 14px",
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  borderBottom:
+                    i < globalSearchResults.length - 1
+                      ? "1px solid var(--border)"
+                      : "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--primary)";
+                  e.currentTarget.style.color = "var(--primary-foreground)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--foreground)";
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 9 * SCALE,
+                    color: "var(--muted-foreground)",
+                    textTransform: "uppercase",
+                    minWidth: 80 * SCALE,
+                  }}
+                >
+                  {result.section}
+                </span>
+                <span
+                  style={{
+                    fontSize: 12 * SCALE,
+                    color: "var(--foreground)",
+                    fontFamily: font,
+                  }}
+                >
+                  {result.name}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div
         style={{
@@ -499,8 +655,8 @@ export default function Home() {
               <div
                 style={{
                   position: "absolute",
-                  top: 14,
-                  left: 14,
+                  top: 14 * SCALE,
+                  left: 14 * SCALE,
                   zIndex: 20,
                   pointerEvents: "none",
                   fontFamily: font,
@@ -508,8 +664,8 @@ export default function Home() {
               >
                 <div
                   style={{
-                    fontSize: 10,
-                    color: "hsl(var(--muted-foreground))",
+                    fontSize: 10 * SCALE,
+                    color: "var(--muted-foreground)",
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
@@ -517,17 +673,16 @@ export default function Home() {
                   }}
                 >
                   <Activity
-                    style={{ width: 12, height: 12 }}
+                    style={{ width: 12 * SCALE, height: 12 * SCALE }}
                     className="animate-pulse"
                   />
                   GALACTIC DATABASE
                 </div>
                 <div
                   style={{
-                    fontSize: 20,
-                    color: "hsl(var(--foreground))",
-                    textShadow:
-                      "0 0 8px hsl(var(--primary)), 0 0 15px hsl(var(--primary)/0.3)",
+                    fontSize: 20 * SCALE,
+                    color: "var(--foreground)",
+                    textShadow: "0 0 8px var(--primary)",
                     textTransform: "uppercase",
                     letterSpacing: "0.12em",
                   }}
@@ -537,14 +692,14 @@ export default function Home() {
                 <div
                   style={{
                     height: 1,
-                    background: "hsl(var(--border))",
+                    background: "var(--border)",
                     marginTop: 6,
                   }}
                 />
                 <div
                   style={{
-                    fontSize: 10,
-                    color: "hsl(var(--muted-foreground))",
+                    fontSize: 10 * SCALE,
+                    color: "var(--muted-foreground)",
                     marginTop: 4,
                   }}
                 >
@@ -585,10 +740,10 @@ export default function Home() {
             >
               <div
                 style={{
-                  padding: "8px 16px",
-                  borderBottom: "1px solid hsl(var(--border))",
-                  fontSize: 10,
-                  color: "hsl(var(--muted-foreground))",
+                  padding: `${8 * SCALE}px ${16 * SCALE}px`,
+                  borderBottom: "1px solid var(--border)",
+                  fontSize: 10 * SCALE,
+                  color: "var(--muted-foreground)",
                   fontFamily: font,
                   flexShrink: 0,
                 }}
@@ -597,16 +752,22 @@ export default function Home() {
                   ? `SHOWING ${filteredCount[section]} OF ${totalCount[section]} RECORDS`
                   : `${totalCount[section]} RECORDS IN DATABASE`}
               </div>
-              <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px" }}>
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: `${12 * SCALE}px ${14 * SCALE}px`,
+                }}
+              >
                 {renderListSection()}
                 {filteredCount[section] === 0 && (
                   <div
                     style={{
                       textAlign: "center",
-                      color: "hsl(var(--muted-foreground))",
+                      color: "var(--muted-foreground)",
                       padding: 40,
                       fontFamily: font,
-                      fontSize: 13,
+                      fontSize: 13 * SCALE,
                       letterSpacing: "0.1em",
                     }}
                   >
@@ -623,15 +784,15 @@ export default function Home() {
           {hasDetail && !isMobile && (
             <motion.div
               key="detail-panel-desktop"
-              initial={{ x: 380, opacity: 0 }}
+              initial={{ x: 420, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 380, opacity: 0 }}
+              exit={{ x: 420, opacity: 0 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
               style={{
-                width: 380,
+                width: 420,
                 height: "100%",
-                background: "hsl(var(--card))",
-                borderLeft: "1px solid hsl(var(--border))",
+                background: "var(--card)",
+                borderLeft: "1px solid var(--border)",
                 flexShrink: 0,
                 overflow: "hidden",
                 boxShadow: "-8px 0 24px rgba(0,0,0,0.6)",
@@ -719,8 +880,8 @@ export default function Home() {
               right: 0,
               height: "78vh",
               zIndex: 50,
-              background: "hsl(var(--card))",
-              borderTop: "1px solid hsl(var(--border))",
+              background: "var(--card)",
+              borderTop: "1px solid var(--border)",
               borderRadius: "14px 14px 0 0",
               boxShadow: "0 -8px 40px rgba(0,0,0,0.8)",
               overflow: "hidden",
@@ -735,10 +896,10 @@ export default function Home() {
             >
               <div
                 style={{
-                  width: 36,
+                  width: 36 * SCALE,
                   height: 3,
                   borderRadius: 2,
-                  background: "hsl(var(--border))",
+                  background: "var(--border)",
                 }}
               />
             </div>

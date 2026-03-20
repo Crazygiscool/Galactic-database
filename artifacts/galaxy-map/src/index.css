@@ -7,11 +7,9 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-card-border: hsl(var(--border));
-
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-secondary: hsl(var(--secondary));
@@ -22,183 +20,167 @@
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-
   --font-mono: "Share Tech Mono", monospace;
   --font-sans: "Share Tech Mono", monospace;
 }
 
 /* Theme: Imperial (Default - Blue/Cyan) */
+:root,
 [data-theme="imperial"] {
-  --background: 220 50% 2%;
-  --foreground: 190 100% 60%;
-  --primary: 190 100% 50%;
-  --primary-foreground: 220 50% 2%;
-  --secondary: 200 80% 15%;
-  --secondary-foreground: 190 100% 60%;
-  --muted: 200 50% 8%;
-  --muted-foreground: 190 60% 40%;
-  --accent: 190 100% 50%;
-  --accent-foreground: 220 50% 2%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 220 50% 2%;
-  --border: 190 100% 20%;
-  --input: 190 100% 20%;
-  --ring: 190 100% 50%;
-  --card: 220 50% 3%;
-  --card-foreground: 190 100% 60%;
+  --background: hsl(220 50% 2%);
+  --foreground: hsl(190 100% 60%);
+  --primary: hsl(190 100% 50%);
+  --primary-foreground: hsl(220 50% 2%);
+  --secondary: hsl(200 80% 15%);
+  --secondary-foreground: hsl(190 100% 60%);
+  --muted: hsl(200 50% 8%);
+  --muted-foreground: hsl(190 60% 40%);
+  --accent: hsl(190 100% 50%);
+  --accent-foreground: hsl(220 50% 2%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(220 50% 2%);
+  --border: hsl(190 100% 20%);
+  --input: hsl(190 100% 20%);
+  --ring: hsl(190 100% 50%);
+  --card: hsl(220 50% 3%);
+  --card-foreground: hsl(190 100% 60%);
 }
 
 /* Theme: Sith (Red) */
 [data-theme="sith"] {
-  --background: 0 60% 3%;
-  --foreground: 0 100% 60%;
-  --primary: 0 100% 50%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 80% 15%;
-  --secondary-foreground: 0 100% 60%;
-  --muted: 0 50% 8%;
-  --muted-foreground: 0 60% 40%;
-  --accent: 0 100% 50%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 60 100% 50%;
-  --destructive-foreground: 0 0% 0%;
-  --border: 0 100% 20%;
-  --input: 0 100% 20%;
-  --ring: 0 100% 50%;
-  --card: 0 50% 3%;
-  --card-foreground: 0 100% 60%;
+  --background: hsl(0 60% 3%);
+  --foreground: hsl(0 100% 60%);
+  --primary: hsl(0 100% 50%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 80% 15%);
+  --secondary-foreground: hsl(0 100% 60%);
+  --muted: hsl(0 50% 8%);
+  --muted-foreground: hsl(0 60% 40%);
+  --accent: hsl(0 100% 50%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(60 100% 50%);
+  --destructive-foreground: hsl(0 0% 0%);
+  --border: hsl(0 100% 20%);
+  --input: hsl(0 100% 20%);
+  --ring: hsl(0 100% 50%);
+  --card: hsl(0 50% 3%);
+  --card-foreground: hsl(0 100% 60%);
 }
 
 /* Theme: Jedi (Green) */
 [data-theme="jedi"] {
-  --background: 140 50% 3%;
-  --foreground: 140 100% 50%;
-  --primary: 140 100% 45%;
-  --primary-foreground: 140 50% 5%;
-  --secondary: 140 80% 15%;
-  --secondary-foreground: 140 100% 50%;
-  --muted: 140 50% 8%;
-  --muted-foreground: 140 60% 40%;
-  --accent: 140 100% 45%;
-  --accent-foreground: 140 50% 5%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 140 100% 20%;
-  --input: 140 100% 20%;
-  --ring: 140 100% 50%;
-  --card: 140 50% 3%;
-  --card-foreground: 140 100% 50%;
+  --background: hsl(140 50% 3%);
+  --foreground: hsl(140 100% 50%);
+  --primary: hsl(140 100% 45%);
+  --primary-foreground: hsl(140 50% 5%);
+  --secondary: hsl(140 80% 15%);
+  --secondary-foreground: hsl(140 100% 50%);
+  --muted: hsl(140 50% 8%);
+  --muted-foreground: hsl(140 60% 40%);
+  --accent: hsl(140 100% 45%);
+  --accent-foreground: hsl(140 50% 5%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(140 100% 20%);
+  --input: hsl(140 100% 20%);
+  --ring: hsl(140 100% 50%);
+  --card: hsl(140 50% 3%);
+  --card-foreground: hsl(140 100% 50%);
 }
 
 /* Theme: Rebellion (Orange/Gold) */
 [data-theme="rebellion"] {
-  --background: 30 50% 3%;
-  --foreground: 30 100% 55%;
-  --primary: 30 100% 50%;
-  --primary-foreground: 30 50% 5%;
-  --secondary: 30 80% 15%;
-  --secondary-foreground: 30 100% 55%;
-  --muted: 30 50% 8%;
-  --muted-foreground: 30 60% 40%;
-  --accent: 30 100% 50%;
-  --accent-foreground: 30 50% 5%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 30 100% 20%;
-  --input: 30 100% 20%;
-  --ring: 30 100% 50%;
-  --card: 30 50% 3%;
-  --card-foreground: 30 100% 55%;
+  --background: hsl(30 50% 3%);
+  --foreground: hsl(30 100% 55%);
+  --primary: hsl(30 100% 50%);
+  --primary-foreground: hsl(30 50% 5%);
+  --secondary: hsl(30 80% 15%);
+  --secondary-foreground: hsl(30 100% 55%);
+  --muted: hsl(30 50% 8%);
+  --muted-foreground: hsl(30 60% 40%);
+  --accent: hsl(30 100% 50%);
+  --accent-foreground: hsl(30 50% 5%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(30 100% 20%);
+  --input: hsl(30 100% 20%);
+  --ring: hsl(30 100% 50%);
+  --card: hsl(30 50% 3%);
+  --card-foreground: hsl(30 100% 55%);
 }
 
 /* Theme: Hutt (Purple) */
 [data-theme="hutt"] {
-  --background: 280 40% 3%;
-  --foreground: 280 60% 65%;
-  --primary: 280 80% 55%;
-  --primary-foreground: 280 40% 5%;
-  --secondary: 280 60% 15%;
-  --secondary-foreground: 280 60% 65%;
-  --muted: 280 40% 8%;
-  --muted-foreground: 280 40% 40%;
-  --accent: 280 80% 55%;
-  --accent-foreground: 280 40% 5%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 280 60% 20%;
-  --input: 280 60% 20%;
-  --ring: 280 80% 55%;
-  --card: 280 40% 3%;
-  --card-foreground: 280 60% 65%;
+  --background: hsl(280 40% 3%);
+  --foreground: hsl(280 60% 65%);
+  --primary: hsl(280 80% 55%);
+  --primary-foreground: hsl(280 40% 5%);
+  --secondary: hsl(280 60% 15%);
+  --secondary-foreground: hsl(280 60% 65%);
+  --muted: hsl(280 40% 8%);
+  --muted-foreground: hsl(280 40% 40%);
+  --accent: hsl(280 80% 55%);
+  --accent-foreground: hsl(280 40% 5%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(280 60% 20%);
+  --input: hsl(280 60% 20%);
+  --ring: hsl(280 80% 55%);
+  --card: hsl(280 40% 3%);
+  --card-foreground: hsl(280 60% 65%);
 }
 
 /* Theme: Mandalorian (Steel/Metal) */
 [data-theme="mandalorian"] {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 70%;
-  --primary: 0 0% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 70%;
-  --muted: 0 0% 8%;
-  --muted-foreground: 0 0% 40%;
-  --accent: 0 0% 60%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 20%;
-  --input: 0 0% 20%;
-  --ring: 0 0% 60%;
-  --card: 0 0% 3%;
-  --card-foreground: 0 0% 70%;
+  --background: hsl(0 0% 4%);
+  --foreground: hsl(0 0% 70%);
+  --primary: hsl(0 0% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 15%);
+  --secondary-foreground: hsl(0 0% 70%);
+  --muted: hsl(0 0% 8%);
+  --muted-foreground: hsl(0 0% 40%);
+  --accent: hsl(0 0% 60%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(0 0% 20%);
+  --input: hsl(0 0% 20%);
+  --ring: hsl(0 0% 60%);
+  --card: hsl(0 0% 3%);
+  --card-foreground: hsl(0 0% 70%);
 }
 
 /* Theme: Ahsoka (White/Gold) */
 [data-theme="ahsoka"] {
-  --background: 50 30% 5%;
-  --foreground: 50 60% 70%;
-  --primary: 45 100% 55%;
-  --primary-foreground: 50 30% 5%;
-  --secondary: 45 60% 15%;
-  --secondary-foreground: 50 60% 70%;
-  --muted: 50 30% 8%;
-  --muted-foreground: 50 40% 40%;
-  --accent: 45 100% 55%;
-  --accent-foreground: 50 30% 5%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 45 60% 20%;
-  --input: 45 60% 20%;
-  --ring: 45 100% 55%;
-  --card: 50 30% 3%;
-  --card-foreground: 50 60% 70%;
-}
-
-:root {
-  --background: 220 50% 2%;
-  --foreground: 190 100% 60%;
-  --primary: 190 100% 50%;
-  --primary-foreground: 220 50% 2%;
-  --secondary: 200 80% 15%;
-  --secondary-foreground: 190 100% 60%;
-  --muted: 200 50% 8%;
-  --muted-foreground: 190 60% 40%;
-  --accent: 190 100% 50%;
-  --accent-foreground: 220 50% 2%;
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 220 50% 2%;
-  --border: 190 100% 20%;
-  --input: 190 100% 20%;
-  --ring: 190 100% 50%;
-  --card: 220 50% 3%;
-  --card-foreground: 190 100% 60%;
+  --background: hsl(50 30% 5%);
+  --foreground: hsl(50 60% 70%);
+  --primary: hsl(45 100% 55%);
+  --primary-foreground: hsl(50 30% 5%);
+  --secondary: hsl(45 60% 15%);
+  --secondary-foreground: hsl(50 60% 70%);
+  --muted: hsl(50 30% 8%);
+  --muted-foreground: hsl(50 40% 40%);
+  --accent: hsl(45 100% 55%);
+  --accent-foreground: hsl(50 30% 5%);
+  --destructive: hsl(0 100% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(45 60% 20%);
+  --input: hsl(45 60% 20%);
+  --ring: hsl(45 100% 55%);
+  --card: hsl(50 30% 3%);
+  --card-foreground: hsl(50 60% 70%);
 }
 
 @layer base {
+  * {
+    border-color: var(--border);
+  }
+
   body {
     @apply font-mono antialiased overflow-hidden selection:bg-primary/30 selection:text-white;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   ::-webkit-scrollbar {
@@ -206,47 +188,47 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background-color: hsl(var(--background));
-    border-left: 1px solid hsl(var(--border));
+    background-color: var(--background);
+    border-left: 1px solid var(--border);
   }
   ::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--primary) / 0.3);
-    border: 1px solid hsl(var(--primary) / 0.5);
+    background-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 50%, transparent);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--primary) / 0.5);
+    background-color: color-mix(in srgb, var(--primary) 50%, transparent);
   }
 }
 
 @layer utilities {
   .glow-text {
     text-shadow:
-      0 0 5px hsl(var(--primary) / 0.5),
-      0 0 10px hsl(var(--primary) / 0.3);
+      0 0 5px color-mix(in srgb, var(--primary) 50%, transparent),
+      0 0 10px color-mix(in srgb, var(--primary) 30%, transparent);
   }
 
   .glow-text-bright {
     text-shadow:
-      0 0 8px hsl(var(--primary)),
-      0 0 15px hsl(var(--primary));
+      0 0 8px var(--primary),
+      0 0 15px var(--primary);
   }
 
   .glow-text-white {
     text-shadow:
       0 0 8px #fff,
-      0 0 15px hsl(var(--primary));
+      0 0 15px var(--primary);
   }
 
   .glow-box {
     box-shadow:
-      0 0 15px hsl(var(--primary) / 0.1),
-      inset 0 0 20px hsl(var(--primary) / 0.05);
+      0 0 15px color-mix(in srgb, var(--primary) 10%, transparent),
+      inset 0 0 20px color-mix(in srgb, var(--primary) 5%, transparent);
   }
 
   .glow-box-strong {
     box-shadow:
-      0 0 20px hsl(var(--primary) / 0.3),
-      inset 0 0 30px hsl(var(--primary) / 0.1);
+      0 0 20px color-mix(in srgb, var(--primary) 30%, transparent),
+      inset 0 0 30px color-mix(in srgb, var(--primary) 10%, transparent);
   }
 
   .scanline-overlay {
@@ -278,36 +260,36 @@
   }
 
   .starfield-bg {
-    background-color: hsl(var(--background));
+    background-color: var(--background);
     background-image:
       radial-gradient(
         1px 1px at 25px 5px,
-        hsl(var(--primary) / 0.4) 100%,
+        color-mix(in srgb, var(--primary) 40%, transparent),
         transparent
       ),
       radial-gradient(
         1px 1px at 50px 25px,
-        hsl(var(--primary) / 0.2) 100%,
+        color-mix(in srgb, var(--primary) 20%, transparent),
         transparent
       ),
       radial-gradient(
         1px 1px at 125px 20px,
-        hsl(var(--primary) / 0.3) 100%,
+        color-mix(in srgb, var(--primary) 30%, transparent),
         transparent
       ),
       radial-gradient(
         1.5px 1.5px at 50px 75px,
-        hsl(var(--primary) / 0.5) 100%,
+        color-mix(in srgb, var(--primary) 50%, transparent),
         transparent
       ),
       radial-gradient(
         2px 2px at 15px 125px,
-        hsl(var(--primary) / 0.3) 100%,
+        color-mix(in srgb, var(--primary) 30%, transparent),
         transparent
       ),
       radial-gradient(
         1.5px 1.5px at 110px 80px,
-        hsl(var(--primary) / 0.4) 100%,
+        color-mix(in srgb, var(--primary) 40%, transparent),
         transparent
       );
     background-size: 200px 200px;
