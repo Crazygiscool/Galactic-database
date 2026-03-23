@@ -3,14 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-// Use default port 5173 if not specified
 const port = Number(process.env.PORT) || 5173;
 
-// Use "/" as default base path for Vercel deployment
-const basePath = process.env.BASE_PATH || "/";
-
 export default defineConfig({
-  base: basePath,
+  base: "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
