@@ -1,5 +1,5 @@
 {
   "buildCommand": "pnpm --filter @workspace/galaxy-map build",
-  "outputDirectory": "dist",
+  "outputDirectory": "artifacts/galaxy-map/public",
   "framework": null
 }
