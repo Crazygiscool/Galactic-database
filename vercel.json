@@ -1,1 +1,4 @@
-{}
+{
+  "outputDirectory": "dist",
+  "framework": null
+}
