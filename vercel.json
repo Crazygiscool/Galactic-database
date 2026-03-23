@@ -1,4 +1,5 @@
 {
   "buildCommand": "pnpm --filter @workspace/galaxy-map build",
+  "outputDirectory": "dist",
   "framework": null
 }
