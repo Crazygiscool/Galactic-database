@@ -47,12 +47,12 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
         initialScale={0.5}
         initialPositionX={-200}
         initialPositionY={-100}
-        minScale={0.45}
-        maxScale={2.5}
+        minScale={0.2}
+        maxScale={3}
         wheel={{ step: 0.08 }}
         panning={{ allowLeftClickPan: true }}
       >
-        {({ zoomIn, zoomOut, resetTransform }) => (
+        {({ zoomIn, zoomOut, resetTransform, setTransform }) => (
           <>
             <TransformComponent
               wrapperStyle={{
@@ -191,27 +191,56 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                 bottom: 16,
                 left: 16,
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: "column",
                 gap: 4,
                 zIndex: 30,
               }}
             >
-              {[
-                { label: "+", action: zoomIn },
-                { label: "−", action: zoomOut },
-                { label: "⊙", action: resetTransform },
-              ].map((btn, i) => (
+              <button
+                onClick={resetTransform as () => void}
+                style={{
+                  width: 36,
+                  height: 36,
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 4,
+                  color: "var(--primary)",
+                  fontSize: 14,
+                  cursor: "pointer",
+                  fontFamily: "'Share Tech Mono', monospace",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--primary)";
+                  e.currentTarget.style.color = "var(--primary-foreground)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--card)";
+                  e.currentTarget.style.color = "var(--primary)";
+                }}
+                title="Reset View"
+              >
+                ⊙
+              </button>
+              {selectedId && positionedPlanets.find(p => p.id === selectedId) && (
                 <button
-                  key={i}
-                  onClick={btn.action as () => void}
+                  onClick={() => {
+                    const planet = positionedPlanets.find(p => p.id === selectedId);
+                    if (planet) {
+                      setTransform(planet.x - window.innerWidth / 2, planet.y - window.innerHeight / 2, 1, 300);
+                    }
+                  }}
                   style={{
                     width: 36,
                     height: 36,
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
+                    background: "color-mix(in srgb, var(--primary) 20%, var(--card))",
+                    border: "1px solid var(--primary)",
                     borderRadius: 4,
                     color: "var(--primary)",
-                    fontSize: 18,
+                    fontSize: 14,
                     cursor: "pointer",
                     fontFamily: "'Share Tech Mono', monospace",
                     display: "flex",
@@ -224,13 +253,14 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
                     e.currentTarget.style.color = "var(--primary-foreground)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "var(--card)";
+                    e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 20%, var(--card))";
                     e.currentTarget.style.color = "var(--primary)";
                   }}
+                  title="Center on Selected"
                 >
-                  {btn.label}
+                  ◎
                 </button>
-              ))}
+              )}
             </div>
           </>
         )}
