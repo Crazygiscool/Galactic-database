@@ -55,7 +55,7 @@ function Row({ label, value }: { label: string; value: string }) {
           color: "var(--primary)",
           textAlign: "right",
           fontWeight: "bold",
-          textShadow: "0 0 5px var(--primary)/0.3)",
+          textShadow: "0 0 5px color-mix(in srgb, var(--primary) 30%, transparent)",
           letterSpacing: "0.04em",
           wordBreak: "break-word",
         }}
@@ -118,7 +118,7 @@ function LinkTag({
         color: "var(--primary)",
         padding: "3px 6px",
         border: "1px solid var(--border)",
-        background: "var(--primary)/0.08)",
+        background: "color-mix(in srgb, var(--primary) 8%, transparent)",
         fontFamily: font,
         textTransform: "uppercase",
         letterSpacing: "0.05em",
@@ -127,12 +127,12 @@ function LinkTag({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "var(--primary)/0.2)";
+        e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 20%, transparent)";
         e.currentTarget.style.borderColor = "var(--primary)";
         e.currentTarget.style.color = "var(--foreground)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "var(--primary)/0.08)";
+        e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 8%, transparent)";
         e.currentTarget.style.borderColor = "var(--border)";
         e.currentTarget.style.color = "var(--primary)";
       }}
@@ -191,7 +191,7 @@ function ResidentRow({
         transition: "all 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "var(--primary)/0.1)";
+        e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 10%, transparent)";
         e.currentTarget.style.borderColor = "var(--primary)";
       }}
       onMouseLeave={(e) => {
@@ -248,7 +248,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
               fontSize: 20,
               color: "var(--foreground)",
               textShadow:
-                "0 0 10px var(--primary)), 0 0 20px var(--primary)/0.4)",
+                "0 0 10px color-mix(in srgb, var(--primary) 100%, transparent), 0 0 20px color-mix(in srgb, var(--primary) 40%, transparent)",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               lineHeight: 1.2,
@@ -260,7 +260,7 @@ function PanelShell({ title, subtitle, onClose, children }: PanelShellProps) {
             style={{
               height: 1,
               background:
-                "linear-gradient(to right, var(--primary)), var(--primary)/0.3), transparent)",
+                "linear-gradient(to right, var(--primary), color-mix(in srgb, var(--primary) 30%, transparent), transparent)",
               marginTop: 6,
             }}
           />
@@ -376,7 +376,7 @@ export function PlanetDetailPanel({
                   color: "var(--primary)",
                   padding: "4px 8px",
                   border: "1px solid var(--border)",
-                  background: "var(--primary)/0.08)",
+                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
                   fontFamily: font,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
@@ -387,11 +387,11 @@ export function PlanetDetailPanel({
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--primary)/0.2)";
+                  e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 20%, transparent)";
                   e.currentTarget.style.borderColor = "var(--primary)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "var(--primary)/0.08)";
+                  e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 8%, transparent)";
                   e.currentTarget.style.borderColor = "var(--border)";
                 }}
               >

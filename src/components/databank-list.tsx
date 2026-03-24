@@ -24,11 +24,11 @@ export function DatabankList({
             padding: "10px 12px",
             background:
               selectedId === item.id
-                ? "var(--primary)/0.12)"
+                ? "color-mix(in srgb, var(--primary) 12%, transparent)"
                 : "var(--muted)",
             border: `1px solid ${
               selectedId === item.id
-                ? "var(--primary)/0.5)"
+                ? "color-mix(in srgb, var(--primary) 50%, transparent)"
                 : "var(--border)"
             }`,
             borderRadius: 4,
@@ -37,7 +37,7 @@ export function DatabankList({
           }}
           onMouseEnter={(e) => {
             if (selectedId !== item.id) {
-              e.currentTarget.style.background = "var(--primary)/0.08)";
+              e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 8%, transparent)";
               e.currentTarget.style.borderColor = "var(--border)";
             }
           }}
@@ -86,7 +86,7 @@ export function DatabankList({
                 marginBottom: 4,
                 textShadow:
                   selectedId === item.id
-                    ? "0 0 8px var(--primary)/0.5)"
+                    ? "0 0 8px color-mix(in srgb, var(--primary) 50%, transparent)"
                     : "none",
               }}
             >
@@ -194,7 +194,7 @@ export function DatabankDetailPanel({
                 color: "var(--primary)",
                 padding: "3px 8px",
                 border: "1px solid var(--border)",
-                background: "var(--primary)/0.08)",
+                background: "color-mix(in srgb, var(--primary) 8%, transparent)",
                 fontFamily: "'Share Tech Mono', monospace",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
@@ -202,11 +202,11 @@ export function DatabankDetailPanel({
                 cursor: "pointer",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--primary)/0.2)";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 20%, transparent)";
                 e.currentTarget.style.borderColor = "var(--primary)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--primary)/0.08)";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--primary) 8%, transparent)";
                 e.currentTarget.style.borderColor = "var(--border)";
               }}
             >
@@ -220,7 +220,7 @@ export function DatabankDetailPanel({
               fontSize: 24,
               fontWeight: "bold",
               color: "var(--foreground)",
-              textShadow: "0 0 10px var(--primary)/0.5)",
+              textShadow: "0 0 10px color-mix(in srgb, var(--primary) 50%, transparent)",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
               marginBottom: 16,

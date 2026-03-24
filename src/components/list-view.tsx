@@ -41,16 +41,16 @@ function ListCard({
         gap: 12,
         padding: "10px 14px",
         cursor: "pointer",
-        background: selected ? "var(--primary)/0.1)" : "var(--card)",
+        background: selected ? "color-mix(in srgb, var(--primary) 10%, transparent)" : "var(--card)",
         border: `1px solid ${selected ? "var(--primary)" : "var(--border)"}`,
-        boxShadow: selected ? "0 0 12px var(--primary)/0.2)" : "none",
+        boxShadow: selected ? "0 0 12px color-mix(in srgb, var(--primary) 20%, transparent)" : "none",
         fontFamily: font,
         transition: "all 0.15s",
         marginBottom: 6,
       }}
       whileHover={{
         borderColor: "var(--primary)",
-        background: "var(--primary)/0.07)",
+        background: "color-mix(in srgb, var(--primary) 7%, transparent)",
       }}
     >
       <div

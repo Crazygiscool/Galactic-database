@@ -21,7 +21,7 @@ import {
 } from "@/hooks/use-swapi";
 import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
-import { TopNav, Theme } from "@/components/top-nav";
+import { TopBar, BottomNav, Theme } from "@/components/bottom-nav";
 import { FilmsList, StarshipsList, VehiclesList } from "@/components/list-view";
 import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
 import {
@@ -518,9 +518,7 @@ export default function Home() {
     >
       <ScanlineOverlay />
 
-      <TopNav
-        activeSection={section}
-        onSectionChange={handleSectionChange}
+      <TopBar
         search={search}
         onSearchChange={(v) => {
           setSearch(v);
@@ -625,6 +623,7 @@ export default function Home() {
           display: "flex",
           overflow: "hidden",
           position: "relative",
+          paddingBottom: 0,
         }}
       >
         <AnimatePresence mode="wait">
@@ -878,13 +877,14 @@ export default function Home() {
               bottom: 0,
               left: 0,
               right: 0,
-              height: "78vh",
+              top: 0,
               zIndex: 50,
               background: "var(--card)",
               borderTop: "1px solid var(--border)",
               borderRadius: "14px 14px 0 0",
               boxShadow: "0 -8px 40px rgba(0,0,0,0.8)",
               overflow: "hidden",
+              paddingBottom: "calc(env(safe-area-inset-bottom) + 34px)",
             }}
           >
             <div
@@ -949,6 +949,11 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <BottomNav
+        activeSection={section}
+        onSectionChange={handleSectionChange}
+      />
     </div>
   );
 }
