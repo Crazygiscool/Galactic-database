@@ -872,6 +872,14 @@ export default function Home() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100) {
+                setSelectedId(null);
+              }
+            }}
             style={{
               position: "fixed",
               bottom: 0,
@@ -892,6 +900,7 @@ export default function Home() {
                 display: "flex",
                 justifyContent: "center",
                 padding: "10px 0 2px",
+                cursor: "grab",
               }}
             >
               <div
@@ -899,7 +908,8 @@ export default function Home() {
                   width: 36 * SCALE,
                   height: 3,
                   borderRadius: 2,
-                  background: "var(--border)",
+                  background: "var(--primary)",
+                  opacity: 0.6,
                 }}
               />
             </div>
