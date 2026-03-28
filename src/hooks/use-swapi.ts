@@ -16,17 +16,28 @@ export type Section =
 export interface Planet {
   id: string;
   name: string;
-  rotation_period: string;
-  orbital_period: string;
-  diameter: string;
-  climate: string;
-  gravity: string;
-  terrain: string;
-  surface_water: string;
-  population: string;
-  residents: string[];
-  films: string[];
-  url: string;
+  rotation_period?: string;
+  orbital_period?: string;
+  diameter?: string;
+  climate?: string;
+  gravity?: string;
+  terrain?: string;
+  surface_water?: string;
+  population?: string;
+  residents?: string[];
+  films?: string[];
+  url?: string;
+  description?: string;
+  image?: string;
+  region?: string;
+  sector?: string;
+  suns?: number;
+  moons?: number;
+  distance?: number;
+  length_day?: number;
+  length_year?: number;
+  x?: number;
+  y?: number;
 }
 
 export interface Film {
@@ -148,6 +159,107 @@ export function usePlanets() {
     queryFn: () => fetchAll<Planet>("https://swapi.dev/api/planets/"),
     staleTime: STALE,
   });
+}
+
+interface SWGalacticMapPlanet {
+  Name: string;
+  Image: string | null;
+  X: number;
+  Y: number;
+  Region: string;
+  Sector: string | null;
+  Suns: number;
+  Moons: number;
+  Position: number;
+  Distance: number;
+  LengthDay: number;
+  LengthYear: number;
+  Diameter: number;
+  Gravity: number;
+}
+
+export function useGalacticMapPlanets() {
+  return useQuery<SWGalacticMapPlanet[]>({
+    queryKey: ["galactic-map-planets"],
+    queryFn: async () => {
+      const res = await fetch("https://raw.githubusercontent.com/parzivail/SWGalacticMap/master/planets.json");
+      if (!res.ok) throw new Error("Failed to fetch Galactic Map data");
+      return res.json();
+    },
+    staleTime: STALE * 24,
+  });
+}
+
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/[ivxlc]+$/i, "").replace(/\s+/g, " ").trim();
+}
+
+export const REGION_COORDS: Record<string, { x: number; y: number }> = {
+  "Deep Core": { x: 8, y: 10 },
+  "Core": { x: 9, y: 9 },
+  "Colonies": { x: 10, y: 8 },
+  "Expansion Region": { x: 11, y: 11 },
+  "Inner Rim Territories": { x: 13, y: 12 },
+  "Mid Rim Territories": { x: 15, y: 13 },
+  "Outer Rim Territories": { x: 17, y: 15 },
+  "Hutt Space": { x: 18, y: 12 },
+  "Wild Space": { x: 2, y: 5 },
+  "Unknown Regions": { x: 1, y: 1 },
+  "Talcene Sector": { x: 19, y: 8 },
+  "The Centrality": { x: 16, y: 16 },
+  "Tingel Arm": { x: 3, y: 15 },
+  "Extragalactic": { x: 0, y: 0 },
+};
+
+export function useGalacticMapAllPlanets() {
+  const { data: galacticMapPlanets, isLoading } = useGalacticMapPlanets();
+  const { data: swapiPlanets } = usePlanets();
+
+  const data = useMemo(() => {
+    if (!galacticMapPlanets) return [];
+
+    const swapiMap = new Map<string, Planet>();
+    if (swapiPlanets) {
+      for (const planet of swapiPlanets) {
+        swapiMap.set(planet.name.toLowerCase(), planet);
+        swapiMap.set(normalizeName(planet.name), planet);
+      }
+    }
+
+    return galacticMapPlanets.map((planet, index) => {
+      const swapiMatch = swapiMap.get(planet.Name.toLowerCase()) || swapiMap.get(normalizeName(planet.Name));
+      
+      return {
+        id: String(index + 1),
+        name: planet.Name,
+        x: planet.X,
+        y: planet.Y,
+        region: planet.Region,
+        sector: planet.Sector || undefined,
+        suns: planet.Suns,
+        moons: planet.Moons,
+        distance: planet.Distance,
+        length_day: planet.LengthDay,
+        length_year: planet.LengthYear,
+        diameter: swapiMatch?.diameter || String(planet.Diameter),
+        climate: swapiMatch?.climate || undefined,
+        terrain: swapiMatch?.terrain || undefined,
+        population: swapiMatch?.population || undefined,
+        rotation_period: swapiMatch?.rotation_period || String(planet.LengthDay),
+        orbital_period: swapiMatch?.orbital_period || String(planet.LengthYear),
+        gravity: swapiMatch?.gravity || String(planet.Gravity),
+        description: swapiMatch ? undefined : `A planet in the ${planet.Region}.`,
+        residents: swapiMatch?.residents || [],
+        films: swapiMatch?.films || [],
+        url: swapiMatch?.url || "",
+      };
+    });
+  }, [galacticMapPlanets, swapiPlanets]);
+
+  return {
+    data,
+    isLoading,
+  };
 }
 
 export function useFilms() {

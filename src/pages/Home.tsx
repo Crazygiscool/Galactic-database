@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Section,
-  usePlanets,
+  useGalacticMapAllPlanets,
   useFilms,
   useStarships,
   useVehicles,
@@ -23,6 +23,8 @@ import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
 import { TopBar, BottomNav, Theme } from "@/components/bottom-nav";
 import { FilmsList, StarshipsList, VehiclesList } from "@/components/list-view";
+
+
 import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
 import {
   PlanetDetailPanel,
@@ -125,7 +127,7 @@ export default function Home() {
   const [theme, setTheme] = useState<Theme>("imperial");
   const [showGlobalResults, setShowGlobalResults] = useState(false);
 
-  const { data: planets, isLoading: planetsLoading } = usePlanets();
+  const { data: planets, isLoading: planetsLoading } = useGalacticMapAllPlanets();
   const { data: films, isLoading: filmsLoading } = useFilms();
   const { data: starships, isLoading: starshipsLoading } = useStarships();
   const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
@@ -514,6 +516,7 @@ export default function Home() {
         overflow: "hidden",
         background: "var(--background)",
         fontFamily: font,
+        position: "relative",
       }}
     >
       <ScanlineOverlay />
@@ -536,12 +539,12 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             style={{
-              position: "absolute",
-              top: 52 * SCALE,
+              position: "fixed",
+              top: isMobile ? "calc(40px + env(safe-area-inset-top))" : 44,
               left: "50%",
               transform: "translateX(-50%)",
-              width: 400 * SCALE,
-              maxHeight: 400 * SCALE,
+              width: isMobile ? "calc(100vw - 32px)" : 400,
+              maxHeight: "50vh",
               overflowY: "auto",
               background: "var(--card)",
               border: "1px solid var(--border)",

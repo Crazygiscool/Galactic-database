@@ -5,11 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/not-found";
 
-// Initialize Query Client with standard options for data fetching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false, // Don't refetch on tab focus to save SWAPI limits
+      refetchOnWindowFocus: false,
       retry: 2,
     },
   },
