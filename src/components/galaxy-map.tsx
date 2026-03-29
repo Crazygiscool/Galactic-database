@@ -68,7 +68,10 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
   const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 3 });
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
   const [time, setTime] = useState(0);
+  const timeRef = useRef(0);
   const [quoteOpacity, setQuoteOpacity] = useState(0);
+  const [hoveredPlanet, setHoveredPlanet] = useState<PositionedPlanet | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     onBlurChange?.(quoteOpacity * 8);
@@ -325,7 +328,9 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
   useEffect(() => {
     let animationId: number;
     const animate = () => {
-      setTime(Date.now() / 1000);
+      const t = Date.now() / 1000;
+      timeRef.current = t;
+      setTime(t);
       animationId = requestAnimationFrame(animate);
     };
     animationId = requestAnimationFrame(animate);
@@ -449,7 +454,30 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     const mapX = ((clickX - centerX - viewport.x) / viewport.scale) * SCALE + MAP_WIDTH / 2;
     const mapY = ((clickY - centerY - viewport.y) / viewport.scale) * SCALE + MAP_HEIGHT / 2;
     setMousePos({ x: Math.round(mapX), y: Math.round(mapY) });
-  }, [dimensions, viewport]);
+
+    let foundPlanet: PositionedPlanet | null = null;
+    const hoverRadius = 30;
+
+    for (const planet of positionedPlanets) {
+      const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
+      const worldX = Math.cos(orbitAngle) * planet.radius;
+      const worldY = Math.sin(orbitAngle) * planet.radius;
+      const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
+      const screenY = (centerY + viewport.y) + worldY / SCALE * viewport.scale;
+      const dx = clickX - screenX;
+      const dy = clickY - screenY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < hoverRadius) {
+        foundPlanet = planet;
+        break;
+      }
+    }
+
+    setHoveredPlanet(foundPlanet);
+    if (foundPlanet) {
+      setTooltipPos({ x: e.clientX - rect.left + 15, y: e.clientY - rect.top - 10 });
+    }
+  }, [dimensions, viewport, positionedPlanets]);
 
   return (
     <div 
@@ -514,6 +542,46 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
       >
         {mousePos ? `X: ${mousePos.x}  Y: ${mousePos.y}` : "Move cursor over map"}  |  Zoom: {viewport.scale.toFixed(1)}x
       </div>
+
+      {hoveredPlanet && (
+        <div
+          style={{
+            position: "absolute",
+            left: tooltipPos.x,
+            top: tooltipPos.y,
+            background: "var(--card)",
+            border: "1px solid var(--border)",
+            borderRadius: 6,
+            padding: "10px 14px",
+            fontSize: 12,
+            fontFamily: "'Share Tech Mono', monospace",
+            color: "var(--foreground)",
+            zIndex: 200,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+            pointerEvents: "none",
+            minWidth: 160,
+          }}
+        >
+          <div style={{ fontWeight: "bold", fontSize: 14, marginBottom: 4, color: "var(--primary)" }}>
+            {hoveredPlanet.name}
+          </div>
+          {hoveredPlanet.region && (
+            <div style={{ color: "var(--muted-foreground)", marginBottom: 2 }}>
+              {hoveredPlanet.region}
+            </div>
+          )}
+          {hoveredPlanet.climate && (
+            <div style={{ color: "var(--muted-foreground)", marginBottom: 2 }}>
+              Climate: {hoveredPlanet.climate}
+            </div>
+          )}
+          {hoveredPlanet.population && (
+            <div style={{ color: "var(--muted-foreground)" }}>
+              Pop: {hoveredPlanet.population}
+            </div>
+          )}
+        </div>
+      )}
 
       {quoteOpacity > 0 && (
         <div
