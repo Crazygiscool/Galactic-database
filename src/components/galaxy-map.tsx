@@ -55,14 +55,18 @@ const REGION_TO_RING: Record<string, number> = {
 interface PositionedPlanet extends Planet {
   worldX: number;
   worldY: number;
+  baseAngle: number;
+  radius: number;
+  orbitSpeed: number;
 }
 
 export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ringsCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 0.15 });
+  const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 3 });
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
+  const [time, setTime] = useState(0);
 
   const MAP_WIDTH = 60000;
   const MAP_HEIGHT = 60000;
@@ -82,25 +86,35 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
 
     return planets.map((planet) => {
       let x: number, y: number;
+      let baseAngle = 0;
+      let radius = 0;
+      let orbitSpeed = 0;
       const hash = hashCode(planet.name);
 
       if (planet.x !== undefined && planet.y !== undefined) {
-        x = OFFSET_X + (planet.x - 10) * SCALE;
-        y = OFFSET_Y + (planet.y - 10) * SCALE;
+        const dbX = (planet.x as number) - 10;
+        const dbY = (planet.y as number) - 10;
+        const dist = Math.sqrt(dbX * dbX + dbY * dbY);
+        baseAngle = Math.atan2(dbY, dbX);
+        const ring = planet.region ? REGION_TO_RING[planet.region] || 4 : 4;
+        const ringInner = (ring - 1) * 100000;
+        const ringOuter = ring * 100000;
+        radius = ringInner + 20000 + (dist / 15) * (ringOuter - ringInner - 40000);
+        x = Math.cos(baseAngle) * radius;
+        y = Math.sin(baseAngle) * radius;
+        orbitSpeed = 0.01 + (hash % 30) / 3000;
       } else {
         const ring = planet.region ? REGION_TO_RING[planet.region] || 4 : 4;
-        const ringInner = (ring - 1) * 8000;
-        const ringOuter = ring * 8000;
-        const angle = ((hash % 360) / 360) * Math.PI * 2;
-        const radius = ringInner + (hash % (ringOuter - ringInner));
-        x = OFFSET_X + Math.cos(angle) * radius;
-        y = OFFSET_Y + Math.sin(angle) * radius;
+        const ringInner = (ring - 1) * 100000;
+        const ringOuter = ring * 100000;
+        baseAngle = ((hash % 360) / 360) * Math.PI * 2;
+        radius = ringInner + 20000 + (hash % (ringOuter - ringInner - 40000));
+        orbitSpeed = 0.02 + (hash % 50) / 2500;
+        x = Math.cos(baseAngle) * radius;
+        y = Math.sin(baseAngle) * radius;
       }
 
-      x = Math.max(200, Math.min(MAP_WIDTH - 200, x));
-      y = Math.max(200, Math.min(MAP_HEIGHT - 200, y));
-
-      return { ...planet, worldX: x, worldY: y };
+      return { ...planet, worldX: x, worldY: y, baseAngle, radius, orbitSpeed };
     });
   }, [planets]);
 
@@ -125,37 +139,104 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
     const centerX = width / 2;
     const centerY = height / 2;
 
+    const CLUSTER_THRESHOLD = 2;
+    const CLUSTER_GRID_SIZE = 50;
+
     const visiblePlanets = positionedPlanets.filter(p => {
-      const screenX = (centerX + viewport.x) + (p.worldX - MAP_WIDTH / 2) / SCALE * viewport.scale;
-      const screenY = (centerY + viewport.y) + (p.worldY - MAP_HEIGHT / 2) / SCALE * viewport.scale;
+      const orbitAngle = p.baseAngle + time * p.orbitSpeed;
+      const worldX = Math.cos(orbitAngle) * p.radius;
+      const worldY = Math.sin(orbitAngle) * p.radius;
+      const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
+      const screenY = (centerY + viewport.y) + worldY / SCALE * viewport.scale;
       return screenX >= -100 && screenX <= width + 100 && 
              screenY >= -100 && screenY <= height + 100;
     });
 
-    const baseSize = 5;
+    const useClusters = viewport.scale < CLUSTER_THRESHOLD;
 
-    for (const planet of visiblePlanets) {
-      if (planet.id === selectedId) continue;
+    if (useClusters) {
+      const clusters = new Map<string, { planets: PositionedPlanet[]; sumX: number; sumY: number; count: number }>();
 
-      const screenX = (centerX + viewport.x) + (planet.worldX - MAP_WIDTH / 2) / SCALE * viewport.scale;
-      const screenY = (centerY + viewport.y) + (planet.worldY - MAP_HEIGHT / 2) / SCALE * viewport.scale;
+      for (const planet of visiblePlanets) {
+        if (planet.id === selectedId) continue;
+        const orbitAngle = planet.baseAngle + time * planet.orbitSpeed;
+        const worldX = Math.cos(orbitAngle) * planet.radius;
+        const worldY = Math.sin(orbitAngle) * planet.radius;
+        const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
+        const screenY = (centerY + viewport.y) + worldY / SCALE * viewport.scale;
 
-      ctx.beginPath();
-      ctx.arc(screenX, screenY, baseSize, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0, 212, 255, 0.8)";
-      ctx.fill();
+        const gridX = Math.floor(screenX / CLUSTER_GRID_SIZE);
+        const gridY = Math.floor(screenY / CLUSTER_GRID_SIZE);
+        const key = `${gridX},${gridY}`;
 
-      ctx.beginPath();
-      ctx.arc(screenX, screenY, baseSize + 2, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
-      ctx.lineWidth = 1 / viewport.scale;
-      ctx.stroke();
+        if (!clusters.has(key)) {
+          clusters.set(key, { planets: [], sumX: 0, sumY: 0, count: 0 });
+        }
+        const cluster = clusters.get(key)!;
+        cluster.planets.push(planet);
+        cluster.sumX += screenX;
+        cluster.sumY += screenY;
+        cluster.count++;
+      }
+
+      for (const cluster of clusters.values()) {
+        const cx = cluster.sumX / cluster.count;
+        const cy = cluster.sumY / cluster.count;
+        const size = Math.min(3 + cluster.count * 0.5, 12);
+
+        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, size + 5);
+        gradient.addColorStop(0, "rgba(0, 212, 255, 0.6)");
+        gradient.addColorStop(1, "rgba(0, 212, 255, 0)");
+        ctx.beginPath();
+        ctx.arc(cx, cy, size + 5, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 212, 255, 0.9)";
+        ctx.fill();
+
+        if (cluster.count > 1) {
+          ctx.font = `${Math.max(8, 10 / viewport.scale)}px "Share Tech Mono", monospace`;
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(cluster.count), cx, cy);
+        }
+      }
+    } else {
+      const baseSize = 5;
+
+      for (const planet of visiblePlanets) {
+        if (planet.id === selectedId) continue;
+
+        const orbitAngle = planet.baseAngle + time * planet.orbitSpeed;
+        const worldX = Math.cos(orbitAngle) * planet.radius;
+        const worldY = Math.sin(orbitAngle) * planet.radius;
+        const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
+        const screenY = (centerY + viewport.y) + worldY / SCALE * viewport.scale;
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, baseSize, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 212, 255, 0.8)";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, baseSize + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+        ctx.lineWidth = 1 / viewport.scale;
+        ctx.stroke();
+      }
     }
 
     const selectedPlanet = visiblePlanets.find(p => p.id === selectedId);
     if (selectedPlanet) {
-      const screenX = (centerX + viewport.x) + (selectedPlanet.worldX - MAP_WIDTH / 2) / SCALE * viewport.scale;
-      const screenY = (centerY + viewport.y) + (selectedPlanet.worldY - MAP_HEIGHT / 2) / SCALE * viewport.scale;
+      const orbitAngle = selectedPlanet.baseAngle + time * selectedPlanet.orbitSpeed;
+      const worldX = Math.cos(orbitAngle) * selectedPlanet.radius;
+      const worldY = Math.sin(orbitAngle) * selectedPlanet.radius;
+      const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
+      const screenY = (centerY + viewport.y) + worldY / SCALE * viewport.scale;
       const glowSize = 20;
 
       const gradient = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, glowSize);
@@ -179,7 +260,7 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
       ctx.lineWidth = 2 / viewport.scale;
       ctx.stroke();
     }
-  }, [dimensions, positionedPlanets, selectedId, viewport]);
+  }, [dimensions, positionedPlanets, selectedId, viewport, time]);
 
   const drawRings = useCallback(() => {
     const canvas = ringsCanvasRef.current;
@@ -209,11 +290,19 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
     ctx.lineWidth = 1;
     ctx.setLineDash([10, 5]);
 
+    const ringLabels = ["DEEP CORE", "CORE", "COLONIES", "EXPANSION", "INNER RIM", "MID RIM", "OUTER RIM", "UNKNOWN"];
+
     for (let i = 1; i <= 8; i++) {
-      const radius = i * 8000 * viewport.scale / SCALE;
+      const radius = i * 100000 * viewport.scale / SCALE;
       ctx.beginPath();
       ctx.arc(ringCenterX, ringCenterY, radius, 0, Math.PI * 2);
       ctx.stroke();
+
+      ctx.font = `${Math.max(10, 12 / viewport.scale)}px "Share Tech Mono", monospace`;
+      ctx.fillStyle = "rgba(0, 212, 255, 0.5)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(ringLabels[i - 1], ringCenterX, ringCenterY - radius);
     }
 
     ctx.setLineDash([]);
@@ -223,6 +312,16 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
     drawMap();
     drawRings();
   }, [drawMap, drawRings]);
+
+  useEffect(() => {
+    let animationId: number;
+    const animate = () => {
+      setTime(Date.now() / 1000);
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -369,6 +468,7 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
         viewport={viewport}
         dimensions={dimensions}
         onSelect={onSelect}
+        time={time}
       />
 
       <div
@@ -398,12 +498,14 @@ function Minimap({
   viewport,
   dimensions,
   onSelect,
+  time,
 }: {
   planets: PositionedPlanet[];
   selectedId: string | null;
   viewport: { x: number; y: number; scale: number };
   dimensions: { width: number; height: number };
   onSelect: (id: string) => void;
+  time: number;
 }) {
   const minimapRef = useRef<HTMLCanvasElement>(null);
   const MINIMAP_WIDTH = 180;
@@ -432,15 +534,18 @@ function Minimap({
     ctx.strokeStyle = "rgba(0, 212, 255, 0.3)";
     ctx.lineWidth = 0.5;
     for (let i = 1; i <= 8; i++) {
-      const radius = i * 8000 * minimapScaleX;
+      const radius = i * 100000 * minimapScaleX;
       ctx.beginPath();
       ctx.arc(MINIMAP_WIDTH / 2, MINIMAP_HEIGHT / 2, radius, 0, Math.PI * 2);
       ctx.stroke();
     }
 
     for (const planet of planets) {
-      const px = MINIMAP_WIDTH / 2 + (planet.worldX - MAP_WIDTH / 2) * minimapScaleX;
-      const py = MINIMAP_HEIGHT / 2 + (planet.worldY - MAP_HEIGHT / 2) * minimapScaleY;
+      const orbitAngle = planet.baseAngle + time * planet.orbitSpeed;
+      const worldX = Math.cos(orbitAngle) * planet.radius;
+      const worldY = Math.sin(orbitAngle) * planet.radius;
+      const px = MINIMAP_WIDTH / 2 + worldX * minimapScaleX;
+      const py = MINIMAP_HEIGHT / 2 + worldY * minimapScaleY;
       if (px < 0 || px > MINIMAP_WIDTH || py < 0 || py > MINIMAP_HEIGHT) continue;
 
       ctx.beginPath();
@@ -449,10 +554,10 @@ function Minimap({
       ctx.fill();
     }
 
-    const vpWidth = dimensions.width * MINIMAP_WIDTH / (viewport.scale * SCALE);
-    const vpHeight = dimensions.height * MINIMAP_HEIGHT / (viewport.scale * SCALE);
-    const vpX = MINIMAP_WIDTH / 2 + (-viewport.x / viewport.scale / SCALE) * MAP_WIDTH;
-    const vpY = MINIMAP_HEIGHT / 2 + (-viewport.y / viewport.scale / SCALE) * MAP_HEIGHT;
+    const vpWidth = (dimensions.width / viewport.scale) * minimapScaleX;
+    const vpHeight = (dimensions.height / viewport.scale) * minimapScaleY;
+    const vpX = MINIMAP_WIDTH / 2 + (-viewport.x / viewport.scale) * minimapScaleX;
+    const vpY = MINIMAP_HEIGHT / 2 + (-viewport.y / viewport.scale) * minimapScaleY;
 
     ctx.strokeStyle = "#00d4ff";
     ctx.lineWidth = 1;
@@ -460,7 +565,7 @@ function Minimap({
     ctx.fillStyle = "rgba(0, 212, 255, 0.1)";
     ctx.fillRect(vpX, vpY, vpWidth, vpHeight);
 
-  }, [planets, selectedId, viewport, dimensions]);
+  }, [planets, selectedId, viewport, dimensions, time]);
 
   const handleMinimapClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = minimapRef.current;
@@ -473,12 +578,12 @@ function Minimap({
     const minimapScaleX = MINIMAP_WIDTH / MAP_WIDTH;
     const minimapScaleY = MINIMAP_HEIGHT / MAP_HEIGHT;
 
-    const worldX = clickX / minimapScaleX;
-    const worldY = clickY / minimapScaleY;
+    const worldX = (clickX / minimapScaleX) - MAP_WIDTH / 2;
+    const worldY = (clickY / minimapScaleY) - MAP_HEIGHT / 2;
 
     let closestPlanet: PositionedPlanet | null = null;
     let closestDist = Infinity;
-    const clickRadius = 30 / minimapScaleX;
+    const clickRadius = 1000 / minimapScaleX;
 
     for (const planet of planets) {
       const dx = planet.worldX - worldX;
