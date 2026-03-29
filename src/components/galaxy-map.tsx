@@ -334,7 +334,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
 
   useEffect(() => {
     const targetOpacity = viewport.scale <= 0.1 ? 1 : 0;
-    const step = 0.02;
+    const step = 0.08;
     let currentOpacity = quoteOpacity;
     
     const animateOpacity = () => {
