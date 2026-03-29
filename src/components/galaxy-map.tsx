@@ -5,6 +5,7 @@ interface GalaxyMapProps {
   planets: Planet[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onBlurChange?: (blur: number) => void;
 }
 
 const REGION_COORDS: Record<string, { x: number; y: number }> = {
@@ -60,13 +61,18 @@ interface PositionedPlanet extends Planet {
   orbitSpeed: number;
 }
 
-export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
+export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: GalaxyMapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ringsCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 3 });
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
   const [time, setTime] = useState(0);
+  const [quoteOpacity, setQuoteOpacity] = useState(0);
+
+  useEffect(() => {
+    onBlurChange?.(quoteOpacity * 8);
+  }, [quoteOpacity, onBlurChange]);
 
   const MAP_WIDTH = 60000;
   const MAP_HEIGHT = 60000;
@@ -290,7 +296,7 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
     ctx.lineWidth = 1;
     ctx.setLineDash([10, 5]);
 
-    const ringLabels = ["DEEP CORE", "CORE", "COLONIES", "EXPANSION", "INNER RIM", "MID RIM", "OUTER RIM", "UNKNOWN"];
+    const regionLabels = ["DEEP CORE", "CORE", "COLONIES", "EXPANSION", "INNER RIM", "MID RIM", "OUTER RIM", "UNKNOWN"];
 
     for (let i = 1; i <= 8; i++) {
       const radius = i * 100000 * viewport.scale / SCALE;
@@ -298,15 +304,18 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
       ctx.arc(ringCenterX, ringCenterY, radius, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.font = `${Math.max(10, 12 / viewport.scale)}px "Share Tech Mono", monospace`;
-      ctx.fillStyle = "rgba(0, 212, 255, 0.5)";
+      const labelX = ringCenterX;
+      const labelY = ringCenterY - radius;
+      const fontSize = Math.max(8, 12 / viewport.scale);
+      ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
+      ctx.fillStyle = `rgba(0, 212, 255, ${0.6 * (1 - quoteOpacity)})`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(ringLabels[i - 1], ringCenterX, ringCenterY - radius);
+      ctx.fillText(regionLabels[i - 1], labelX, labelY);
     }
 
     ctx.setLineDash([]);
-  }, [dimensions, viewport]);
+  }, [dimensions, viewport, quoteOpacity]);
 
   useEffect(() => {
     drawMap();
@@ -322,6 +331,27 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
     animationId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationId);
   }, []);
+
+  useEffect(() => {
+    const targetOpacity = viewport.scale <= 0.1 ? 1 : 0;
+    const step = 0.02;
+    let currentOpacity = quoteOpacity;
+    
+    const animateOpacity = () => {
+      if (currentOpacity < targetOpacity) {
+        currentOpacity = Math.min(currentOpacity + step, targetOpacity);
+      } else if (currentOpacity > targetOpacity) {
+        currentOpacity = Math.max(currentOpacity - step, targetOpacity);
+      }
+      setQuoteOpacity(currentOpacity);
+      
+      if (currentOpacity !== targetOpacity) {
+        requestAnimationFrame(animateOpacity);
+      }
+    };
+    
+    requestAnimationFrame(animateOpacity);
+  }, [viewport.scale]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -424,7 +454,12 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
   return (
     <div 
       ref={containerRef} 
-      style={{ width: "100%", height: "100%", overflow: "hidden", position: "relative" }}
+      style={{ 
+        width: "100%", 
+        height: "100%", 
+        overflow: "hidden", 
+        position: "relative",
+      }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={(e) => { handleMouseMove(e); handleMouseMoveCanvas(e); }}
@@ -486,8 +521,36 @@ export function GalaxyMap({ planets, selectedId, onSelect }: GalaxyMapProps) {
           zIndex: 100,
         }}
       >
-        {mousePos ? `X: ${mousePos.x}  Y: ${mousePos.y}` : "Move cursor over map"}
+        {mousePos ? `X: ${mousePos.x}  Y: ${mousePos.y}` : "Move cursor over map"}  |  Zoom: {viewport.scale.toFixed(1)}x
       </div>
+
+      {quoteOpacity > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontFamily: "'Share Tech Mono', monospace",
+            fontSize: 48,
+            fontWeight: "bold",
+            fontStyle: "italic",
+            color: `rgba(0, 212, 255, ${quoteOpacity})`,
+            textShadow: `0 0 30px rgba(0, 212, 255, ${quoteOpacity * 0.8})`,
+            zIndex: 50,
+            textAlign: "center",
+            pointerEvents: "none",
+            background: `rgba(0, 0, 0, ${quoteOpacity * 0.5})`,
+            backdropFilter: `blur(${quoteOpacity * 10}px)`,
+            padding: "20px 40px",
+            borderRadius: "8px",
+          }}
+        >
+          so beautiful... it's unbearable
+          <br />
+          <span style={{ fontSize: 24, fontWeight: "bold", opacity: 0.7 }}>-Anakin, AOTC</span>
+        </div>
+      )}
     </div>
   );
 }

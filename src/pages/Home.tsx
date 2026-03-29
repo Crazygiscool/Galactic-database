@@ -126,6 +126,7 @@ export default function Home() {
   const [page, setPage] = useState(0);
   const [theme, setTheme] = useState<Theme>("imperial");
   const [showGlobalResults, setShowGlobalResults] = useState(false);
+  const [mapBlur, setMapBlur] = useState(0);
 
   const { data: planets, isLoading: planetsLoading } = useGalacticMapAllPlanets();
   const { data: films, isLoading: filmsLoading } = useFilms();
@@ -648,6 +649,7 @@ export default function Home() {
                 flex: 1,
                 position: "relative",
                 overflow: "hidden",
+                backdropFilter: `blur(${mapBlur}px)`,
               }}
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
@@ -723,6 +725,7 @@ export default function Home() {
                   onSelect={(id) =>
                     setSelectedId((prev) => (prev === id ? null : id))
                   }
+                  onBlurChange={setMapBlur}
                 />
               )}
             </motion.div>
