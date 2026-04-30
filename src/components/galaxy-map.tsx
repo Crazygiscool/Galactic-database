@@ -1,6 +1,42 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from "react";
 import { Planet } from "@/hooks/use-swapi";
 
+function hslToRgba(hslString: string, alpha: number): string {
+  const match = hslString.match(/(\d+\.?\d*)\s+(\d+\.?\d*)%?\s+(\d+\.?\d*)%?/);
+  if (!match) return `rgba(0, 212, 255, ${alpha})`;
+
+  const h = parseFloat(match[1]) / 360;
+  const s = parseFloat(match[2]) / 100;
+  const l = parseFloat(match[3]) / 100;
+
+  let r: number, g: number, b: number;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`;
+}
+
+function getThemeColor(alpha: number = 1): string {
+  if (typeof window === 'undefined') return `rgba(0, 212, 255, ${alpha})`;
+  const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  return hslToRgba(primary, alpha);
+}
+
 interface GalaxyMapProps {
   planets: Planet[];
   selectedId: string | null;
@@ -203,7 +239,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
 
         ctx.beginPath();
         ctx.arc(cx, cy, size, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 212, 255, 0.9)";
+        ctx.fillStyle = getThemeColor(0.9);
         ctx.fill();
 
         if (cluster.count > 1) {
@@ -228,12 +264,12 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
 
         ctx.beginPath();
         ctx.arc(screenX, screenY, baseSize, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 212, 255, 0.8)";
+        ctx.fillStyle = getThemeColor(0.8);
         ctx.fill();
 
         ctx.beginPath();
         ctx.arc(screenX, screenY, baseSize + 2, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(0, 212, 255, 0.4)";
+        ctx.strokeStyle = getThemeColor(0.4);
         ctx.lineWidth = 1 / viewport.scale;
         ctx.stroke();
       }
@@ -250,8 +286,8 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
 
       const gradient = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, glowSize);
       gradient.addColorStop(0, "rgba(255, 255, 255, 0.9)");
-      gradient.addColorStop(0.3, "rgba(0, 212, 255, 0.6)");
-      gradient.addColorStop(1, "rgba(0, 212, 255, 0)");
+      gradient.addColorStop(0.3, getThemeColor(0.6));
+      gradient.addColorStop(1, getThemeColor(0));
 
       ctx.beginPath();
       ctx.arc(screenX, screenY, glowSize, 0, Math.PI * 2);
@@ -265,7 +301,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
 
       ctx.beginPath();
       ctx.arc(screenX, screenY, 14, 0, Math.PI * 2);
-      ctx.strokeStyle = "#00d4ff";
+      ctx.strokeStyle = getThemeColor(1);
       ctx.lineWidth = 2 / viewport.scale;
       ctx.stroke();
     }
@@ -295,7 +331,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     const ringCenterX = centerX + viewport.x;
     const ringCenterY = centerY + viewport.y;
 
-    ctx.strokeStyle = "rgba(0, 212, 255, 0.2)";
+    ctx.strokeStyle = getThemeColor(0.2);
     ctx.lineWidth = 1;
     ctx.setLineDash([10, 5]);
 
@@ -311,7 +347,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
       const labelY = ringCenterY - radius;
       const fontSize = Math.max(8, 12 / viewport.scale);
       ctx.font = `${fontSize}px "Share Tech Mono", monospace`;
-      ctx.fillStyle = `rgba(0, 212, 255, ${0.6 * (1 - quoteOpacity)})`;
+      ctx.fillStyle = getThemeColor(0.6 * (1 - quoteOpacity));
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(regionLabels[i - 1], labelX, labelY);
@@ -728,8 +764,8 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
             fontSize: 48,
             fontWeight: "bold",
             fontStyle: "italic",
-            color: `rgba(0, 212, 255, ${quoteOpacity})`,
-            textShadow: `0 0 30px rgba(0, 212, 255, ${quoteOpacity * 0.8})`,
+          color: `rgba(var(--primary-rgb), ${quoteOpacity})`,
+          textShadow: `0 0 30px rgba(var(--primary-rgb), ${quoteOpacity * 0.8})`,
             zIndex: 50,
             textAlign: "center",
             pointerEvents: "none",
