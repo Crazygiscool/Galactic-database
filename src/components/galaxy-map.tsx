@@ -479,6 +479,135 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     }
   }, [dimensions, viewport, positionedPlanets]);
 
+  // Touch handling refs
+  const touchStartRef = useRef<{ touches: React.TouchList; time: number } | null>(null);
+  const lastTouchDistanceRef = useRef<number | null>(null);
+  const isTouchDraggingRef = useRef(false);
+  const lastTouchPosRef = useRef({ x: 0, y: 0 });
+
+  // Get distance between two touches for pinch zoom
+  const getTouchDistance = (touches: React.TouchList): number => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Get center point between two touches
+  const getTouchCenter = (touches: React.TouchList): { x: number; y: number } => {
+    if (touches.length < 2) return { x: touches[0].clientX, y: touches[0].clientY };
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2,
+    };
+  };
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    const touches = e.touches;
+    
+    touchStartRef.current = { touches, time: Date.now() };
+    
+    if (touches.length === 1) {
+      // Single touch - start panning
+      isTouchDraggingRef.current = true;
+      lastTouchPosRef.current = { x: touches[0].clientX, y: touches[0].clientY };
+      lastTouchDistanceRef.current = null;
+    } else if (touches.length === 2) {
+      // Two touches - start pinch zoom
+      isTouchDraggingRef.current = false;
+      lastTouchDistanceRef.current = getTouchDistance(touches);
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    const touches = e.touches;
+
+    if (touches.length === 1 && isTouchDraggingRef.current) {
+      // Single touch - pan the map
+      const dx = touches[0].clientX - lastTouchPosRef.current.x;
+      const dy = touches[0].clientY - lastTouchPosRef.current.y;
+      lastTouchPosRef.current = { x: touches[0].clientX, y: touches[0].clientY };
+      
+      setViewport((prev) => ({
+        ...prev,
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }));
+    } else if (touches.length === 2 && lastTouchDistanceRef.current !== null) {
+      // Two touches - pinch zoom
+      const currentDistance = getTouchDistance(touches);
+      const initialDistance = lastTouchDistanceRef.current;
+      
+      if (initialDistance > 0 && currentDistance > 0) {
+        const scaleChange = currentDistance / initialDistance;
+        setViewport((prev) => ({
+          ...prev,
+          scale: Math.max(0.02, Math.min(50, prev.scale * scaleChange)),
+        }));
+        lastTouchDistanceRef.current = currentDistance;
+      }
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    
+    // If we had a single touch and it was quick, treat it as a tap/click
+    if (isTouchDraggingRef.current && touchStartRef.current && e.touches.length === 0) {
+      const touchDuration = Date.now() - touchStartRef.current.time;
+      const startTouch = touchStartRef.current.touches[0];
+      const endTouch = e.changedTouches[0];
+      
+      // If it was a quick tap (not a drag), trigger planet selection
+      if (touchDuration < 300) {
+        const dx = Math.abs(endTouch.clientX - startTouch.clientX);
+        const dy = Math.abs(endTouch.clientY - startTouch.clientY);
+        
+        if (dx < 10 && dy < 10) {
+          // This was a tap, not a drag - select planet
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          const rect = canvas.getBoundingClientRect();
+          const clickX = endTouch.clientX - rect.left;
+          const clickY = endTouch.clientY - rect.top;
+
+          const centerX = dimensions.width / 2;
+          const centerY = dimensions.height / 2;
+
+          const mapX = (clickX - centerX - viewport.x) / viewport.scale;
+          const mapY = (clickY - centerY - viewport.y) / viewport.scale;
+
+          let closestPlanet: PositionedPlanet | null = null;
+          let closestDist = Infinity;
+          const clickRadius = 30 / viewport.scale;
+
+          for (const planet of positionedPlanets) {
+            const screenX = (planet.worldX - MAP_WIDTH / 2) / SCALE;
+            const screenY = (planet.worldY - MAP_HEIGHT / 2) / SCALE;
+            const dx = screenX - mapX;
+            const dy = screenY - mapY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < clickRadius && dist < closestDist) {
+              closestDist = dist;
+              closestPlanet = planet;
+            }
+          }
+
+          if (closestPlanet) {
+            onSelect(closestPlanet.id);
+          }
+        }
+      }
+    }
+    
+    isTouchDraggingRef.current = false;
+    lastTouchDistanceRef.current = null;
+    touchStartRef.current = null;
+  }, [dimensions, positionedPlanets, onSelect, viewport]);
+
   return (
     <div 
       ref={containerRef} 
@@ -487,12 +616,17 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
         height: "100%", 
         overflow: "hidden", 
         position: "relative",
+        touchAction: "none", // Prevent browser touch handling
       }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={(e) => { handleMouseMove(e); handleMouseMoveCanvas(e); }}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       <div
         style={{
@@ -613,5 +747,3 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     </div>
   );
 }
-
-
