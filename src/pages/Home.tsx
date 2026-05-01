@@ -531,95 +531,10 @@ export default function Home() {
         }}
         theme={theme}
         onThemeChange={setTheme}
-      />
-
-      <AnimatePresence>
-        {showGlobalResults && globalSearchResults.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            style={{
-              position: "fixed",
-              top: isMobile ? "calc(40px + env(safe-area-inset-top))" : 44,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: isMobile ? "calc(100vw - 32px)" : 400,
-              maxHeight: "50vh",
-              overflowY: "auto",
-              background: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: 8,
-              zIndex: 100,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-            }}
-          >
-            <div
-              style={{
-                padding: "8px 12px",
-                borderBottom: "1px solid var(--border)",
-                fontSize: 10 * SCALE,
-                color: "var(--muted-foreground)",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <Search size={12} />
-              {globalSearchResults.length} RESULTS FOUND
-            </div>
-            {globalSearchResults.map((result, i) => (
-              <button
-                key={`${result.section}-${result.id}`}
-                onClick={() => handleGlobalSearchSelect(result)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12 * SCALE,
-                  padding: "10px 14px",
-                  width: "100%",
-                  background: "transparent",
-                  border: "none",
-                  borderBottom:
-                    i < globalSearchResults.length - 1
-                      ? "1px solid var(--border)"
-                      : "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--primary)";
-                  e.currentTarget.style.color = "var(--primary-foreground)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "var(--foreground)";
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 9 * SCALE,
-                    color: "var(--muted-foreground)",
-                    textTransform: "uppercase",
-                    minWidth: 80 * SCALE,
-                  }}
-                >
-                  {result.section}
-                </span>
-                <span
-                  style={{
-                    fontSize: 12 * SCALE,
-                    color: "var(--foreground)",
-                    fontFamily: font,
-                  }}
-                >
-                  {result.name}
-                </span>
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+        globalSearchResults={globalSearchResults}
+        onGlobalSearchSelect={handleGlobalSearchSelect}
+        showGlobalResults={showGlobalResults}
+       />
 
       <div
         style={{

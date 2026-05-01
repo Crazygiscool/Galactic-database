@@ -194,11 +194,17 @@ export function TopBar({
   onSearchChange,
   theme,
   onThemeChange,
+  globalSearchResults,
+  onGlobalSearchSelect,
+  showGlobalResults,
 }: {
   search: string;
   onSearchChange: (v: string) => void;
   theme: Theme;
   onThemeChange: (t: Theme) => void;
+  globalSearchResults: { id: string; name: string; section: string }[];
+  onGlobalSearchSelect: (result: { id: string; name: string; section: string }) => void;
+  showGlobalResults: boolean;
 }) {
   const isMobile = useIsMobile();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
@@ -235,67 +241,159 @@ export function TopBar({
             GALACTIC DB
           </span>
 
-          <div
+        <div
+          ref={(el) => {
+            // Store ref for positioning
+          }}
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            marginLeft: 12,
+            marginRight: 4,
+            background: "var(--muted)",
+            borderRadius: 8,
+            padding: "0 8px",
+            height: 28,
+            border: "1px solid var(--border)",
+            position: "relative",
+          }}
+        >
+          <Search
+            style={{
+              width: 12,
+              height: 12,
+              color: "var(--muted-foreground)",
+              flexShrink: 0,
+            }}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="SEARCH..."
             style={{
               flex: 1,
-              display: "flex",
-              alignItems: "center",
-              marginLeft: 12,
-              marginRight: 4,
-              background: "var(--muted)",
-              borderRadius: 8,
-              padding: "0 8px",
-              height: 28,
-              border: "1px solid var(--border)",
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: "var(--foreground)",
+              fontFamily: "'Share Tech Mono', monospace",
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              padding: "0 6px",
+              caretColor: "var(--primary)",
             }}
-          >
-            <Search
-              style={{
-                width: 12,
-                height: 12,
-                color: "var(--muted-foreground)",
-                flexShrink: 0,
-              }}
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="SEARCH..."
-              style={{
-                flex: 1,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "var(--foreground)",
-                fontFamily: "'Share Tech Mono', monospace",
-                fontSize: 10,
-                letterSpacing: "0.06em",
-                padding: "0 6px",
-                caretColor: "var(--primary)",
-              }}
-            />
-            <AnimatePresence>
-              {search && (
-                <motion.button
-                  key="clear-mobile"
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                  onClick={() => onSearchChange("")}
+          />
+          <AnimatePresence>
+            {search && (
+              <motion.button
+                key="clear-mobile"
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                onClick={() => onSearchChange("")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--muted-foreground)",
+                  padding: 2,
+                }}
+              >
+                <X style={{ width: 11, height: 11 }} />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {showGlobalResults && globalSearchResults.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  marginTop: 8,
+                  maxHeight: "50vh",
+                  overflowY: "auto",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  zIndex: 100,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                }}
+              >
+                <div
                   style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
+                    padding: "8px 12px",
+                    borderBottom: "1px solid var(--border)",
+                    fontSize: 9,
                     color: "var(--muted-foreground)",
-                    padding: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
-                  <X style={{ width: 11, height: 11 }} />
-                </motion.button>
-              )}
-            </AnimatePresence>
-          </div>
+                  <Search size={12} />
+                  {globalSearchResults.length} RESULTS FOUND
+                </div>
+                {globalSearchResults.map((result, i) => (
+                  <button
+                    key={`${result.section}-${result.id}`}
+                    onClick={() => onGlobalSearchSelect(result)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "10px 14px",
+                      width: "100%",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom:
+                        i < globalSearchResults.length - 1
+                          ? "1px solid var(--border)"
+                          : "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "var(--primary)";
+                      e.currentTarget.style.color = "var(--primary-foreground)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--foreground)";
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 9,
+                        color: "var(--muted-foreground)",
+                        textTransform: "uppercase",
+                        minWidth: 80,
+                      }}
+                    >
+                      {result.section}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "var(--foreground)",
+                        fontFamily: "'Share Tech Mono', monospace",
+                      }}
+                    >
+                      {result.name}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
           <button
             onClick={() => setShowThemeMenu(!showThemeMenu)}
@@ -432,10 +530,11 @@ export function TopBar({
 
       <div
         style={{
-          flex: 1,
+          flex:1,
           display: "flex",
           alignItems: "center",
           padding: "0 16px",
+          position: "relative",
         }}
       >
         <Search
@@ -481,6 +580,95 @@ export function TopBar({
             >
               <X style={{ width: 12, height: 12 }} />
             </motion.button>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showGlobalResults && globalSearchResults.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                marginTop: 8,
+                width: 400,
+                maxHeight: "50vh",
+                overflowY: "auto",
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                zIndex: 100,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              }}
+            >
+              <div
+                style={{
+                  padding: "8px 12px",
+                  borderBottom: "1px solid var(--border)",
+                  fontSize: 10,
+                  color: "var(--muted-foreground)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Search size={12} />
+                {globalSearchResults.length} RESULTS FOUND
+              </div>
+              {globalSearchResults.map((result, i) => (
+                <button
+                  key={`${result.section}-${result.id}`}
+                  onClick={() => onGlobalSearchSelect(result)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "10px 14px",
+                    width: "100%",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom:
+                      i < globalSearchResults.length - 1
+                        ? "1px solid var(--border)"
+                        : "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "var(--primary)";
+                    e.currentTarget.style.color = "var(--primary-foreground)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--foreground)";
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 9,
+                      color: "var(--muted-foreground)",
+                      textTransform: "uppercase",
+                      minWidth: 80,
+                    }}
+                  >
+                    {result.section}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--foreground)",
+                      fontFamily: "'Share Tech Mono', monospace",
+                    }}
+                  >
+                    {result.name}
+                  </span>
+                </button>
+              ))}
+            </motion.div>
           )}
         </AnimatePresence>
 
