@@ -14,6 +14,7 @@ import {
   Search,
   Palette,
   X,
+  Github,
 } from "lucide-react";
 import { Section } from "@/hooks/use-swapi";
 
@@ -411,6 +412,24 @@ export function TopBar({
           >
             <Palette size={18} style={{ color: currentTheme.color }} />
           </button>
+          <a
+            href="https://github.com/Crazygiscool/Galactic-database"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: currentTheme.color,
+              padding: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="View Source on GitHub"
+          >
+            <Github size={18} style={{ color: currentTheme.color }} />
+          </a>
         </div>
 
         <AnimatePresence>
@@ -672,7 +691,7 @@ export function TopBar({
           )}
         </AnimatePresence>
 
-        <div style={{ position: "relative", marginLeft: 12 }}>
+        <div style={{ position: "relative", marginLeft: 12, display: "flex", alignItems: "center", gap: 8 }}>
           <button
             onClick={() => setShowThemeMenu(!showThemeMenu)}
             style={{
@@ -693,6 +712,24 @@ export function TopBar({
             <Palette size={14} style={{ color: currentTheme.color }} />
             {currentTheme.label}
           </button>
+          <a
+            href="https://github.com/Crazygiscool/Galactic-database"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: currentTheme.color,
+              padding: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="View Source on GitHub"
+          >
+            <Github size={14} style={{ color: currentTheme.color }} />
+          </a>
           <AnimatePresence>
             {showThemeMenu && (
               <motion.div
