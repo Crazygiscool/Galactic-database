@@ -90,8 +90,6 @@ const REGION_TO_RING: Record<string, number> = {
 };
 
 interface PositionedPlanet extends Planet {
-  worldX: number;
-  worldY: number;
   baseAngle: number;
   radius: number;
   orbitSpeed: number;
@@ -159,7 +157,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
         y = Math.sin(baseAngle) * radius;
       }
 
-      return { ...planet, worldX: x, worldY: y, baseAngle, radius, orbitSpeed };
+      return { ...planet, baseAngle, radius, orbitSpeed };
     });
   }, [planets]);
 
@@ -422,18 +420,18 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
 
-    const mapX = (clickX - centerX - viewport.x) / viewport.scale;
-    const mapY = (clickY - centerY - viewport.y) / viewport.scale;
-
     let closestPlanet: PositionedPlanet | null = null;
     let closestDist = Infinity;
-    const clickRadius = 30 / viewport.scale;
+    const clickRadius = 30;
 
     for (const planet of positionedPlanets) {
-      const screenX = (planet.worldX - MAP_WIDTH / 2) / SCALE;
-      const screenY = (planet.worldY - MAP_HEIGHT / 2) / SCALE;
-      const dx = screenX - mapX;
-      const dy = screenY - mapY;
+      const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
+      const worldX = Math.cos(orbitAngle) * planet.radius;
+      const worldY = Math.sin(orbitAngle) * planet.radius;
+      const screenX = (centerX + viewport.x) + (worldX / SCALE) * viewport.scale;
+      const screenY = (centerY + viewport.y) + (worldY / SCALE) * viewport.scale;
+      const dx = clickX - screenX;
+      const dy = clickY - screenY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < clickRadius && dist < closestDist) {
         closestDist = dist;
@@ -613,18 +611,18 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
           const centerX = dimensions.width / 2;
           const centerY = dimensions.height / 2;
 
-          const mapX = (clickX - centerX - viewport.x) / viewport.scale;
-          const mapY = (clickY - centerY - viewport.y) / viewport.scale;
-
           let closestPlanet: PositionedPlanet | null = null;
           let closestDist = Infinity;
-          const clickRadius = 30 / viewport.scale;
+          const clickRadius = 30;
 
           for (const planet of positionedPlanets) {
-            const screenX = (planet.worldX - MAP_WIDTH / 2) / SCALE;
-            const screenY = (planet.worldY - MAP_HEIGHT / 2) / SCALE;
-            const dx = screenX - mapX;
-            const dy = screenY - mapY;
+            const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
+            const worldX = Math.cos(orbitAngle) * planet.radius;
+            const worldY = Math.sin(orbitAngle) * planet.radius;
+            const screenX = (centerX + viewport.x) + (worldX / SCALE) * viewport.scale;
+            const screenY = (centerY + viewport.y) + (worldY / SCALE) * viewport.scale;
+            const dx = clickX - screenX;
+            const dy = clickY - screenY;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < clickRadius && dist < closestDist) {
               closestDist = dist;
