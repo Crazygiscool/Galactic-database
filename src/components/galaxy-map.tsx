@@ -103,6 +103,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
   const [time, setTime] = useState(0);
   const timeRef = useRef(0);
+  const frameTimeRef = useRef(0);
   const [quoteOpacity, setQuoteOpacity] = useState(0);
   const [hoveredPlanet, setHoveredPlanet] = useState<PositionedPlanet | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
@@ -364,6 +365,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     const animate = () => {
       const t = Date.now() / 1000;
       timeRef.current = t;
+      frameTimeRef.current = t;
       setTime(t);
       animationId = requestAnimationFrame(animate);
     };
@@ -410,39 +412,10 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
   }, []);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
-
-    let closestPlanet: PositionedPlanet | null = null;
-    let closestDist = Infinity;
-    const clickRadius = 30;
-
-    for (const planet of positionedPlanets) {
-      const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
-      const worldX = Math.cos(orbitAngle) * planet.radius;
-      const worldY = Math.sin(orbitAngle) * planet.radius;
-      const screenX = (centerX + viewport.x) + (worldX / SCALE) * viewport.scale;
-      const screenY = (centerY + viewport.y) + (worldY / SCALE) * viewport.scale;
-      const dx = clickX - screenX;
-      const dy = clickY - screenY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < clickRadius && dist < closestDist) {
-        closestDist = dist;
-        closestPlanet = planet;
-      }
+    if (hoveredPlanet) {
+      onSelect(hoveredPlanet.id);
     }
-
-    if (closestPlanet) {
-      onSelect(closestPlanet.id);
-    }
-  }, [dimensions, positionedPlanets, onSelect, viewport]);
+  }, [hoveredPlanet, onSelect]);
 
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
@@ -493,7 +466,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     const hoverRadius = 30;
 
     for (const planet of positionedPlanets) {
-      const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
+      const orbitAngle = planet.baseAngle + frameTimeRef.current * planet.orbitSpeed;
       const worldX = Math.cos(orbitAngle) * planet.radius;
       const worldY = Math.sin(orbitAngle) * planet.radius;
       const screenX = (centerX + viewport.x) + worldX / SCALE * viewport.scale;
@@ -547,12 +520,41 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
       isTouchDraggingRef.current = true;
       lastTouchPosRef.current = { x: touches[0].clientX, y: touches[0].clientY };
       lastTouchDistanceRef.current = null;
+      
+      // Detect planet under touch to set hoveredPlanet
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const touchX = touches[0].clientX - rect.left;
+        const touchY = touches[0].clientY - rect.top;
+        const centerX = dimensions.width / 2;
+        const centerY = dimensions.height / 2;
+        
+        let foundPlanet: PositionedPlanet | null = null;
+        const hoverRadius = 30;
+        
+        for (const planet of positionedPlanets) {
+          const orbitAngle = planet.baseAngle + frameTimeRef.current * planet.orbitSpeed;
+          const worldX = Math.cos(orbitAngle) * planet.radius;
+          const worldY = Math.sin(orbitAngle) * planet.radius;
+          const screenX = (centerX + viewport.x) + (worldX / SCALE) * viewport.scale;
+          const screenY = (centerY + viewport.y) + (worldY / SCALE) * viewport.scale;
+          const dx = touchX - screenX;
+          const dy = touchY - screenY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < hoverRadius) {
+            foundPlanet = planet;
+            break;
+          }
+        }
+        
+        setHoveredPlanet(foundPlanet);
+      }
     } else if (touches.length === 2) {
       // Two touches - start pinch zoom
       isTouchDraggingRef.current = false;
       lastTouchDistanceRef.current = getTouchDistance(touches);
     }
-  }, []);
+  }, [dimensions, positionedPlanets, viewport]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
@@ -600,38 +602,9 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
         const dy = Math.abs(endTouch.clientY - startTouch.clientY);
         
         if (dx < 10 && dy < 10) {
-          // This was a tap, not a drag - select planet
-          const canvas = canvasRef.current;
-          if (!canvas) return;
-
-          const rect = canvas.getBoundingClientRect();
-          const clickX = endTouch.clientX - rect.left;
-          const clickY = endTouch.clientY - rect.top;
-
-          const centerX = dimensions.width / 2;
-          const centerY = dimensions.height / 2;
-
-          let closestPlanet: PositionedPlanet | null = null;
-          let closestDist = Infinity;
-          const clickRadius = 30;
-
-          for (const planet of positionedPlanets) {
-            const orbitAngle = planet.baseAngle + timeRef.current * planet.orbitSpeed;
-            const worldX = Math.cos(orbitAngle) * planet.radius;
-            const worldY = Math.sin(orbitAngle) * planet.radius;
-            const screenX = (centerX + viewport.x) + (worldX / SCALE) * viewport.scale;
-            const screenY = (centerY + viewport.y) + (worldY / SCALE) * viewport.scale;
-            const dx = clickX - screenX;
-            const dy = clickY - screenY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < clickRadius && dist < closestDist) {
-              closestDist = dist;
-              closestPlanet = planet;
-            }
-          }
-
-          if (closestPlanet) {
-            onSelect(closestPlanet.id);
+          // Use hoveredPlanet (set by handleTouchStart)
+          if (hoveredPlanet) {
+            onSelect(hoveredPlanet.id);
           }
         }
       }
@@ -640,7 +613,7 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
     isTouchDraggingRef.current = false;
     lastTouchDistanceRef.current = null;
     touchStartRef.current = null;
-  }, [dimensions, positionedPlanets, onSelect, viewport]);
+  }, [hoveredPlanet, onSelect]);
 
   return (
     <div 
