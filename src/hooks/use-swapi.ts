@@ -137,23 +137,48 @@ async function fetchAllSWAPIInfo<T>(endpoint: string): Promise<T[]> {
   let all: T[] = [];
   let page = 1;
   const baseUrl = `https://swapi.info/api/${endpoint}?page=`;
+  const MAX_PAGES = 20; // Guard against infinite loops
+  const seenIds = new Set<string>(); // Detect duplicates (SWAPI.info pagination bug)
 
-  while (true) {
+  while (page <= MAX_PAGES) {
+    console.time(`[SWAPI.info] ${endpoint} page ${page}`);
     const res = await fetch(`${baseUrl}${page}`);
-    if (!res.ok)
-      throw new Error("Terminal link failure: Unable to reach SWAPI");
+    if (!res.ok) {
+      console.error(`[SWAPI.info] ${endpoint} page ${page}: HTTP ${res.status}`);
+      throw new Error(`Terminal link failure: Unable to reach SWAPI (page ${page})`);
+    }
     const data: T[] = await res.json();
+    console.timeEnd(`[SWAPI.info] ${endpoint} page ${page}`);
+    console.log(`[SWAPI.info] ${endpoint} page ${page}: ${data.length} items`);
 
     if (data.length === 0) break;
 
-    const withId = data.map((item: any) => ({
-      ...item,
-      id: item.url.split("/").filter(Boolean).pop() ?? String(Math.random()),
-    }));
+    const withId = data.map((item: any) => {
+      const id = item.url.split("/").filter(Boolean).pop() ?? String(Math.random());
+      if (seenIds.has(id)) {
+        console.warn(`[SWAPI.info] ${endpoint}: Duplicate ID detected: ${id} on page ${page}`);
+        return null;
+      }
+      seenIds.add(id);
+      return { ...item, id };
+    }).filter(Boolean);
 
     all = [...all, ...withId];
+
+    // SWAPI.info pagination bug: if we got less than 10 items, assume it's the last page
+    // Or if all items were duplicates
+    if (data.length < 10 || withId.length === 0) {
+      console.log(`[SWAPI.info] ${endpoint}: Assuming last page (${data.length} items, ${withId.length} new)`);
+      break;
+    }
     page++;
   }
+
+  if (page > MAX_PAGES) {
+    console.error(`[SWAPI.info] ${endpoint}: Hit MAX_PAGES guard (${MAX_PAGES}) - pagination may be broken`);
+  }
+
+  console.log(`[SWAPI.info] ${endpoint}: Total ${all.length} items fetched in ${page - 1} pages`);
   return all;
 }
 
@@ -162,8 +187,22 @@ const STALE = 1000 * 60 * 60;
 export function usePlanets() {
   return useQuery<Planet[]>({
     queryKey: ["planets"],
-    queryFn: () => fetchAllSWAPIInfo<Planet>("planets"),
+    queryFn: async () => {
+      console.time("[Query] planets");
+      try {
+        const result = await fetchAllSWAPIInfo<Planet>("planets");
+        console.timeEnd("[Query] planets");
+        console.log(`[Query] planets: Loaded ${result.length} items`);
+        return result;
+      } catch (error) {
+        console.timeEnd("[Query] planets");
+        console.error("[Query] planets: FAILED", error);
+        throw error;
+      }
+    },
     staleTime: STALE,
+    onSuccess: (data) => console.log("[Query] planets: Success", { count: data.length }),
+    onError: (error) => console.error("[Query] planets: Error", error),
   });
 }
 
@@ -218,11 +257,18 @@ export const REGION_COORDS: Record<string, { x: number; y: number }> = {
 };
 
 export function useGalacticMapAllPlanets() {
-  const { data: galacticMapPlanets, isLoading } = useGalacticMapPlanets();
-  const { data: swapiPlanets } = usePlanets();
+  const { data: galacticMapPlanets, isLoading, dataUpdatedAt } = useGalacticMapPlanets();
+  const { data: swapiPlanets, dataUpdatedAt: swapiUpdatedAt } = usePlanets();
+
+  console.log(`[useGalacticMapAllPlanets] galacticMap: ${isLoading ? 'loading' : 'done'} (updated: ${new Date(dataUpdatedAt).toISOString()})`);
+  console.log(`[useGalacticMapAllPlanets] swapiPlanets: ${!swapiPlanets ? 'loading' : 'done'} (${swapiPlanets?.length || 0} items, updated: ${new Date(swapiUpdatedAt).toISOString()})`);
 
   const data = useMemo(() => {
-    if (!galacticMapPlanets) return [];
+    console.time('[useGalacticMapAllPlanets] merge');
+    if (!galacticMapPlanets) {
+      console.log('[useGalacticMapAllPlanets] No galacticMap data yet');
+      return [];
+    }
 
     const swapiMap = new Map<string, Planet>();
     if (swapiPlanets) {
@@ -232,7 +278,7 @@ export function useGalacticMapAllPlanets() {
       }
     }
 
-    return galacticMapPlanets.map((planet, index) => {
+    const result = galacticMapPlanets.map((planet, index) => {
       const swapiMatch = swapiMap.get(planet.Name.toLowerCase()) || swapiMap.get(normalizeName(planet.Name));
       
       return {
@@ -260,6 +306,8 @@ export function useGalacticMapAllPlanets() {
         url: swapiMatch?.url || "",
       };
     });
+    console.timeEnd('[useGalacticMapAllPlanets] merge');
+    return result;
   }, [galacticMapPlanets, swapiPlanets]);
 
   return {
@@ -271,32 +319,88 @@ export function useGalacticMapAllPlanets() {
 export function useFilms() {
   return useQuery<Film[]>({
     queryKey: ["films"],
-    queryFn: () => fetchAllSWAPIInfo<Film>("films"),
+    queryFn: async () => {
+      console.time("[Query] films");
+      try {
+        const result = await fetchAllSWAPIInfo<Film>("films");
+        console.timeEnd("[Query] films");
+        console.log(`[Query] films: Loaded ${result.length} items`);
+        return result;
+      } catch (error) {
+        console.timeEnd("[Query] films");
+        console.error("[Query] films: FAILED", error);
+        throw error;
+      }
+    },
     staleTime: STALE,
+    onSuccess: (data) => console.log("[Query] films: Success", { count: data.length }),
+    onError: (error) => console.error("[Query] films: Error", error),
   });
 }
 
 export function usePeople() {
   return useQuery<Person[]>({
     queryKey: ["people"],
-    queryFn: () => fetchAllSWAPIInfo<Person>("people"),
+    queryFn: async () => {
+      console.time("[Query] people");
+      try {
+        const result = await fetchAllSWAPIInfo<Person>("people");
+        console.timeEnd("[Query] people");
+        console.log(`[Query] people: Loaded ${result.length} items`);
+        return result;
+      } catch (error) {
+        console.timeEnd("[Query] people");
+        console.error("[Query] people: FAILED", error);
+        throw error;
+      }
+    },
     staleTime: STALE,
+    onSuccess: (data) => console.log("[Query] people: Success", { count: data.length }),
+    onError: (error) => console.error("[Query] people: Error", error),
   });
 }
 
 export function useStarships() {
   return useQuery<Starship[]>({
     queryKey: ["starships"],
-    queryFn: () => fetchAllSWAPIInfo<Starship>("starships"),
+    queryFn: async () => {
+      console.time("[Query] starships");
+      try {
+        const result = await fetchAllSWAPIInfo<Starship>("starships");
+        console.timeEnd("[Query] starships");
+        console.log(`[Query] starships: Loaded ${result.length} items`);
+        return result;
+      } catch (error) {
+        console.timeEnd("[Query] starships");
+        console.error("[Query] starships: FAILED", error);
+        throw error;
+      }
+    },
     staleTime: STALE,
+    onSuccess: (data) => console.log("[Query] starships: Success", { count: data.length }),
+    onError: (error) => console.error("[Query] starships: Error", error),
   });
 }
 
 export function useVehicles() {
   return useQuery<Vehicle[]>({
     queryKey: ["vehicles"],
-    queryFn: () => fetchAllSWAPIInfo<Vehicle>("vehicles"),
+    queryFn: async () => {
+      console.time("[Query] vehicles");
+      try {
+        const result = await fetchAllSWAPIInfo<Vehicle>("vehicles");
+        console.timeEnd("[Query] vehicles");
+        console.log(`[Query] vehicles: Loaded ${result.length} items`);
+        return result;
+      } catch (error) {
+        console.timeEnd("[Query] vehicles");
+        console.error("[Query] vehicles: FAILED", error);
+        throw error;
+      }
+    },
     staleTime: STALE,
+    onSuccess: (data) => console.log("[Query] vehicles: Success", { count: data.length }),
+    onError: (error) => console.error("[Query] vehicles: Error", error),
   });
 }
 
@@ -361,15 +465,22 @@ export function useDatabankCharacters() {
 }
 
 export function useMergedCharacters() {
-  const { data: people, isLoading: peopleLoading } = usePeople();
-  const { data: databankChars, isLoading: charsLoading } =
+  const { data: people, isLoading: peopleLoading, dataUpdatedAt: peopleUpdatedAt } = usePeople();
+  const { data: databankChars, isLoading: charsLoading, dataUpdatedAt: charsUpdatedAt } =
     useDatabankCharacters();
 
+  console.log(`[useMergedCharacters] SWAPI people: ${peopleLoading ? 'loading' : 'done'} (${people?.length || 0} items, updated: ${new Date(peopleUpdatedAt).toISOString()})`);
+  console.log(`[useMergedCharacters] Databank chars: ${charsLoading ? 'loading' : 'done'} (${databankChars?.length || 0} items, updated: ${new Date(charsUpdatedAt).toISOString()})`);
+
   const data = useMemo(() => {
+    console.time('[useMergedCharacters] merge');
     const swPeople = people ?? [];
     const dbChars = databankChars ?? [];
 
-    if (swPeople.length === 0 && dbChars.length === 0) return [];
+    if (swPeople.length === 0 && dbChars.length === 0) {
+      console.log('[useMergedCharacters] No data yet');
+      return [];
+    }
 
     const charMap = new Map<string, Person>();
 
@@ -406,9 +517,12 @@ export function useMergedCharacters() {
       }
     }
 
-    return Array.from(charMap.values()).sort((a, b) =>
+    const result = Array.from(charMap.values()).sort((a, b) =>
       a.name.localeCompare(b.name),
     );
+    console.timeEnd('[useMergedCharacters] merge');
+    console.log(`[useMergedCharacters] Merged: ${result.length} characters`);
+    return result;
   }, [people, databankChars]);
 
   return {
@@ -466,14 +580,18 @@ export function useDatabankVehicles() {
 }
 
 export function useMergedLocations() {
-  const { data: planets, isLoading: planetsLoading } = usePlanets();
-  const { data: databankLocs, isLoading: locsLoading } = useDatabankLocations();
+  const { data: planets, isLoading: planetsLoading, dataUpdatedAt: planetsUpdatedAt } = usePlanets();
+  const { data: databankLocs, isLoading: locsLoading, dataUpdatedAt: locsUpdatedAt } = useDatabankLocations();
+
+  console.log(`[useMergedLocations] planets: ${planetsLoading ? 'loading' : 'done'} (${planets?.length || 0} items, updated: ${new Date(planetsUpdatedAt).toISOString()})`);
+  console.log(`[useMergedLocations] databankLocs: ${locsLoading ? 'loading' : 'done'} (${databankLocs?.length || 0} items, updated: ${new Date(locsUpdatedAt).toISOString()})`);
 
   const data = useMemo(() => {
+    console.time('[useMergedLocations] merge');
     const locs = databankLocs ?? [];
     const planetList = planets ?? [];
 
-    return locs.map((loc) => {
+    const result = locs.map((loc) => {
       const matchingPlanet = planetList.find(
         (p) => p.name.toLowerCase() === loc.name.toLowerCase(),
       );
@@ -483,6 +601,9 @@ export function useMergedLocations() {
         planet: matchingPlanet,
       };
     });
+    console.timeEnd('[useMergedLocations] merge');
+    console.log(`[useMergedLocations] Merged: ${result.length} locations`);
+    return result;
   }, [planets, databankLocs]);
 
   return {

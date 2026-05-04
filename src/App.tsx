@@ -13,6 +13,29 @@ const queryClient = new QueryClient({
       retry: 2,
     },
   },
+  logger: {
+    log: (...args) => console.log("[TanStack]", ...args),
+    warn: (...args) => console.warn("[TanStack]", ...args),
+    error: (...args) => console.error("[TanStack]", ...args),
+  },
+});
+
+// Log query cache events
+queryClient.getQueryCache().subscribe((event) => {
+  if (event.type === 'added') {
+    console.log("[TanStack Cache] Query added:", event.query.queryKey);
+  }
+  if (event.type === 'updated') {
+    const query = event.query;
+    console.log(`[TanStack Cache] Query updated:`, query.queryKey, {
+      status: query.state.status,
+      dataUpdatedAt: query.state.dataUpdatedAt ? new Date(query.state.dataUpdatedAt).toISOString() : null,
+      isFetching: query.state.isFetching,
+    });
+  }
+  if (event.type === 'removed') {
+    console.log("[TanStack Cache] Query removed:", event.query.queryKey);
+  }
 });
 
 function Router() {

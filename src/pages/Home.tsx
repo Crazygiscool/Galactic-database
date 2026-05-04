@@ -147,6 +147,43 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // Log loading state changes
+  useEffect(() => {
+    console.log("[Home] Loading state:", {
+      planets: planetsLoading,
+      films: filmsLoading,
+      starships: starshipsLoading,
+      vehicles: vehiclesLoading,
+      characters: charactersLoading,
+      creatures: creaturesLoading,
+      droids: droidsLoading,
+      locations: locationsLoading,
+      organizations: organizationsLoading,
+      species: speciesLoading,
+    });
+  }, [planetsLoading, filmsLoading, starshipsLoading, vehiclesLoading, charactersLoading, creaturesLoading, droidsLoading, locationsLoading, organizationsLoading, speciesLoading]);
+
+  // Log when all data is loaded
+  useEffect(() => {
+    const allLoaded = !planetsLoading && !filmsLoading && !starshipsLoading && !vehiclesLoading && 
+                    !charactersLoading && !creaturesLoading && !droidsLoading && 
+                    !locationsLoading && !organizationsLoading && !speciesLoading;
+    if (allLoaded) {
+      console.log("[Home] All data loaded!", {
+        planets: planets?.length,
+        films: films?.length,
+        characters: characters?.length,
+        starships: starships?.length,
+        vehicles: vehicles?.length,
+        creatures: creatures?.length,
+        droids: droids?.length,
+        locations: mergedLocations?.length,
+        organizations: organizations?.length,
+        species: species?.length,
+      });
+    }
+  }, [planetsLoading, filmsLoading, starshipsLoading, vehiclesLoading, charactersLoading, creaturesLoading, droidsLoading, locationsLoading, organizationsLoading, speciesLoading, planets, films, characters, starships, vehicles, creatures, droids, mergedLocations, organizations, species]);
+
   const allData = useMemo(
     () => ({
       planets: planets ?? [],
