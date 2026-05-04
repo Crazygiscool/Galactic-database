@@ -10,7 +10,7 @@ import {
   useNameLookup,
   Section,
 } from "@/hooks/use-swapi";
-import { useMergedPlanetWithCustom, useUpsertCustomPlanet } from "@/hooks/use-custom-api";
+import { useCustomPlanet, useUpsertCustomPlanet } from "@/hooks/use-custom-api";
 
 const font = "'Share Tech Mono', monospace";
 
@@ -348,8 +348,16 @@ export function PlanetDetailPanel({
     image: string;
   }>;
 }) {
-  const { data: customData } = useCustomPlanet(planet.id);
+  console.log("[PlanetDetailPanel] Rendering for planet:", planet?.name, "id:", planet?.id);
+  
+  const { data: customData, isLoading: customLoading, error: customError } = useCustomPlanet(planet.id);
   const upsertMutation = useUpsertCustomPlanet();
+  
+  console.log("[PlanetDetailPanel] Custom data:", { customData, customLoading, customError });
+  
+  if (customError) {
+    console.error("[PlanetDetailPanel] Error loading custom data:", customError);
+  }
   
   const [isEditing, setIsEditing] = React.useState(false);
   const [editNotes, setEditNotes] = React.useState("");

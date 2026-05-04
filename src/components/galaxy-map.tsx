@@ -412,8 +412,15 @@ export function GalaxyMap({ planets, selectedId, onSelect, onBlurChange }: Galax
   }, []);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    console.log("[GalaxyMap] Click detected", { 
+      hoveredPlanet: hoveredPlanet?.name, 
+      id: hoveredPlanet?.id 
+    });
     if (hoveredPlanet) {
+      console.log("[GalaxyMap] Calling onSelect with id:", hoveredPlanet.id);
       onSelect(hoveredPlanet.id);
+    } else {
+      console.warn("[GalaxyMap] No planet hovered, click ignored");
     }
   }, [hoveredPlanet, onSelect]);
 

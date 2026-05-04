@@ -19,6 +19,7 @@ import {
   Person,
   DatabankItem,
 } from "@/hooks/use-swapi";
+// ErrorBoundary removed - was causing ReferenceError
 import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
 import { TopBar, BottomNav, Theme } from "@/components/bottom-nav";
@@ -241,6 +242,7 @@ export default function Home() {
   }, []);
 
   const handleSectionChange = (s: Section) => {
+    console.log("[Home] Section changing to:", s);
     setSection(s);
     setSearch("");
     setSelectedId(null);
@@ -301,6 +303,14 @@ export default function Home() {
     section === "planets"
       ? (planets ?? []).find((p) => p.id === selectedId)
       : undefined;
+  
+  // Debug logging for selection changes
+  useEffect(() => {
+    console.log("[Home] selectedId changed:", selectedId);
+    console.log("[Home] selectedPlanet:", selectedPlanet?.name);
+    console.log("[Home] hasDetail:", !!selectedPlanet);
+  }, [selectedId, selectedPlanet]);
+
   const selectedFilm =
     section === "films"
       ? (films ?? []).find((f) => f.id === selectedId)
@@ -754,15 +764,18 @@ export default function Home() {
                 overflow: "hidden",
                 boxShadow: "-8px 0 24px rgba(0,0,0,0.6)",
               }}
-            >
-              {selectedPlanet && (
-                <PlanetDetailPanel
-                  planet={selectedPlanet}
-                  onClose={() => setSelectedId(null)}
-                  onLinkClick={handleLinkClick}
-                  locations={planetLocations}
-                />
-              )}
+              >
+                {selectedPlanet && (
+                  <>
+                    {console.log("[Home] Rendering PlanetDetailPanel for:", selectedPlanet.name)}
+                    <PlanetDetailPanel
+                      planet={selectedPlanet}
+                      onClose={() => setSelectedId(null)}
+                      onLinkClick={handleLinkClick}
+                      locations={planetLocations}
+                    />
+                  </>
+                )}
               {selectedFilm && (
                 <FilmDetailPanel
                   film={selectedFilm}
