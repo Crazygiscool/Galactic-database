@@ -1,5 +1,5 @@
 import React from "react";
-import { X, ChevronRight } from "lucide-react";
+import { X, ChevronRight, Star, Heart, Pencil } from "lucide-react";
 import {
   Film,
   Person,
@@ -10,6 +10,7 @@ import {
   useNameLookup,
   Section,
 } from "@/hooks/use-swapi";
+import { useMergedPlanetWithCustom, useUpsertCustomPlanet } from "@/hooks/use-custom-api";
 
 const font = "'Share Tech Mono', monospace";
 
@@ -347,13 +348,38 @@ export function PlanetDetailPanel({
     image: string;
   }>;
 }) {
+  const { data: customData } = useCustomPlanet(planet.id);
+  const upsertMutation = useUpsertCustomPlanet();
+  
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editNotes, setEditNotes] = React.useState("");
+  const [editRating, setEditRating] = React.useState<number | undefined>(undefined);
+  const [editFavorite, setEditFavorite] = React.useState(false);
+  
+  const handleEdit = () => {
+    setEditNotes(customData?.customNotes || "");
+    setEditRating(customData?.userRating || undefined);
+    setEditFavorite(customData?.isFavorite || false);
+    setIsEditing(true);
+  };
+  
+  const handleSave = () => {
+    upsertMutation.mutate({
+      planetId: planet.id,
+      customNotes: editNotes,
+      userRating: editRating,
+      isFavorite: editFavorite,
+    });
+    setIsEditing(false);
+  };
+  
   return (
     <PanelShell
       title={planet.name}
-      subtitle="SYSTEM.DESIGNATION"
+      subtitle="SYSTEM DESIGNATION"
       onClose={onClose}
     >
-      <SectionTitle title="ENVIRONMENTAL.DAT" />
+      <SectionTitle title="ENVIRONMENTAL DATA" />
       <Row label="Climate" value={planet.climate} />
       <Row label="Terrain" value={planet.terrain} />
       <Row label="Population" value={planet.population} />
@@ -365,7 +391,7 @@ export function PlanetDetailPanel({
 
       {locations && locations.length > 0 && (
         <>
-          <SectionTitle title="KNOWN.LOCATIONS" />
+          <SectionTitle title="KNOWN LOCATIONS" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
             {locations.map((loc) => (
               <button
@@ -404,11 +430,161 @@ export function PlanetDetailPanel({
 
       {planet.residents.length > 0 && (
         <>
-          <SectionTitle title="KNOWN.PERSONNEL" />
+          <SectionTitle title="KNOWN PERSONNEL" />
           {planet.residents.map((url) => (
             <ResidentRow key={url} url={url} onLinkClick={onLinkClick} />
           ))}
         </>
+      )}
+
+      <SectionTitle title="CUSTOM DATA" />
+      {isEditing ? (
+        <div style={{ padding: "8px 0" }}>
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ fontSize: 10, color: "var(--muted-foreground)", display: "block", marginBottom: 4 }}>
+              Notes
+            </label>
+            <textarea
+              value={editNotes}
+              onChange={(e) => setEditNotes(e.target.value)}
+              style={{
+                width: "100%",
+                minHeight: 60,
+                background: "var(--muted)",
+                border: "1px solid var(--border)",
+                color: "var(--foreground)",
+                fontFamily: font,
+                fontSize: 11,
+                padding: 6,
+              }}
+            />
+          </div>
+          <div style={{ marginBottom: 8, display: "flex", gap: 8, alignItems: "center" }}>
+            <label style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+              Rating (1-5)
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={5}
+              value={editRating || ""}
+              onChange={(e) => setEditRating(e.target.value ? Number(e.target.value) : undefined)}
+              style={{
+                width: 60,
+                background: "var(--muted)",
+                border: "1px solid var(--border)",
+                color: "var(--foreground)",
+                fontFamily: font,
+                fontSize: 11,
+                padding: "4px 6px",
+              }}
+            />
+          </div>
+          <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="checkbox"
+              checked={editFavorite}
+              onChange={(e) => setEditFavorite(e.target.checked)}
+              id="favorite-checkbox"
+            />
+            <label htmlFor="favorite-checkbox" style={{ fontSize: 10, color: "var(--muted-foreground)", cursor: "pointer" }}>
+              <Heart style={{ width: 12, height: 12, display: "inline", color: editFavorite ? "var(--primary)" : "var(--muted-foreground)" }} /> Favorite
+            </label>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={handleSave}
+              disabled={upsertMutation.isPending}
+              style={{
+                padding: "6px 12px",
+                background: "var(--primary)",
+                color: "var(--primary-foreground)",
+                border: "none",
+                fontFamily: font,
+                fontSize: 10,
+                cursor: upsertMutation.isPending ? "not-allowed" : "pointer",
+                opacity: upsertMutation.isPending ? 0.5 : 1,
+              }}
+            >
+              {upsertMutation.isPending ? "SAVING..." : "SAVE"}
+            </button>
+            <button
+              onClick={() => setIsEditing(false)}
+              style={{
+                padding: "6px 12px",
+                background: "var(--muted)",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                fontFamily: font,
+                fontSize: 10,
+                cursor: "pointer",
+              }}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          {customData?.customNotes && (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginBottom: 4 }}>NOTES</div>
+              <div style={{ fontSize: 11, color: "var(--foreground)", lineHeight: 1.5 }}>
+                {customData.customNotes}
+              </div>
+            </div>
+          )}
+          {customData?.userRating && (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginBottom: 4 }}>RATING</div>
+              <div style={{ display: "flex", gap: 2 }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    style={{
+                      width: 14,
+                      height: 14,
+                      color: star <= customData.userRating! ? "var(--primary)" : "var(--muted)",
+                      fill: star <= customData.userRating! ? "var(--primary)" : "none",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          {customData?.isFavorite && (
+            <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+              <Heart style={{ width: 16, height: 16, color: "var(--primary)", fill: "var(--primary)" }} />
+              <span style={{ fontSize: 11, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Favorite
+              </span>
+            </div>
+          )}
+          {!customData && (
+            <div style={{ fontSize: 10, color: "var(--muted-foreground)", fontStyle: "italic" }}>
+              No custom data yet
+            </div>
+          )}
+          <button
+            onClick={handleEdit}
+            style={{
+              marginTop: 8,
+              padding: "4px 8px",
+              background: "transparent",
+              border: "1px solid var(--border)",
+              color: "var(--primary)",
+              fontFamily: font,
+              fontSize: 10,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <Pencil style={{ width: 12, height: 12 }} />
+            {customData ? "EDIT" : "ADD"} CUSTOM DATA
+          </button>
+        </div>
       )}
     </PanelShell>
   );

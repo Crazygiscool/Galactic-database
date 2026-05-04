@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API specification for custom Star Wars data
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: custom
+    description: Custom data operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,84 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  
+  /custom/planets:
+    get:
+      operationId: getCustomPlanets
+      tags: [custom]
+      summary: Get custom planet data
+      description: Returns custom planet data (ratings, notes, etc.)
+      parameters:
+        - name: planetId
+          in: query
+          description: Filter by specific planet ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Custom planet data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomPlanet"
+    post:
+      operationId: upsertCustomPlanet
+      tags: [custom]
+      summary: Create or update custom planet data
+      description: Upserts custom planet data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomPlanetInput"
+      responses:
+        "200":
+          description: Created/updated custom planet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomPlanet"
+  
+  /custom/films:
+    get:
+      operationId: getCustomFilms
+      tags: [custom]
+      summary: Get custom film data
+      parameters:
+        - name: filmId
+          in: query
+          description: Filter by specific film ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Custom film data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomFilm"
+    post:
+      operationId: upsertCustomFilm
+      tags: [custom]
+      summary: Create or update custom film data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomFilmInput"
+      responses:
+        "200":
+          description: Created/updated custom film
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomFilm"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +113,94 @@ components:
           type: string
       required:
         - status
+    
+    CustomPlanet:
+      type: object
+      properties:
+        id:
+          type: integer
+        planetId:
+          type: string
+        customNotes:
+          type: string
+          nullable: true
+        userRating:
+          type: integer
+          nullable: true
+        isFavorite:
+          type: boolean
+        customImage:
+          type: string
+          nullable: true
+        tags:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - planetId
+    
+    CustomPlanetInput:
+      type: object
+      properties:
+        planetId:
+          type: string
+        customNotes:
+          type: string
+        userRating:
+          type: integer
+        isFavorite:
+          type: boolean
+        customImage:
+          type: string
+        tags:
+          type: string
+      required:
+        - planetId
+    
+    CustomFilm:
+      type: object
+      properties:
+        id:
+          type: integer
+        filmId:
+          type: string
+        customNotes:
+          type: string
+          nullable: true
+        userRating:
+          type: integer
+          nullable: true
+        isFavorite:
+          type: boolean
+        watchedCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - filmId
+    
+    CustomFilmInput:
+      type: object
+      properties:
+        filmId:
+          type: string
+        customNotes:
+          type: string
+        userRating:
+          type: integer
+        isFavorite:
+          type: boolean
+        watchedCount:
+          type: integer
+      required:
+        - filmId
 
