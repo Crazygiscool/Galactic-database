@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Section,
   useGalacticMapAllPlanets,
-  useFilms,
   useStarships,
   useVehicles,
   useMergedCharacters,
@@ -13,23 +12,23 @@ import {
   useDatabankOrganizations,
   useDatabankSpecies,
   Planet,
-  Film,
   Starship,
   Vehicle,
   Person,
   DatabankItem,
 } from "@/hooks/use-swapi";
+import { TIMELINE_ERAS } from "@/data/timeline";
 // ErrorBoundary removed - was causing ReferenceError
 import { GalaxyMap } from "@/components/galaxy-map";
 import { ScanlineOverlay } from "@/components/terminal-effects";
 import { TopBar, BottomNav, Theme } from "@/components/bottom-nav";
-import { FilmsList, StarshipsList, VehiclesList } from "@/components/list-view";
+import { StarshipsList, VehiclesList } from "@/components/list-view";
+import { TimelineView } from "@/components/timeline-view";
 
 
 import { DatabankList, DatabankDetailPanel } from "@/components/databank-list";
 import {
   PlanetDetailPanel,
-  FilmDetailPanel,
   PersonDetailPanel,
   StarshipDetailPanel,
   VehicleDetailPanel,
@@ -130,7 +129,6 @@ export default function Home() {
   const [mapBlur, setMapBlur] = useState(0);
 
   const { data: planets, isLoading: planetsLoading } = useGalacticMapAllPlanets();
-  const { data: films, isLoading: filmsLoading } = useFilms();
   const { data: starships, isLoading: starshipsLoading } = useStarships();
   const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
   const { data: characters, isLoading: charactersLoading } =
@@ -152,7 +150,6 @@ export default function Home() {
   useEffect(() => {
     console.log("[Home] Loading state:", {
       planets: planetsLoading,
-      films: filmsLoading,
       starships: starshipsLoading,
       vehicles: vehiclesLoading,
       characters: charactersLoading,
@@ -162,45 +159,27 @@ export default function Home() {
       organizations: organizationsLoading,
       species: speciesLoading,
     });
-  }, [planetsLoading, filmsLoading, starshipsLoading, vehiclesLoading, charactersLoading, creaturesLoading, droidsLoading, locationsLoading, organizationsLoading, speciesLoading]);
+  }, [planetsLoading, starshipsLoading, vehiclesLoading, charactersLoading, creaturesLoading, droidsLoading, locationsLoading, organizationsLoading, speciesLoading]);
 
-  // Log when all data is loaded
-  useEffect(() => {
-    const allLoaded = !planetsLoading && !filmsLoading && !starshipsLoading && !vehiclesLoading && 
-                    !charactersLoading && !creaturesLoading && !droidsLoading && 
-                    !locationsLoading && !organizationsLoading && !speciesLoading;
-    if (allLoaded) {
-      console.log("[Home] All data loaded!", {
-        planets: planets?.length,
-        films: films?.length,
-        characters: characters?.length,
-        starships: starships?.length,
-        vehicles: vehicles?.length,
-        creatures: creatures?.length,
-        droids: droids?.length,
-        locations: mergedLocations?.length,
-        organizations: organizations?.length,
-        species: species?.length,
-      });
-    }
-  }, [planetsLoading, filmsLoading, starshipsLoading, vehiclesLoading, charactersLoading, creaturesLoading, droidsLoading, locationsLoading, organizationsLoading, speciesLoading, planets, films, characters, starships, vehicles, creatures, droids, mergedLocations, organizations, species]);
-
-  const allData = useMemo(
+  const allData: Record<string, { id: string; title?: string; name?: string }[]> = useMemo(
     () => ({
-      planets: planets ?? [],
-      films: films ?? [],
-      characters: characters ?? [],
-      starships: starships ?? [],
-      vehicles: vehicles ?? [],
-      creatures: creatures ?? [],
-      droids: droids ?? [],
-      locations: mergedLocations ?? [],
-      organizations: organizations ?? [],
-      species: species ?? [],
+      planets: (planets ?? []) as any[],
+      timeline: TIMELINE_ERAS.flatMap((e) =>
+        e.entries
+          .filter((en) => en.type !== "Phase")
+          .map((en) => ({ id: en.id, title: en.title })),
+      ),
+      characters: (characters ?? []) as any[],
+      starships: (starships ?? []) as any[],
+      vehicles: (vehicles ?? []) as any[],
+      creatures: (creatures ?? []) as any[],
+      droids: (droids ?? []) as any[],
+      locations: (mergedLocations ?? []) as any[],
+      organizations: (organizations ?? []) as any[],
+      species: (species ?? []) as any[],
     }),
     [
       planets,
-      films,
       characters,
       starships,
       vehicles,
@@ -262,10 +241,6 @@ export default function Home() {
     () => filterBySearch(planets ?? [], search),
     [planets, search],
   );
-  const filteredFilms = useMemo(
-    () => filterBySearch(films ?? [], search),
-    [films, search],
-  );
   const filteredStarships = useMemo(
     () => filterBySearch(starships ?? [], search),
     [starships, search],
@@ -311,10 +286,6 @@ export default function Home() {
     console.log("[Home] hasDetail:", !!selectedPlanet);
   }, [selectedId, selectedPlanet]);
 
-  const selectedFilm =
-    section === "films"
-      ? (films ?? []).find((f) => f.id === selectedId)
-      : undefined;
   const selectedStarship =
     section === "starships"
       ? (starships ?? []).find((s) => s.id === selectedId)
@@ -351,7 +322,6 @@ export default function Home() {
 
   const hasDetail = !!(
     selectedPlanet ||
-    selectedFilm ||
     selectedStarship ||
     selectedVehicle ||
     selectedCharacter ||
@@ -360,7 +330,7 @@ export default function Home() {
 
   const isLoading =
     (section === "planets" && planetsLoading) ||
-    (section === "films" && filmsLoading) ||
+    (section === "timeline" && false) ||
     (section === "starships" && starshipsLoading) ||
     (section === "vehicles" && vehiclesLoading) ||
     (section === "characters" && charactersLoading) ||
@@ -372,7 +342,7 @@ export default function Home() {
 
   const totalCount: Record<Section, number> = {
     planets: planets?.length ?? 0,
-    films: films?.length ?? 0,
+    timeline: TIMELINE_ERAS.reduce((sum, e) => sum + e.entries.filter((en) => en.type !== "Phase").length, 0),
     characters: characters?.length ?? 0,
     starships: starships?.length ?? 0,
     vehicles: vehicles?.length ?? 0,
@@ -385,7 +355,7 @@ export default function Home() {
 
   const filteredCount: Record<Section, number> = {
     planets: filteredPlanets.length,
-    films: filteredFilms.length,
+    timeline: totalCount.timeline,
     characters: filteredCharacters.length,
     starships: filteredStarships.length,
     vehicles: filteredVehicles.length,
@@ -406,8 +376,8 @@ export default function Home() {
 
   const getItemsForSection = () => {
     switch (section) {
-      case "films":
-        return filteredFilms;
+      case "timeline":
+        return [];
       case "starships":
         return filteredStarships;
       case "vehicles":
@@ -504,16 +474,8 @@ export default function Home() {
 
   const renderListSection = () => {
     switch (section) {
-      case "films":
-        return (
-          <FilmsList
-            films={paginatedItems as Film[]}
-            selectedId={selectedId}
-            onSelect={(id) =>
-              setSelectedId((prev) => (prev === id ? null : id))
-            }
-          />
-        );
+      case "timeline":
+        return null;
       case "starships":
         return (
           <StarshipsList
@@ -691,6 +653,17 @@ export default function Home() {
                 />
               )}
             </motion.div>
+          ) : section === "timeline" ? (
+            <motion.div
+              key={section}
+              style={{ flex: 1, overflow: "hidden" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              <TimelineView />
+            </motion.div>
           ) : (
             <motion.div
               key={section}
@@ -776,13 +749,6 @@ export default function Home() {
                     />
                   </>
                 )}
-              {selectedFilm && (
-                <FilmDetailPanel
-                  film={selectedFilm}
-                  onClose={() => setSelectedId(null)}
-                  onLinkClick={handleLinkClick}
-                />
-              )}
               {selectedCharacter && (
                 <PersonDetailPanel
                   person={selectedCharacter}
@@ -890,13 +856,6 @@ export default function Home() {
                 onClose={() => setSelectedId(null)}
                 onLinkClick={handleLinkClick}
                 locations={planetLocations}
-              />
-            )}
-            {selectedFilm && (
-              <FilmDetailPanel
-                film={selectedFilm}
-                onClose={() => setSelectedId(null)}
-                onLinkClick={handleLinkClick}
               />
             )}
             {selectedCharacter && (

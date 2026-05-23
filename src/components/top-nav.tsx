@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Globe,
-  Film,
+  ListOrdered,
   User,
   Rocket,
   Truck,
@@ -49,7 +49,7 @@ const THEMES: { key: Theme; label: string; color: string }[] = [
 
 const NAV_ITEMS: { key: Section; label: string; icon: React.ElementType }[] = [
   { key: "planets", label: "PLANETS", icon: Globe },
-  { key: "films", label: "FILMS", icon: Film },
+  { key: "timeline", label: "TIMELINE", icon: ListOrdered },
   { key: "characters", label: "CHARACTERS", icon: Users },
   { key: "starships", label: "STARSHIPS", icon: Rocket },
   { key: "vehicles", label: "VEHICLES", icon: Truck },

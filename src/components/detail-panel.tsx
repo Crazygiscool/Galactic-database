@@ -105,7 +105,7 @@ function LinkTag({
     planets: "planets",
     starships: "starships",
     vehicles: "vehicles",
-    films: "films",
+    films: "timeline",
     species: "species",
   };
 

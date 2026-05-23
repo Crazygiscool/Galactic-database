@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 export type Section =
   | "planets"
-  | "films"
+  | "timeline"
   | "characters"
   | "starships"
   | "vehicles"
@@ -314,28 +314,6 @@ export function useGalacticMapAllPlanets() {
     data,
     isLoading,
   };
-}
-
-export function useFilms() {
-  return useQuery<Film[]>({
-    queryKey: ["films"],
-    queryFn: async () => {
-      console.time("[Query] films");
-      try {
-        const result = await fetchAllSWAPIInfo<Film>("films");
-        console.timeEnd("[Query] films");
-        console.log(`[Query] films: Loaded ${result.length} items`);
-        return result;
-      } catch (error) {
-        console.timeEnd("[Query] films");
-        console.error("[Query] films: FAILED", error);
-        throw error;
-      }
-    },
-    staleTime: STALE,
-    onSuccess: (data) => console.log("[Query] films: Success", { count: data.length }),
-    onError: (error) => console.error("[Query] films: Error", error),
-  });
 }
 
 export function usePeople() {
