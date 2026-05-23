@@ -28,7 +28,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 };
 
 function TypeIcon({ type }: { type: string }) {
-  const props = { style: { width: 12, height: 12 } };
+  const props = { style: { width: 14, height: 14 } };
   switch (type) {
     case "Movie": return <Film {...props} />;
     case "Series": return <Monitor {...props} />;
@@ -42,40 +42,87 @@ function TypeIcon({ type }: { type: string }) {
   }
 }
 
-export function TimelineCard({ entry }: { entry: TimelineEntry }) {
+export function TimelineCard({ entry, side }: { entry: TimelineEntry; side: "above" | "below" }) {
   const [expanded, setExpanded] = useState(false);
-
-  const isPhase = entry.type === "Phase";
-
-  if (isPhase) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "6px 0",
-          borderBottom: "1px solid var(--border)",
-        }}
-      >
-        <div style={{ width: 1, height: 16, background: "var(--primary)", opacity: 0.4 }} />
-        <span
-          style={{
-            fontSize: 9,
-            color: "var(--muted-foreground)",
-            fontFamily: font,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-          }}
-        >
-          {entry.title}{entry.description ? ` — ${entry.description}` : ""}
-        </span>
-      </div>
-    );
-  }
 
   const typeCfg = TYPE_CONFIG[entry.type] ?? TYPE_CONFIG.Movie;
   const hasDetail = entry.description || entry.creator || entry.note || entry.status;
+
+  const compactSection = (
+    <div style={{ padding: "12px 14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
+        <Clock style={{ width: 11, height: 11, color: "var(--muted-foreground)" }} />
+        <span style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.08em" }}>
+          {entry.date}
+        </span>
+      </div>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 3,
+          fontSize: 9,
+          color: typeCfg.color,
+          background: typeCfg.bg,
+          padding: "2px 6px",
+          letterSpacing: "0.1em",
+          marginBottom: 4,
+        }}
+      >
+        <TypeIcon type={entry.type} />
+        {typeCfg.label}
+      </span>
+      <div
+        style={{
+          fontSize: 11,
+          color: expanded ? "var(--foreground)" : "var(--muted-foreground)",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          lineHeight: 1.3,
+          textShadow: expanded ? "0 0 4px var(--primary)" : "none",
+          marginTop: 2,
+          wordBreak: "break-word",
+        }}
+      >
+        {entry.title}
+      </div>
+    </div>
+  );
+
+  const detailSection = (
+    <motion.div
+      initial={false}
+      animate={{
+        height: expanded && hasDetail ? "auto" : 0,
+        opacity: expanded && hasDetail ? 1 : 0,
+      }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      style={{ overflow: "hidden" }}
+    >
+      <div style={{ padding: "0 14px 14px", borderTop: "1px solid var(--border)" }}>
+        {entry.status && (
+          <div style={{ fontSize: 9, color: "#ff6b6b", letterSpacing: "0.1em", marginTop: 6, marginBottom: 3 }}>
+            {entry.status.toUpperCase()}
+          </div>
+        )}
+        {entry.creator && (
+          <div style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.08em", marginBottom: 3 }}>
+            {entry.creator.toUpperCase()}
+          </div>
+        )}
+        {entry.description && (
+          <div style={{ fontSize: 10, color: "var(--muted-foreground)", lineHeight: 1.4, letterSpacing: "0.04em" }}>
+            {entry.description}
+          </div>
+        )}
+        {entry.note && (
+          <div style={{ fontSize: 9, color: "var(--muted-foreground)", fontStyle: "italic", letterSpacing: "0.06em", marginTop: 3 }}>
+            [{entry.note}]
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
 
   return (
     <motion.div
@@ -83,134 +130,55 @@ export function TimelineCard({ entry }: { entry: TimelineEntry }) {
       onMouseLeave={() => setExpanded(false)}
       onTap={() => setExpanded((e) => !e)}
       style={{
-        width: expanded ? 260 : 200,
+        width: 280,
         background: "var(--card)",
         border: `1px solid ${expanded ? "var(--primary)" : "var(--border)"}`,
         boxShadow: expanded
           ? "0 0 20px color-mix(in srgb, var(--primary) 20%, transparent)"
-          : "0 0 8px rgba(0,0,0,0.3)",
+          : "0 0 6px rgba(0,0,0,0.3)",
         fontFamily: font,
         cursor: "pointer",
         flexShrink: 0,
-        transition: "width 0.25s ease, border-color 0.25s, box-shadow 0.25s",
+        display: "flex",
+        flexDirection: "column",
+        transition: "border-color 0.25s, box-shadow 0.25s",
       }}
     >
-      <div style={{ padding: "8px 10px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            marginBottom: 4,
-          }}
-        >
-          <Clock style={{ width: 10, height: 10, color: "var(--muted-foreground)" }} />
-          <span
+      {side === "above" ? (
+        <>
+          {detailSection}
+          {compactSection}
+          <div
             style={{
-              fontSize: 9,
-              color: "var(--muted-foreground)",
-              letterSpacing: "0.08em",
+              width: 0,
+              height: 0,
+              alignSelf: "center",
+              borderLeft: "12px solid transparent",
+              borderRight: "12px solid transparent",
+              borderTop: "14px solid var(--card)",
+              marginTop: -1,
+              flexShrink: 0,
             }}
-          >
-            {entry.date}
-          </span>
-        </div>
-
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 3,
-            fontSize: 8,
-            color: typeCfg.color,
-            background: typeCfg.bg,
-            padding: "1px 5px",
-            letterSpacing: "0.1em",
-            marginBottom: 4,
-          }}
-        >
-          <TypeIcon type={entry.type} />
-          {typeCfg.label}
-        </span>
-
-        <div
-          style={{
-            fontSize: expanded ? 11 : 10,
-            color: "var(--foreground)",
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            lineHeight: 1.3,
-            textShadow: expanded ? "0 0 4px var(--primary)" : "none",
-            marginTop: 2,
-          }}
-        >
-          {entry.title}
-        </div>
-
-        <motion.div
-          initial={false}
-          animate={{
-            height: expanded && hasDetail ? "auto" : 0,
-            opacity: expanded && hasDetail ? 1 : 0,
-            marginTop: expanded && hasDetail ? 6 : 0,
-          }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          style={{ overflow: "hidden" }}
-        >
-          {entry.status && (
-            <div
-              style={{
-                fontSize: 8,
-                color: "#ff6b6b",
-                letterSpacing: "0.1em",
-                marginBottom: 3,
-              }}
-            >
-              {entry.status.toUpperCase()}
-            </div>
-          )}
-
-          {entry.creator && (
-            <div
-              style={{
-                fontSize: 8,
-                color: "var(--muted-foreground)",
-                letterSpacing: "0.08em",
-                marginBottom: 3,
-              }}
-            >
-              {entry.creator.toUpperCase()}
-            </div>
-          )}
-
-          {entry.description && (
-            <div
-              style={{
-                fontSize: 9,
-                color: "var(--muted-foreground)",
-                lineHeight: 1.4,
-                letterSpacing: "0.04em",
-              }}
-            >
-              {entry.description}
-            </div>
-          )}
-
-          {entry.note && (
-            <div
-              style={{
-                fontSize: 8,
-                color: "var(--muted-foreground)",
-                fontStyle: "italic",
-                letterSpacing: "0.06em",
-                marginTop: 2,
-              }}
-            >
-              [{entry.note}]
-            </div>
-          )}
-        </motion.div>
-      </div>
+          />
+        </>
+      ) : (
+        <>
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              alignSelf: "center",
+              borderLeft: "12px solid transparent",
+              borderRight: "12px solid transparent",
+              borderBottom: "14px solid var(--card)",
+              marginBottom: -1,
+              flexShrink: 0,
+            }}
+          />
+          {compactSection}
+          {detailSection}
+        </>
+      )}
     </motion.div>
   );
 }

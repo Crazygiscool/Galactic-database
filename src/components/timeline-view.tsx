@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { TIMELINE_ERAS, TimelineEntry } from "@/data/timeline";
 import { TimelineCard } from "@/components/timeline-card";
 
@@ -16,9 +17,25 @@ const ERA_COLORS = [
   { primary: "#95a5a6", dim: "color-mix(in srgb, #95a5a6 20%, transparent)" },
 ];
 
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.04 },
+  },
+};
+
+const cardUpVariants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
+
+const cardDownVariants = {
+  hidden: { opacity: 0, y: -24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
+
 function splitEntries(entries: TimelineEntry[]): { above: TimelineEntry[]; below: TimelineEntry[] } {
   const nonPhase = entries.filter((e) => e.type !== "Phase");
-  const phaseEntries = entries.filter((e) => e.type === "Phase");
 
   const above: TimelineEntry[] = [];
   const below: TimelineEntry[] = [];
@@ -45,9 +62,12 @@ function EraColumn({
   const { above, below } = splitEntries(era.entries);
   const phaseEntries = era.entries.filter((e) => e.type === "Phase");
 
+  const cardW = 280;
+  const gap = 28;
+  const pad = 40;
   const columnWidth = Math.max(
-    300,
-    Math.max(above.length, below.length) * 90 + 120,
+    340,
+    Math.max(above.length, below.length) * cardW + Math.max(0, Math.max(above.length, below.length) - 1) * gap + pad,
   );
 
   return (
@@ -56,13 +76,14 @@ function EraColumn({
         display: "flex",
         flexDirection: "column",
         minWidth: columnWidth,
-        maxWidth: columnWidth + 80,
+        maxWidth: columnWidth,
         height: "100%",
         position: "relative",
         flexShrink: 0,
+        scrollSnapAlign: "start",
       }}
     >
-      {/* Era header — angled vertical badge */}
+      {/* Era header */}
       <div
         style={{
           position: "absolute",
@@ -70,7 +91,7 @@ function EraColumn({
           left: 0,
           right: 0,
           zIndex: 10,
-          padding: "10px 14px",
+          padding: "14px 20px",
           background: "linear-gradient(180deg, var(--background) 60%, transparent)",
           pointerEvents: "none",
         }}
@@ -80,12 +101,12 @@ function EraColumn({
             display: "inline-flex",
             flexDirection: "column",
             borderLeft: `2px solid ${color.primary}`,
-            paddingLeft: 10,
+            paddingLeft: 12,
           }}
         >
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12,
               color: color.primary,
               fontFamily: font,
               letterSpacing: "0.15em",
@@ -97,7 +118,7 @@ function EraColumn({
           </span>
           <span
             style={{
-              fontSize: 8,
+              fontSize: 9,
               color: "var(--muted-foreground)",
               fontFamily: font,
               letterSpacing: "0.1em",
@@ -112,9 +133,9 @@ function EraColumn({
               color: "var(--muted-foreground)",
               fontFamily: font,
               letterSpacing: "0.06em",
-              marginTop: 4,
-              lineHeight: 1.4,
-              maxWidth: 280,
+              marginTop: 6,
+              lineHeight: 1.5,
+              maxWidth: 300,
             }}
           >
             {era.description}
@@ -123,97 +144,162 @@ function EraColumn({
       </div>
 
       {/* Above river */}
-      <div
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
         style={{
           flex: 1,
           display: "flex",
-          flexWrap: "wrap",
-          alignContent: "flex-end",
-          justifyContent: "center",
-          gap: 8,
-          padding: "60px 14px 16px",
+          flexWrap: "nowrap",
+          alignItems: "flex-end",
+          justifyContent: "flex-start",
+          gap: 28,
+          padding: "60px 20px 4px",
         }}
       >
         {above.map((entry) => (
-          <TimelineCard key={entry.id} entry={entry} />
+          <motion.div key={entry.id} variants={cardUpVariants}>
+            <TimelineCard entry={entry} side="above" />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Phase dividers on the river line */}
-      {phaseEntries.length > 0 && (
+      {/* Phase nodes on the river line */}
+      {phaseEntries.length > 0 && phaseEntries.map((p) => (
         <div
+          key={p.id}
           style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            zIndex: 6,
             display: "flex",
-            justifyContent: "center",
-            gap: 12,
-            padding: "2px 14px",
-            position: "relative",
-            zIndex: 5,
+            flexDirection: "column",
+            alignItems: "center",
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
           }}
         >
-          {phaseEntries.map((p) => (
-            <span
-              key={p.id}
-              style={{
-                fontSize: 7,
-                color: "var(--muted-foreground)",
-                fontFamily: font,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                background: "var(--background)",
-                padding: "0 6px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {p.title}{p.description ? `: ${p.description}` : ""}
-            </span>
-          ))}
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              background: color.primary,
+              transform: "rotate(45deg)",
+              boxShadow: `0 0 8px ${color.primary}`,
+            }}
+          />
+          <span
+            style={{
+              fontSize: 7,
+              color: color.primary,
+              fontFamily: font,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              marginTop: 4,
+              whiteSpace: "nowrap",
+              textShadow: `0 0 6px ${color.primary}`,
+            }}
+          >
+            {p.title}
+          </span>
         </div>
-      )}
+      ))}
 
       {/* Below river */}
-      <div
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
         style={{
           flex: 1,
           display: "flex",
-          flexWrap: "wrap",
-          alignContent: "flex-start",
-          justifyContent: "center",
-          gap: 8,
-          padding: "16px 14px 60px",
+          flexWrap: "nowrap",
+          alignItems: "flex-start",
+          justifyContent: "flex-start",
+          gap: 28,
+          padding: "4px 20px 60px",
         }}
       >
         {below.map((entry) => (
-          <TimelineCard key={entry.id} entry={entry} />
+          <motion.div key={entry.id} variants={cardDownVariants}>
+            <TimelineCard entry={entry} side="below" />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 export function TimelineView() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(0);
+  const outerRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
 
+  // Horizontal scroll via vertical wheel — capture on outer container to beat framer-motion
   useEffect(() => {
-    const el = scrollRef.current;
+    const el = outerRef.current;
     if (!el) return;
-    const onScroll = () => setScrollY(el.scrollLeft);
-    el.addEventListener("scroll", onScroll);
-    return () => el.removeEventListener("scroll", onScroll);
+    const onWheel = (e: WheelEvent) => {
+      const target = scrollRef.current;
+      if (!target) return;
+      e.preventDefault();
+      const delta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      target.scrollLeft += delta;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    return () => el.removeEventListener("wheel", onWheel, { capture: true });
   }, []);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (glowRef.current) {
+      glowRef.current.style.left = `${e.clientX - rect.left - 120}px`;
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (glowRef.current) glowRef.current.style.opacity = "1";
+  };
+
+  const handleMouseLeave = () => {
+    if (glowRef.current) glowRef.current.style.opacity = "0";
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight") {
+      scrollRef.current?.scrollBy({ left: 400, behavior: "smooth" });
+    } else if (e.key === "ArrowLeft") {
+      scrollRef.current?.scrollBy({ left: -400, behavior: "smooth" });
+    }
+  };
 
   return (
     <div
+      ref={outerRef}
+      tabIndex={0}
       style={{
         width: "100%",
         height: "100%",
         position: "relative",
         overflow: "hidden",
         background: "var(--background)",
+        outline: "none",
       }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onKeyDown={handleKeyDown}
     >
-      {/* Central river line — fixed glow */}
+      <style>{`
+        @keyframes river-pulse {
+          0%, 100% { box-shadow: 0 0 20px var(--primary), 0 0 60px color-mix(in srgb, var(--primary) 40%, transparent); }
+          50% { box-shadow: 0 0 30px var(--primary), 0 0 90px color-mix(in srgb, var(--primary) 50%, transparent); }
+        }
+      `}</style>
+
+      {/* Central river line */}
       <div
         style={{
           position: "absolute",
@@ -223,6 +309,7 @@ export function TimelineView() {
           height: 2,
           background: "linear-gradient(90deg, transparent 0%, var(--primary) 10%, var(--primary) 90%, transparent 100%)",
           boxShadow: "0 0 20px var(--primary), 0 0 60px color-mix(in srgb, var(--primary) 40%, transparent)",
+          animation: "river-pulse 3s ease-in-out infinite",
           zIndex: 2,
           transform: "translateY(-1px)",
           pointerEvents: "none",
@@ -233,14 +320,31 @@ export function TimelineView() {
       <div
         style={{
           position: "absolute",
-          top: "calc(50% - 30px)",
+          top: "calc(50% - 40px)",
           left: 0,
           right: 0,
-          height: 60,
-          background: "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 70%)",
+          height: 80,
+          background: "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--primary) 6%, transparent) 0%, transparent 70%)",
           zIndex: 1,
           pointerEvents: "none",
           transform: "translateY(-1px)",
+        }}
+      />
+
+      {/* Hover glow on the river line */}
+      <div
+        ref={glowRef}
+        style={{
+          position: "absolute",
+          top: "calc(50% - 24px)",
+          left: -9999,
+          width: 240,
+          height: 48,
+          background: `radial-gradient(ellipse at center, color-mix(in srgb, var(--primary) 50%, transparent) 0%, transparent 70%)`,
+          zIndex: 3,
+          pointerEvents: "none",
+          opacity: 0,
+          transition: "left 0.04s linear",
         }}
       />
 
@@ -251,7 +355,7 @@ export function TimelineView() {
           top: 0,
           left: 0,
           bottom: 0,
-          width: 60,
+          width: 80,
           background: "linear-gradient(90deg, var(--background) 0%, transparent 100%)",
           zIndex: 10,
           pointerEvents: "none",
@@ -265,7 +369,7 @@ export function TimelineView() {
           top: 0,
           right: 0,
           bottom: 0,
-          width: 60,
+          width: 80,
           background: "linear-gradient(270deg, var(--background) 0%, transparent 100%)",
           zIndex: 10,
           pointerEvents: "none",
@@ -278,86 +382,22 @@ export function TimelineView() {
         style={{
           width: "100%",
           height: "100%",
-          overflowX: "auto",
+          overflowX: "scroll",
           overflowY: "hidden",
           scrollbarWidth: "thin",
           scrollbarColor: "var(--border) transparent",
           position: "relative",
-          zIndex: 3,
+          zIndex: 4,
         }}
       >
-        <div style={{ display: "flex", height: "100%", minWidth: "100%" }}>
+        <div style={{ display: "flex", height: "100%", minWidth: "100%", position: "relative" }}>
           {TIMELINE_ERAS.map((era, i) => (
             <EraColumn key={era.id} era={era} index={i} />
           ))}
-
-          {/* End spacer */}
-          <div style={{ minWidth: 60, flexShrink: 0 }} />
+          <div style={{ minWidth: 80, flexShrink: 0 }} />
         </div>
       </div>
 
-      {/* Star-like particles floating along river */}
-      <ParticleField scrollY={scrollY} />
     </div>
-  );
-}
-
-function ParticleField({ scrollY }: { scrollY: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const particles: { x: number; y: number; size: number; speed: number; alpha: number }[] = [];
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: h * 0.3 + Math.random() * h * 0.4,
-        size: 0.5 + Math.random() * 1.5,
-        speed: 0.2 + Math.random() * 0.4,
-        alpha: 0.1 + Math.random() * 0.3,
-      });
-    }
-
-    let running = true;
-    const draw = () => {
-      if (!running) return;
-      ctx.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`;
-        ctx.fill();
-        p.x = ((p.x - p.speed * 0.5 - (scrollY * 0.01) % w) % w + w) % w;
-      }
-    };
-    const tick = () => { draw(); requestAnimationFrame(tick); };
-    const id = requestAnimationFrame(tick);
-    return () => { running = false; cancelAnimationFrame(id); };
-  }, [scrollY]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        zIndex: 0,
-        pointerEvents: "none",
-      }}
-    />
   );
 }
