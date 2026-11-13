@@ -17,6 +17,7 @@ import {
   Github,
 } from "lucide-react";
 import { Section } from "@/hooks/use-swapi";
+import { UserMenu } from "./user-menu";
 
 export type Theme =
   | "imperial"
@@ -430,6 +431,7 @@ export function TopBar({
           >
             <Github size={18} style={{ color: currentTheme.color }} />
           </a>
+          <UserMenu />
         </div>
 
         <AnimatePresence>
@@ -730,6 +732,7 @@ export function TopBar({
           >
             <Github size={14} style={{ color: currentTheme.color }} />
           </a>
+          <UserMenu />
           <AnimatePresence>
             {showThemeMenu && (
               <motion.div

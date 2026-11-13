@@ -5,7 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { useGlobalErrorHandler } from "@/hooks/use-global-error-handler";
+import { AuthProvider } from "@/context/auth-context";
 import Home from "@/pages/Home";
+import AuthPage from "@/pages/Auth";
+import ProfilePage from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -14,11 +17,6 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       retry: 2,
     },
-  },
-  logger: {
-    log: (...args) => console.log("[TanStack]", ...args),
-    warn: (...args) => console.warn("[TanStack]", ...args),
-    error: (...args) => console.error("[TanStack]", ...args),
   },
 });
 
@@ -32,7 +30,6 @@ queryClient.getQueryCache().subscribe((event) => {
     console.log(`[TanStack Cache] Query updated:`, query.queryKey, {
       status: query.state.status,
       dataUpdatedAt: query.state.dataUpdatedAt ? new Date(query.state.dataUpdatedAt).toISOString() : null,
-      isFetching: query.state.isFetching,
     });
   }
   if (event.type === 'removed') {
@@ -44,6 +41,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/auth" component={AuthPage} />
+      <Route path="/profile" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -56,13 +55,15 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-          <Analytics />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+            <Analytics />
+          </TooltipProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

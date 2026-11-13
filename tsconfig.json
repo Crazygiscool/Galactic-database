@@ -11,12 +11,17 @@
     "moduleResolution": "bundler",
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@workspace/db": ["./lib/db/src/index.ts"],
+      "@workspace/db/*": ["./lib/db/src/*"]
     }
   },
   "references": [
     {
       "path": "./lib/api-client-react"
+    },
+    {
+      "path": "./lib/db"
     }
   ]
 }

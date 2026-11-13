@@ -4,6 +4,9 @@ packages:
   - lib/integrations/*
   - scripts
 
+allowBuilds:
+  esbuild: true
+
 autoInstallPeers: false
 
 catalog:
@@ -16,6 +19,7 @@ catalog:
   '@types/react': ^19.2.0
   '@types/react-dom': ^19.2.0
   '@vitejs/plugin-react': ^5.0.4
+  better-auth: ^1.7.19
   class-variance-authority: ^0.7.1
   clsx: 2.1.1
   drizzle-orm: ^0.45.1
@@ -30,12 +34,6 @@ catalog:
   zod: ^3.25.76
 
 minimumReleaseAge: 1440
-
-onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-  - msw
-  - unrs-resolver
 
 overrides:
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0

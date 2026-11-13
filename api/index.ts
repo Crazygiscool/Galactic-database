@@ -9,8 +9,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Import routes after database is set up
+import authRouter from "./routes/auth.js";
 import customRouter from "./routes/custom.js";
 
+app.use("/api/auth", authRouter);
 app.use("/api/custom", customRouter);
 
 // Export for Vercel

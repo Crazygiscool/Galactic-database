@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, Easing } from "framer-motion";
 import { TIMELINE_ERAS, TimelineEntry } from "@/data/timeline";
 import { TimelineCard } from "@/components/timeline-card";
 
@@ -26,12 +26,12 @@ const containerVariants = {
 
 const cardUpVariants = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: Easing.easeOut } },
 };
 
 const cardDownVariants = {
   hidden: { opacity: 0, y: -24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: Easing.easeOut } },
 };
 
 function splitEntries(entries: TimelineEntry[]): { above: TimelineEntry[]; below: TimelineEntry[] } {

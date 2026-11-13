@@ -1,5 +1,6 @@
 // Export your models here. Add one export per file
-export * from "./planets";
+export * from "./auth";
+export * from "./user-profiles";
 export * from "./custom-data";
 //
 // Each model/table should ideally be split into different files.

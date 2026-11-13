@@ -18,7 +18,7 @@ interface LinkHandler {
   onLinkClick?: (section: Section, id: string) => void;
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: string | undefined }) {
   const display =
     !value || value === "unknown" || value === "n/a"
       ? "CLASSIFIED"

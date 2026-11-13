@@ -77,8 +77,10 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.7.19",
     "@vercel/analytics": "^2.0.1",
     "@vercel/functions": "^3.5.0",
+    "better-auth": "^1.7.19",
     "cors": "^2.8.6",
     "drizzle-orm": "catalog:",
     "express": "^5.2.1",
